@@ -82,3 +82,24 @@ The `blacklist-controller.js` is responsible for managing the tokens that have b
 ```http
 GET /users/logout
 ```
+
+# User Profile Endpoint Documentation
+
+## Endpoint: `/users/profile`
+
+### Method: GET
+
+### Description:
+
+This endpoint is used to retrieve the profile information of the authenticated user. It requires the user to be authenticated, and it returns a JSON object containing the user's details.
+
+### How It Works:
+
+- The endpoint uses an authentication middleware to verify the user's identity.
+- Once authenticated, the user's profile information is retrieved and returned in the response.
+
+### Example Request:
+
+```http
+GET /users/profile
+```
