@@ -103,3 +103,44 @@ This endpoint is used to retrieve the profile information of the authenticated u
 ```http
 GET /users/profile
 ```
+
+# Captain Registration Endpoint Documentation
+
+## Endpoint: `/captains/register`
+
+### Method: POST
+
+### Description:
+
+This endpoint is used to register a new captain in the system. It requires the captain's full name, email, and password and certain vehicle details like the color, number plate, capacity and type of vehicle the captain is registering to drive. Upon successful registration, it returns a JSON object containing an authentication token and the captain's details.
+
+### Request Body:
+
+The request body must be in JSON format and include the following fields:
+
+- `fullname`: An object containing:
+  - `firstname`: A string with a minimum length of 3 characters. This field is required.
+  - `lastname`: A string with a minimum length of 3 characters. This field is optional.
+- `email`: A string that must be a valid email format. This field is required and must be unique.
+- `password`: A string with a minimum length of 6 characters. This field is required.
+- `vehicleType`: An o bject containing: -`color`: A string with a minimum length of 3 characters. This field is required. -`plate`: A string with a minimum length of 4 characters. This field is required. -`capacity`: A numeric value with a minimum length of 1. This field is required. -`vehicleType`: Can have 3 values from the following. This field is also required. -`car` , -`auto`, -`motorcycle`
+
+Example:
+
+```json
+{
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Smith"
+  },
+  "email": "jane.smith@example.com",
+  "password": "securePassword123",
+
+  "vehicle": {
+    "color": "red",
+    "plate": "UP 8H BZ 9942",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
