@@ -144,3 +144,163 @@ Example:
   }
 }
 ```
+
+# Captains API Documentation
+
+## **Base URL**
+
+All endpoints are prefixed with `/captains`
+
+---
+
+## **Endpoints**
+
+### **1. POST /login**
+
+#### **Description:**
+
+Authenticate a captain and return a JSON Web Token (JWT) for subsequent requests.
+
+#### **Request:**
+
+- **Headers:**
+
+  - `Content-Type: application/json`
+
+- **Body:** (JSON)
+
+```json
+{
+  "email": "example@domain.com",
+  "password": "password123"
+}
+```
+
+#### **Response:**
+
+- **Success (200):**
+
+```json
+{
+  "token": "<JWT_TOKEN>",
+  "captain": {
+    "_id": "63e4b8dce1a7d3ab71",
+    "email": "example@domain.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+- **Error (400):**
+
+```json
+{
+  "message": "Invalid Email or Password"
+}
+```
+
+#### **Example CURL Command:**
+
+```bash
+curl -X POST http://<BASE_URL>/captains/login \
+-H "Content-Type: application/json" \
+-d '{"email": "example@domain.com", "password": "password123"}'
+```
+
+---
+
+### **2. GET /profile**
+
+#### **Description:**
+
+Retrieve the authenticated captain's profile.
+
+#### **Request:**
+
+- **Headers:**
+  - `Cookie: token=<JWT_TOKEN>`
+
+#### **Response:**
+
+- **Success (200):**
+
+```json
+{
+  "_id": "63e4b8dce1a7d3ab71",
+  "email": "example@domain.com",
+  "vehicle": {
+    "color": "red",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+- **Error (401):**
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### **Example CURL Command:**
+
+```bash
+curl -X GET http://<BASE_URL>/captains/profile \
+-H "Cookie: token=<JWT_TOKEN>"
+```
+
+---
+
+### **3. POST /logout**
+
+#### **Description:**
+
+Log out the authenticated captain and blacklist their token.
+
+#### **Request:**
+
+- **Headers:**
+  - `Cookie: token=<JWT_TOKEN>`
+
+#### **Response:**
+
+- **Success (200):**
+
+```json
+{
+  "message": "Logged out !"
+}
+```
+
+- **Error (400):**
+
+```json
+{
+  "message": "couldn't access token"
+}
+```
+
+- **Error (401):**
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### **Example CURL Command:**
+
+```bash
+curl -X POST http://<BASE_URL>/captains/logout \
+-H "Cookie: token=<JWT_TOKEN>"
+```
+
+---
