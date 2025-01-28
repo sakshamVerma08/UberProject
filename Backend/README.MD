@@ -56,3 +56,29 @@ Example:
   "password": "securePassword123"
 }
 ```
+
+# User Logout Endpoint Documentation
+
+## Endpoint: `/users/logout`
+
+### Method: GET
+
+### Description:
+
+This endpoint is used to log out a user by clearing the authentication token stored in the cookies and adding the token to a blacklist to prevent further use. This ensures that the token cannot be used again for authentication.
+
+### How It Works:
+
+- The endpoint retrieves the token from the cookies.
+- If a token is found, it is cleared from the cookies.
+- The token is then added to the blacklist using the `blacklist-controller.js` to ensure it cannot be reused.
+
+### Blacklist Controller:
+
+The `blacklist-controller.js` is responsible for managing the tokens that have been invalidated. It uses a Mongoose model to store tokens in a MongoDB collection with an expiration time of 24 hours (86400 seconds). This ensures that tokens are automatically removed from the blacklist after they expire.
+
+### Example Request:
+
+```http
+GET /users/logout
+```
