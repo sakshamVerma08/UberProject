@@ -5,9 +5,8 @@ const jwt = require("jsonwebtoken");
 const blackListTokenModel = require("../controllers/blacklist-controller");
 
 module.exports.authUser = async (req, res, next) => {
-  console.log("Cookies:", req.cookies);
-  const token = req.cookies.token;
-  // const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+  const authHeader = req.headers.authorization;
+  const token = req.cookies.token || (authHeader && authHeader.split(" ")[1]);
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -35,7 +34,8 @@ module.exports.authUser = async (req, res, next) => {
 };
 
 module.exports.authCaptain = async (req, res, next) => {
-  const token = req.cookies.token;
+  const authHeader = req.headers.authorization;
+  const token = req.cookies.token || (authHeader && authHeader.split(" ")[1]);
   if (!token) {
     return res.status(401).json({ message: "Token not generated correctly" });
   }
