@@ -15,7 +15,7 @@ const CaptainSignup = () => {
     setEmail("");
     setPassword("");
     setCaptainData({
-      username: {
+      fullname: {
         firstname: firstname,
         lastname: lastname,
       },

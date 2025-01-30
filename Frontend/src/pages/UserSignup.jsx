@@ -15,7 +15,7 @@ const UserSignup = () => {
     setEmail("");
     setPassword("");
     setUserData({
-      username: {
+      fullname: {
         firstname: firstname,
         lastname: lastname,
       },
