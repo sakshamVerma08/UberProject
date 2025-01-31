@@ -2,7 +2,8 @@
 
 #nprogress .bar {
   background: black !important;
-  height: 25px;
+  height: 7px;
+  transition: 0.8s ease-out;
 }
 
 #nprogress .peg {
