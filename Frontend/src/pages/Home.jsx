@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import "remixicon/fonts/remixicon.css";
@@ -9,6 +9,8 @@ const Home = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const panelRef = useRef(null);
   const panelClose = useRef(null);
+  const [vehiclePanel, setVehiclePanel] = useState(false);
+  const vehiclePanelRef = useRef(null);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -33,6 +35,18 @@ const Home = () => {
       });
     }
   }, [isPanelOpen]);
+
+  useGSAP(() => {
+    if (vehiclePanel) {
+      gsap.to(vehiclePanelRef.current, {
+        transform: "translateY(0)",
+      });
+    } else {
+      gsap.to(vehiclePanelRef.current, {
+        transform: "translateY(100%)",
+      });
+    }
+  }, [vehiclePanel]);
 
   return (
     <div className="relative h-screen overflow-hidden">
@@ -98,12 +112,34 @@ const Home = () => {
         </div>
 
         <div ref={panelRef} className="h-0 bg-white p-5  ">
-          <LocationSearchPanel />
+          <LocationSearchPanel
+            vehiclePanel={vehiclePanel}
+            setIsPanelOpen={setIsPanelOpen}
+            setVehiclePanel={setVehiclePanel}
+          />
         </div>
       </div>
 
-      <div className="p-3 bg-white z-10 fixed bottom-0">
-        <div className="flex border-2 border-black rounded-xl justify-between items-center w-full p-3">
+      {/* ******************* */}
+      {/* ********   VEHICLE PANEL ************/}
+
+      <div
+        ref={vehiclePanelRef}
+        className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-10  border-white"
+      >
+        <h5
+          onClick={() => {
+            setVehiclePanel(false);
+          }}
+          className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
+        >
+          <i className="ri-arrow-down-line text-3xl "></i>
+        </h5>
+        <h3 className="font-semibold text-2xl mb-3">Choose a Vehicle</h3>
+
+        {/* VEHICLE DIVS
+         ******************/}
+        <div className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2">
           {" "}
           <img
             className="h-16"
@@ -111,7 +147,7 @@ const Home = () => {
             alt="car png"
           />
           <div className=" w-1/2">
-            <h4 className="font-medium text-sm ">
+            <h4 className="font-medium text-base ">
               UberGo{" "}
               <span>
                 <i className="ri-user-3-fill"></i>4
@@ -124,9 +160,74 @@ const Home = () => {
           </div>
           <h2 className="font-semibold text-xl ">₹193.20</h2>
         </div>
+        {/* ***************************** */}
 
-        {/* moto png) https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s */}
-        {/* auto png) https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s */}
+        <div className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2">
+          {" "}
+          <img
+            className="h-16"
+            src=" https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s "
+            alt="car png"
+          />
+          <div className=" w-1/2">
+            <h4 className="font-medium text-base ">
+              UberGo{" "}
+              <span>
+                <i className="ri-user-3-fill"></i>4
+              </span>
+            </h4>
+            <h5 className="font-medium text-sm ">2 mins away </h5>
+            <p className="font-normal text-sm text-gray-400 ">
+              Affordable, compact rides
+            </p>
+          </div>
+          <h2 className="font-semibold text-xl ">₹193.20</h2>
+        </div>
+        {/* ***************************** */}
+
+        <div className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2">
+          {" "}
+          <img
+            className="h-16"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s "
+            alt="car png"
+          />
+          <div className=" w-1/2">
+            <h4 className="font-medium text-base ">
+              UberMoto{" "}
+              <span>
+                <i className="ri-user-3-fill"></i>1
+              </span>
+            </h4>
+            <h5 className="font-medium text-sm ">2 mins away </h5>
+            <p className="font-normal text-sm text-gray-400 ">
+              Affordable, motorcycle rides
+            </p>
+          </div>
+          <h2 className="font-semibold text-xl ">₹65.17</h2>
+        </div>
+        {/* ***************************** */}
+        <div className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2">
+          {" "}
+          <img
+            className="h-16"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s  "
+            alt="car png"
+          />
+          <div className=" w-1/2">
+            <h4 className="font-medium text-base ">
+              UberAuto{" "}
+              <span>
+                <i className="ri-user-3-fill"></i>3
+              </span>
+            </h4>
+            <h5 className="font-medium text-sm ">2 mins away </h5>
+            <p className="font-normal text-sm text-gray-400 ">
+              Affordable, three wheeler auto rides
+            </p>
+          </div>
+          <h2 className="font-semibold text-xl ">₹118.86</h2>
+        </div>
       </div>
     </div>
   );
