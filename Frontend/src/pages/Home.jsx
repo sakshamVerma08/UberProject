@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import "remixicon/fonts/remixicon.css";
@@ -93,11 +94,20 @@ const Home = () => {
 
   return (
     <div className="relative h-screen overflow-hidden">
-      <img
-        className="w-16 absolute top-5 left-5"
-        src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-        alt="Uber-Logo.png"
-      />
+      <div className="fixed top-0 p-3 flex items-center justify-between w-full">
+        <img
+          className="w-16 top-5 left-5"
+          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+          alt="Uber-Logo.png"
+        />
+
+        <Link
+          to="/users/logout"
+          className=" flex z-11 items-center justify-center rounded-full bg-white w-10 h-10 "
+        >
+          <i className="ri-logout-box-line"></i>
+        </Link>
+      </div>
 
       <div className="h-screen w-screen">
         {/* Temporary Image */}

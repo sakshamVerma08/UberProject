@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import CaptainDetails from "../components/CaptainDetails";
+import RidePopUp from "../components/RidePopUp";
 const CaptainHome = () => {
   return (
     <div className="h-screen ">
@@ -10,7 +12,7 @@ const CaptainHome = () => {
           alt="Uber-Logo.png"
         />
         <Link
-          to="/captain-login"
+          to="/captains/logout"
           className=" flex items-center justify-center rounded-full bg-white w-10 h-10 "
         >
           <i className="ri-logout-box-line"></i>
@@ -26,38 +28,11 @@ const CaptainHome = () => {
       </div>
 
       <div className="h-2/5 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center justify-start gap-3">
-            <img
-              className="h-10 w-10 rounded-full object-cover"
-              src="https://plus.unsplash.com/premium_photo-1682092603230-1ce7cf8ca451?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW5kaWFuJTIwbWFufGVufDB8fDB8fHww"
-              alt="User Image"
-            />
-            <h4 className="text-lg font-medium">Harsh Patel</h4>
-          </div>
-          <div>
-            <h4 className="text-xl font-semibold ">₹295.20</h4>
-            <p className="text-sm font-medium text-gray-600">Earned</p>
-          </div>
-        </div>
+        <CaptainDetails />
+      </div>
 
-        <div className="flex justify-center gap-5 items-start p-5 mt-6 bg-gray-100 rounded-xl ">
-          <div className="text-center">
-            <i className="text-3xl mb-2 font-thin ri-timer-2-line"></i>
-            <h5 className="text-lg font-medium">10.2</h5>
-            <p className="text-sm text-gray-600">Hours Online</p>
-          </div>
-          <div className="text-center">
-            <i className="text-3xl mb-2 font-thin ri-speed-up-line"></i>
-            <h5 className="text-lg font-medium">10.2</h5>
-            <p className="text-sm text-gray-600">Hours Online</p>
-          </div>
-          <div className="text-center">
-            <i className="text-3xl mb-2 font-thin ri-booklet-line"></i>
-            <h5 className="text-lg font-medium">10.2</h5>
-            <p className="text-sm text-gray-600">Hours Online</p>
-          </div>
-        </div>
+      <div className="fixed w-full z-10 bottom-0 bg-white px-3 py-10 pt-12">
+        <RidePopUp />
       </div>
     </div>
   );
