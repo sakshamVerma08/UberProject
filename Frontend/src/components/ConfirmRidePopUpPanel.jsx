@@ -1,9 +1,13 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 const ConfirmRidePopUpPanel = (props) => {
+  const [otp, setOtp] = useState("");
+  const navigate = useNavigate();
   const submitHandler = (e) => {
     e.preventDefault();
+    setOtp("");
   };
+
   return (
     <div>
       <h5
@@ -70,25 +74,29 @@ const ConfirmRidePopUpPanel = (props) => {
         >
           <input
             type="text"
+            value={otp}
+            onChange={(e) => {
+              setOtp(e.target.value);
+            }}
             placeholder="Enter OTP"
             className="bg-gray-300 px-6 py-4 font-mono text-lg rounded-lg w-full mt-3"
           />
-          <Link
-            to={"/captain-riding"}
-            onClick={(e) => {
-              props.setVehicleFound(true);
-              props.setConfirmRidePanel(false);
+          <button
+            type="button"
+            onClick={() => {
+              navigate("/captain-riding");
             }}
-            className="flex justify-center w-full bg-green-600 p-3 font-semibold text-white rounded-lg mt-5"
+            className="flex justify-center w-full bg-green-600 p-3 font-semibold text-white rounded-lg mt-5 text-lg"
           >
             Confirm
-          </Link>
+          </button>
           <button
-            onClick={(e) => {
+            type="button"
+            onClick={() => {
               props.setConfirmRidePopUpPanel(false);
               props.setRidePopUpPanel(false);
             }}
-            className="w-full bg-red-500 p-3 font-semibold text-white rounded-lg mt-3 "
+            className="w-full bg-red-500 p-3 font-semibold text-white rounded-lg mt-3 text-lg"
           >
             Cancel
           </button>

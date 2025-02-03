@@ -1,7 +1,24 @@
-import React from "react";
+import { React, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import FinishRide from "../components/FinishRide";
 
 const CaptainRiding = () => {
+  const [finishRidePanel, setFinishRidePanel] = useState(false);
+  const finishRidePanelRef = useRef(null);
+  useGSAP(() => {
+    if (finishRidePanel) {
+      gsap.to(finishRidePanelRef.current, {
+        transform: "translateY(0)",
+      });
+    } else {
+      gsap.to(finishRidePanelRef.current, {
+        transform: "translateY(100%)",
+      });
+    }
+  }, [finishRidePanel]);
+
   return (
     <div className="h-screen relative">
       <div className="fixed top-0 p-3 flex items-center justify-between w-full">
@@ -28,28 +45,26 @@ const CaptainRiding = () => {
 
       <div className="h-1/5 p-6 flex items-center justify-between relative">
         {/* DO CONDITIONAL RENDERING OF UP AND DOWN ARROW HERE, DEPENDING ON WHETHER THE RIDE IS GOING ON OR FINISHED*/}
-        {/*<h5
-          onClick={() => {
-            
-          }}
-          className=" text-center text-lg mb-5 absolute top-5 w-[93%] "
-        >
-          <i className="ri-arrow-down-line text-3xl "></i>
-        </h5>
-        {/*<h5
-          onClick={() => {
-          
-          }}
-          className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
-        >
-          <i className="text-center text-lg mb-5 absolute top-5 w-[93%] ri-arrow-up-line"></i>
-        </h5>
-        */}
 
+        <h5
+          onClick={() => {
+            setFinishRidePanel(true);
+          }}
+          className=" text-right text-lg mb-5 absolute top-2 w-[93%] "
+        >
+          <i className="ri-arrow-up-line text-2xl"></i>
+        </h5>
         <h4 className="text-xl font-semibold">4 KM away </h4>
         <button className=" bg-green-600 p-2 px-8 font-semibold text-white rounded-lg">
-          Complete Ride
+          Finish Ride
         </button>
+      </div>
+
+      <div
+        ref={finishRidePanelRef}
+        className="fixed w-full h-screen z-10 bottom-0 bg-white px-3 py-10 pt-12 translate-y-full"
+      >
+        <FinishRide setFinishRidePanel={setFinishRidePanel} />
       </div>
     </div>
   );
