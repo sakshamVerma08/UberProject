@@ -1,6 +1,7 @@
-import React from "react";
+import React  from "react";
 
 const CaptainDetails = () => {
+  
   return (
     <>
       <div className="flex items-center justify-between">
