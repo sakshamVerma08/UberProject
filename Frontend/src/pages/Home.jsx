@@ -52,7 +52,7 @@ const Home = () => {
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BAASE_URL}/maps/get-suggestions`,
+        `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
         {
           params: { input: e.target.value },
           headers: {
