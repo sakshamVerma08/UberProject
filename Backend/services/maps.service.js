@@ -24,7 +24,7 @@ module.exports.getAddressCoordinates = async (address) => {
 };
 
 module.exports.getDistanceTime = async (origin, destination) => {
-  if (!origin || !destinatin) {
+  if (!origin || !destination) {
     throw new Error("Origin and destination are required");
   }
 
@@ -42,9 +42,9 @@ module.exports.getDistanceTime = async (origin, destination) => {
     if (response.data.status === "OK") {
       return response.data.rows[0].elements[0];
     }
-  } catch (err) {
-    console.log(err);
-    throw err;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };
 
@@ -53,7 +53,9 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     throw new Error("Query is required");
   }
   const apiKey = process.env.GOOGLE_MAPS_API;
-  const url = ``;
+  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+    input
+  )}&key=${apiKey}`;
 
   try {
     const response = await axios.get(url);
