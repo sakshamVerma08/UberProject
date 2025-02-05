@@ -28,7 +28,12 @@ const VehiclePanel = (props) => {
           src=" https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s "
           alt="car png"
         />
-        <div className=" w-1/2">
+        <div
+          className=" w-1/2"
+          onClick={() => {
+            props.selectVehicle("car");
+          }}
+        >
           <h4 className="font-medium text-base ">
             UberGo{" "}
             <span>
@@ -40,37 +45,10 @@ const VehiclePanel = (props) => {
             Affordable, compact rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹193.20</h2>
+        <h2 className="font-semibold text-xl ">₹{props.fare.car}</h2>
       </div>
       {/* ***************************** */}
 
-      <div
-        onClick={() => {
-          props.setConfirmRidePanel(true);
-          props.setVehiclePanel(false);
-        }}
-        className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2"
-      >
-        {" "}
-        <img
-          className="h-16"
-          src=" https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s "
-          alt="car png"
-        />
-        <div className=" w-1/2">
-          <h4 className="font-medium text-base ">
-            UberGo{" "}
-            <span>
-              <i className="ri-user-3-fill"></i>4
-            </span>
-          </h4>
-          <h5 className="font-medium text-sm ">2 mins away </h5>
-          <p className="font-normal text-sm text-gray-400 ">
-            Affordable, compact rides
-          </p>
-        </div>
-        <h2 className="font-semibold text-xl ">₹193.20</h2>
-      </div>
       {/* ***************************** */}
 
       <div
@@ -86,7 +64,12 @@ const VehiclePanel = (props) => {
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s "
           alt="car png"
         />
-        <div className=" w-1/2">
+        <div
+          className=" w-1/2"
+          onClick={() => {
+            props.selectVehicle("motorcycle");
+          }}
+        >
           <h4 className="font-medium text-base ">
             UberMoto{" "}
             <span>
@@ -98,7 +81,7 @@ const VehiclePanel = (props) => {
             Affordable, motorcycle rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹65.17</h2>
+        <h2 className="font-semibold text-xl ">₹{props.fare.motorcycle}</h2>
       </div>
       {/* ***************************** */}
       <div
@@ -114,7 +97,12 @@ const VehiclePanel = (props) => {
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s  "
           alt="car png"
         />
-        <div className=" w-1/2">
+        <div
+          className=" w-1/2"
+          onClick={() => {
+            props.selectVehicle("auto");
+          }}
+        >
           <h4 className="font-medium text-base ">
             UberAuto{" "}
             <span>
@@ -126,7 +114,7 @@ const VehiclePanel = (props) => {
             Affordable, three wheeler auto rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹118.86</h2>
+        <h2 className="font-semibold text-xl ">₹{props.fare.auto}</h2>
       </div>
     </div>
   );

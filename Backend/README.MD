@@ -419,3 +419,85 @@ Example Response:
 
 
 ```
+
+# Get Fare API
+
+## Endpoint
+
+`GET /api/rides/get-fare`
+
+## Description
+
+This endpoint calculates the estimated fare for a ride between the specified pickup and destination locations.
+
+## Authentication
+
+This endpoint requires authentication. The user must be logged in and provide a valid authentication token.
+
+## Request Parameters
+
+The request parameters must be sent as query parameters.
+
+| Parameter   | Type   | Required | Description                                                   |
+| ----------- | ------ | -------- | ------------------------------------------------------------- |
+| pickup      | string | Yes      | The pickup location. Must be at least 3 characters long.      |
+| destination | string | Yes      | The destination location. Must be at least 3 characters long. |
+
+### Example Request
+
+```http
+GET /api/rides/get-fare?pickup=Connaught%20Place&destination=India%20Gate
+Authorization: Bearer <your_token>
+```
+
+## Response
+
+### Success Response (200 OK)
+
+```json
+{
+  "fare": 150
+}
+```
+
+### Error Responses
+
+#### 400 Bad Request (Validation Error)
+
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid pickup location",
+      "param": "pickup",
+      "location": "query"
+    }
+  ]
+}
+```
+
+#### 401 Unauthorized
+
+```json
+{
+  "message": "Unauthorized access"
+}
+```
+
+#### 500 Internal Server Error
+
+```json
+{
+  "message": "An error occurred while calculating the fare"
+}
+```
+
+## Notes
+
+- The request must include a valid authentication token.
+- The `pickup` and `destination` parameters must be at least 3 characters long.
+- If the backend encounters an error, it will return a `500` status code.
+
+## Developer
+
+This API is part of the ride service system.

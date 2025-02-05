@@ -24,6 +24,8 @@ const Home = () => {
   const [pickupSuggestion, setPickupSuggestion] = useState([]);
   const [destinationSuggestion, setDestinationSuggestion] = useState([]);
   const [activeField, setActiveField] = useState(null);
+  const [fare, setFare] = useState({});
+  const [vehicleType, setVehicleType] = useState("");
 
   const vehicleFoundRef = useRef(null);
   const waitForDriverRef = useRef(null);
@@ -66,6 +68,39 @@ const Home = () => {
       console.log(err.message);
     }
   };
+
+  async function findTrip() {
+    setVehiclePanel(true);
+    setIsPanelOpen(false);
+
+    const response = await axios.get(
+      `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
+      {
+        params: {
+          pickup,
+          destination,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    setFare(response.data);
+  }
+
+  async function createRide(vehicleType) {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/rides/create`,
+      {
+        pickup,
+        destination,
+        vehicleType,
+      },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+
+    console.log("createRide data = ", response.data);
+  }
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -168,7 +203,7 @@ const Home = () => {
           <h5
             ref={panelClose}
             onClick={() => {
-              setIsPanelOpen(false);
+              findTrip;
             }}
             className="absolute opacity-0 top-5 text-2xl right-2"
           >
@@ -205,6 +240,15 @@ const Home = () => {
               placeholder="Enter your Destination"
             />
           </form>
+          <div className="flex items-center justify-center bg-red-400 mt-4">
+            {" "}
+            <button
+              className="bg-black text-white rounded-lg p-2 w-full "
+              onClick={findTrip}
+            >
+              Find Rides
+            </button>
+          </div>
         </div>
 
         <div ref={panelRef} className="h-0 bg-white p-5  ">
@@ -232,6 +276,8 @@ const Home = () => {
         className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-10  border-white"
       >
         <VehiclePanel
+          fare={fare}
+          selectVehicle = {setVehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
         />
