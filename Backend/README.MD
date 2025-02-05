@@ -305,4 +305,117 @@ curl -X POST http://<BASE_URL>/captains/logout \
 
 ---
 
+# API Documentation
 
+This document provides an overview of the `/maps` and `/rides/create` API endpoints, detailing their functionality, request and response formats, and examples.
+
+## Maps API
+
+### Get Coordinates Endpoint
+
+#### Endpoint: `/maps/get-coordinates`
+
+- **Method:** GET
+- **Description:** Retrieves geographical coordinates (latitude and longitude) for a given address.
+- **Request Parameters:**
+  - `address`: String, required, minimum 3 characters.
+
+Example Request:
+
+```http
+GET /maps/get-coordinates?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA
+
+Example Response:
+{
+  "lat": 37.4224764,
+  "lng": -122.0842499
+}
+
+```
+
+#### Endpont: `/maps/get-distance-time`
+
+-**Method:** GET
+
+- **Description:** Calculates the distance and estimated travel time between two locations.
+  -- **Request Parameters:** -`origin`: String, required, minimum 3 characters. -`destination`:String, required, minimum 3 characters.
+
+Example Request:
+
+```
+GET /maps/get-distance-time?origin=New+York,+NY&destination=Los+Angeles,+CA
+
+Example Response:
+{
+  "distance": {
+    "text": "2,789 mi",
+    "value": 4486740
+  },
+  "duration": {
+    "text": "1 day 18 hours",
+    "value": 154800
+  }
+}
+
+```
+
+#### Endpont: `/maps/get-suggestions`
+
+-**Method:** GET
+
+- **Description:** Provides autocomplete suggestions for a given input string.
+  -- **Request Parameters:** -`input`:String, required, minimum 3 characters.
+
+Example Request:
+
+```
+GET /maps/get-suggestions?input=1600+Amphitheatre
+
+Example Response:
+[
+  {
+    "description": "1600 Amphitheatre Parkway, Mountain View, CA, USA",
+    "place_id": "ChIJ2eUgeAK6j4ARbn5u_wAGqWA"
+  },
+  ...
+]
+
+
+```
+
+## Rides API
+
+**Create Ride Endpoint**
+
+#### Endpoint: `/rides/create`
+
+-**Method:** POST
+
+- **Description:** Creates a new ride request with specified pickup and destination locations and vehicle type.
+  -- **Request Parameters:** -`pickup`: String, required, minimum 3 characters. -`destination`: String, required, minimum 3 characters. -`vehicleType`:String, required, must be one of ["auto", "car", "motorcycle"].
+
+Example Request:
+
+```
+{
+  "pickup": "1600 Amphitheatre Parkway, Mountain View, CA",
+  "destination": "1 Infinite Loop, Cupertino, CA",
+  "vehicleType": "car"
+}
+
+Example Response:
+[
+ {
+  "ride": {
+    "id": "60d0fe4f5311236168a109cc",
+    "pickup": "1600 Amphitheatre Parkway, Mountain View, CA",
+    "destination": "1 Infinite Loop, Cupertino, CA",
+    "fare": 50.00,
+    "status": "Pending"
+  }
+}
+
+]
+
+
+```
