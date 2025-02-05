@@ -88,7 +88,7 @@ const Home = () => {
     setFare(response.data);
   }
 
-  async function createRide(vehicleType) {
+  async function createRide() {
     const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/rides/create`,
       {
@@ -277,7 +277,7 @@ const Home = () => {
       >
         <VehiclePanel
           fare={fare}
-          selectVehicle = {setVehicleType}
+          selectVehicle={setVehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
         />
@@ -287,6 +287,11 @@ const Home = () => {
         className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-12  border-white"
       >
         <ConfirmPanel
+          pickup={pickup}
+          destination={destination}
+          vehicleType={vehicleType}
+          fare={fare[vehicleType]}
+          createRide={createRide}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
         />
@@ -295,7 +300,13 @@ const Home = () => {
         ref={vehicleFoundRef}
         className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-12  border-white"
       >
-        <LookingForDriver setVehicleFound={setVehicleFound} />
+        <LookingForDriver
+          setVehicleFound={setVehicleFound}
+          vehicleType={vehicleType}
+          fare={fare[vehicleType]}
+          pickup={pickup}
+          destination={destination}
+        />
       </div>
       <div
         ref={waitForDriverRef}

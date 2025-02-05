@@ -62,7 +62,7 @@ const VehiclePanel = (props) => {
         <img
           className="h-16"
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s "
-          alt="car png"
+          alt="moto png"
         />
         <div
           className=" w-1/2"
@@ -94,7 +94,7 @@ const VehiclePanel = (props) => {
         {" "}
         <img
           className="h-16"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s  "
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s"
           alt="car png"
         />
         <div
