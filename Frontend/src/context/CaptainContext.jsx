@@ -1,6 +1,7 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
-export const CaptainDataContext = createContext();
+const CaptainDataContext = createContext();
+export { CaptainDataContext };
 
 const CaptainContext = ({ children }) => {
   const [captain, setCaptain] = useState(null);
@@ -9,16 +10,18 @@ const CaptainContext = ({ children }) => {
 
   const updateCaptain = (captainData) => {
     setCaptain(captainData);
+    console.log("captain updated = ", captain);
+    localStorage.setItem("captain", JSON.stringify(captainData));
   };
 
   const value = {
     captain,
     setCaptain,
+    updateCaptain,
     isLoading,
     setIsLoading,
     error,
     setError,
-    updateCaptain,
   };
 
   return (

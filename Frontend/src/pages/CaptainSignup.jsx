@@ -16,7 +16,7 @@ const CaptainSignup = () => {
   const [vehicleCapacity, setVehicleCapacity] = useState(1);
   const [vehicleType, setVehicleType] = useState("");
 
-  const { captain, setCaptain } = useContext(CaptainDataContext);
+  const { captain, setCaptain, updateCaptain } = useContext(CaptainDataContext);
   const navigate = useNavigate();
 
   const submitHandler = async (e) => {
@@ -37,16 +37,23 @@ const CaptainSignup = () => {
       },
     };
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/captains/register`,
-      captainData
-    );
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/captains/register`,
+        captainData
+      );
 
-    if (response.status === 201) {
-      const data = response.data;
-      setCaptain(data.captain);
-      localStorage.setItem("token", data.token);
-      navigate("/captain-home");
+      if (response.status === 201) {
+        const data = response.data;
+        //setCaptain(data.captain);
+        updateCaptain(data.captain);
+        console.log("Captain Updated");
+        console.log("Captain = ", captain);
+        localStorage.setItem("token", data.token);
+        navigate("/captain-home");
+      }
+    } catch (err) {
+      console.log("Error during Signup", err);
     }
 
     setFirstname("");
