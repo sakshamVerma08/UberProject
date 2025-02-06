@@ -47,8 +47,7 @@ const CaptainSignup = () => {
         const data = response.data;
         //setCaptain(data.captain);
         updateCaptain(data.captain);
-        console.log("Captain Updated");
-        console.log("Captain = ", captain);
+
         localStorage.setItem("token", data.token);
         navigate("/captain-home");
       }

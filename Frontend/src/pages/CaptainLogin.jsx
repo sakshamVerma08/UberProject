@@ -8,7 +8,7 @@ const CaptainLogin = () => {
   const [password, setPassword] = useState("");
   // const [captainData, setCaptainData] = useState({});
 
-  const { captain, setCaptain ,updateCaptain} = useContext(CaptainDataContext);
+  const { captain, setCaptain, updateCaptain } = useContext(CaptainDataContext);
   const navigate = useNavigate();
 
   const submitHandler = async (e) => {
@@ -28,8 +28,6 @@ const CaptainLogin = () => {
         const data = response.data;
         //setCaptain(data.captain);
         updateCaptain(data.captain);
-        console.log("Captain Updated");
-        console.log("Captain = ", captain);
         localStorage.setItem("token", data.token);
         navigate("/captain-home");
       }
@@ -57,6 +55,7 @@ const CaptainLogin = () => {
             className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border"
             type="email"
             required
+            autoComplete="current-password"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);

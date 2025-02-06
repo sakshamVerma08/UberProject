@@ -18,7 +18,6 @@ const CaptainLogout = () => {
     .then((response) => {
       if (response.status === 200) {
         localStorage.removeItem("token");
-        console.log("Token removed from localStorage");
         navigate("/captain-login");
       }
     })

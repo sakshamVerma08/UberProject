@@ -21,7 +21,7 @@ const CaptainDetails = () => {
             src="https://plus.unsplash.com/premium_photo-1682092603230-1ce7cf8ca451?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW5kaWFuJTIwbWFufGVufDB8fDB8fHww"
             alt="User Image"
           />
-          <h4 className="text-lg font-medium">
+          <h4 className="text-lg font-medium first-letter:uppercase">
             {captain.fullname.firstname + " " + captain.fullname.lastname}
           </h4>
         </div>

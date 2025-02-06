@@ -10,7 +10,6 @@ const CaptainContext = ({ children }) => {
 
   const updateCaptain = (captainData) => {
     setCaptain(captainData);
-    console.log("captain updated = ", captain);
     localStorage.setItem("captain", JSON.stringify(captainData));
   };
 
