@@ -20,18 +20,23 @@ module.exports.createRide = async (req, res) => {
     });
 
     const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
+
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.ltd,
       pickupCoordinates.lng,
-      2
+      14
     );
+
+    ride.otp = "";
     console.log("captains in radius = ", captainsInRadius);
-    captainsInRadius.map((captain) => {
+    /*captainsInRadius.map((captain) => {
       sendMessageToSocketId(captain.socketId, {
         event: "new-ride",
         data: ride,
       });
     });
+    */
+
     return res.status(201).json(ride);
   } catch (err) {
     console.log(err);

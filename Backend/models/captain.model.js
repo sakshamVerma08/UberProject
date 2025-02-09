@@ -65,7 +65,7 @@ const captainSchema = new mongoose.Schema({
     },
   },
 
-  location: {
+  /*location: {
     ltd: {
       type: Number,
       required: true,
@@ -75,6 +75,14 @@ const captainSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+  }, */
+
+  location: {
+    type: { type: String, 
+      enum: ["Point"], 
+      default: "Point" },
+      
+    coordinates: { type: [Number], index: "2dsphere" },
   },
 });
 

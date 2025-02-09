@@ -73,11 +73,13 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
   console.log("Lat: ", ltd, "\nLng: ", lng);
   const captains = await captainModel.find({
     location: {
-      $geoWithin: {
-        $centerSphere: [[lng, ltd], radius / 6371],
+      $near: {
+        $geometry: { type: "Point", coordinates: [lng, ltd] },
+        $maxDistance: radius * 1000,
       },
     },
-  });
 
+  });
+  
   return captains;
 };
