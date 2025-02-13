@@ -13,11 +13,11 @@ function initializeSocket(server) {
   });
 
   io.on("connection", (socket) => {
-    console.log(`client connected : ${socket.id}`);
+    console.log("Connected", socket.id);
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;
-      console.log("user id = ", userId, "  Joined as: ", userType);
+      console.log(`${userType} id = ${userId}, Joined as : ${userType}`);
 
       if (userType === "user") {
         await userModel.findByIdAndUpdate(userId, {
@@ -42,7 +42,7 @@ function initializeSocket(server) {
         typeof location.ltd !== "number" ||
         typeof location.lng !== "number"
       ) {
-        console.log("Latitude: ", location.ltd, "\nLongitude: ", location.lng);
+        console.log("from socket.js\n Latitude: ", location.ltd, "\nLongitude: ", location.lng);
         return socket.emit("error", { message: "Invalid Location" });
       }
 
@@ -53,15 +53,17 @@ function initializeSocket(server) {
         },
       });
     });
+
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);
     });
   });
 }
 
-function sendMessageToSocketId(socketId, message) {
+function sendMessageToSocketId(socketId, messageObject) {
+  console.log(`sending message to ${socketId}, message = `, messageObject);
   if (io) {
-    io.to(socketId).emit("message", message);
+    io.to(socketId).emit(messageObject.event, messageObject.data);
   } else {
     console.log("Socket.io not initialized");
   }

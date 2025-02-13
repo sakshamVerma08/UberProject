@@ -19,27 +19,43 @@ module.exports.createRide = async (req, res) => {
       vehicleType,
     });
 
-    const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
+    res.status(201).json(ride);
 
-    const captainsInRadius = await mapService.getCaptainsInTheRadius(
-      pickupCoordinates.ltd,
-      pickupCoordinates.lng,
-      14
-    );
+    try {
+      const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
+      console.log("PickupCoordinates =", pickupCoordinates);
+      if (
+        !pickupCoordinates ||
+        !pickupCoordinates.ltd ||
+        !pickupCoordinates.lng
+      ) {
+        console.log(
+          "\nFrom ride-controller\n Pickup latitude: ",
+          pickupCoordinates.ltd,
+          "\nPickupCoordinates longitude: ",
+          pickupCoordinates.lng
+        );
+        return res.status(400).json({ message: "Invalid pickup location" });
+      }
 
-    ride.otp = "";
-    console.log("captains in radius = ", captainsInRadius);
-    /*captainsInRadius.map((captain) => {
-      sendMessageToSocketId(captain.socketId, {
-        event: "new-ride",
-        data: ride,
+      const captainsInRadius = await mapService.getCaptainsInTheRadius(
+        pickupCoordinates.ltd,
+        pickupCoordinates.lng,
+        3
+      );
+      console.log("captains in radius = ", captainsInRadius);
+      captainsInRadius.map((captain) => {
+        console.log("captain= ", captain, "\nride= ", ride);
+        sendMessageToSocketId(captain.socketId, {
+          event: "new-ride",
+          data: ride,
+        });
       });
-    });
-    */
-
-    return res.status(201).json(ride);
+    } catch (err) {
+      console.log("Couldn't process captains in the backend");
+      return res.status(500).json({ message: err.message });
+    }
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ message: err.message });
   }
 };

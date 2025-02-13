@@ -1,5 +1,6 @@
 const axios = require("axios");
 const captainModel = require("../models/captain.model");
+
 module.exports.getAddressCoordinates = async (address) => {
   const apiKey = process.env.GOOGLE_MAPS_API;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
@@ -10,7 +11,13 @@ module.exports.getAddressCoordinates = async (address) => {
     const response = await axios.get(url);
 
     if (response.data.status === "OK") {
-      const location = response.data.results[0].geometry.location;
+      const location = response.data.results[0]?.geometry?.location;
+      console.log("From map-services\nLocation = ", location);
+
+      if (!location || !location.lat || !location.lng) {
+        throw new Error("Invalid location data received from Google Maps API");
+      }
+
       return {
         ltd: location.lat,
         lng: location.lng,
@@ -19,8 +26,8 @@ module.exports.getAddressCoordinates = async (address) => {
       throw new Error(`Google Maps API Error: ${response.data.status}`);
     }
   } catch (err) {
-    console.error("Error fetching coordinates:", err.message);
-    throw err;
+    console.error("Error fetching Coordinates");
+    return { ltd: null, lng: null };
   }
 };
 
@@ -70,16 +77,14 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 };
 
 module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
-  console.log("Lat: ", ltd, "\nLng: ", lng);
+  console.log("from getCaptainsRadius service\n Lat: ", ltd, "\nLng: ", lng);
   const captains = await captainModel.find({
     location: {
-      $near: {
-        $geometry: { type: "Point", coordinates: [lng, ltd] },
-        $maxDistance: radius * 1000,
+      $$geoWithin: {
+        $centerSphere: [[lng, ltd], radius / 6371],
       },
     },
-
   });
-  
+
   return captains;
 };
