@@ -61,8 +61,8 @@ function getOtp(num) {
 module.exports.createRideService = async ({
   user,
   pickup,
-  destination,
-  vehicleType,
+  destination, 
+  vehicleType,  
 }) => {
   if (!user || !pickup || !destination || !vehicleType) {
     throw new Error("All fields are required");

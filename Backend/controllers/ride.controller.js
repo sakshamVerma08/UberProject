@@ -56,7 +56,7 @@ module.exports.createRide = async (req, res) => {
       return res.status(500).json({ message: err.message });
     }
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    console.log("Error in ride-controller", err);
   }
 };
 
