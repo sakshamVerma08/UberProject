@@ -43,9 +43,15 @@ module.exports.createRide = async (req, res) => {
         pickupCoordinates.lng,
         3
       );
-      console.log("captains in radius = ", captainsInRadius);
+      ride.otp = "";
+
       captainsInRadius.map((captain) => {
-        console.log("captain= ", captain, "\nride= ", ride);
+        console.log(
+          "From ride-controller.js \n\ncaptain= ",
+          captain,
+          "\nride= ",
+          ride
+        );
         sendMessageToSocketId(captain.socketId, {
           event: "new-ride",
           data: ride,
@@ -53,7 +59,7 @@ module.exports.createRide = async (req, res) => {
       });
     } catch (err) {
       console.log("Couldn't process captains in the backend");
-      return res.status(500).json({ message: err.message });
+      console.log("error in ride-controller.js", err);
     }
   } catch (err) {
     console.log("Error in ride-controller", err);

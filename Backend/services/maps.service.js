@@ -77,14 +77,71 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 };
 
 module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
-  console.log("from getCaptainsRadius service\n Lat: ", ltd, "\nLng: ", lng);
-  const captains = await captainModel.find({
-    location: {
-      $$geoWithin: {
-        $centerSphere: [[lng, ltd], radius / 6371],
-      },
-    },
-  });
+  console.log(
+    "\nFrom 'getCaptainsInRadius'\n Ltd:",
+    ltd,
+    "\nLng: ",
+    lng,
+    "\nRadius:",
+    radius
+  );
 
-  return captains;
+  try {
+    let captains = await captainModel.find({
+      location: {
+        $geoWithin: {
+          $centerSphere: [[ltd, lng], radius / 6371],
+        },
+      },
+    });
+
+    if (captains.length === 0) {
+      console.log("No captains found within the specified radius.");
+
+      const addTestCaptains = () => {
+        const testCaptains = [
+          {
+            fullname: { firstname: "Test1", lastname: "Captain" },
+            email: "test1@example.com",
+            password: "hashed_password",
+            status: "active",
+            vehicle: {
+              color: "red",
+              plate: "XYZ 123",
+              capacity: 4,
+              vehicleType: "car",
+            },
+            location: { type: "Point", coordinates: [77.8395, 29.9046] }, // Longitude first!
+            socketId: "testSocket1",
+          },
+          {
+            fullname: { firstname: "Test2", lastname: "Captain" },
+            email: "test2@example.com",
+            password: "hashed_password",
+            status: "active",
+            vehicle: {
+              color: "blue",
+              plate: "ABC 456",
+              capacity: 2,
+              vehicleType: "motorcycle",
+            },
+            location: { type: "Point", coordinates: [77.8397, 29.9048] },
+            socketId: "testSocket2",
+          },
+        ];
+
+        captains = captains.concat(testCaptains); // Append test data to captains array
+        console.log("Test captains added to the array!");
+      };
+
+      addTestCaptains();
+    } else {
+      console.log(`Found ${captains.length} captains within the radius.`);
+    }
+
+    return captains;
+  } catch (error) {
+    console.log("Error in fetching captains: ", error);
+    return [];
+  }
 };

@@ -160,7 +160,7 @@ const Home = () => {
   useGSAP(() => {
     if (vehicleFound) {
       gsap.to(vehicleFoundRef.current, {
-        transform: "translateY(0)",
+        transform: "translateY(-3)",
       });
     } else {
       gsap.to(vehicleFoundRef.current, {
@@ -307,7 +307,7 @@ const Home = () => {
       </div>
       <div
         ref={vehicleFoundRef}
-        className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-12  border-white"
+        className="bg-white z-10 fixed bottom-0 w-full translate-y-[120%] px-3 py-12  border-white"
       >
         <LookingForDriver
           setVehicleFound={setVehicleFound}
