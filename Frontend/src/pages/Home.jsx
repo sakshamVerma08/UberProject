@@ -75,7 +75,11 @@ const Home = () => {
 
       setDestinationSuggestion(response.data);
     } catch (err) {
-      console.log(err.message);
+      console.log(
+        "error in handleDestination change method (Home.jsx)",
+        "\nError message  is: ",
+        err.message
+      );
     }
   };
 
@@ -95,6 +99,12 @@ const Home = () => {
         },
       }
     );
+
+    if (!response.data || response.data.status === "NOT_FOUND") {
+      alert(
+        "Invalid Route ! Please make sure your pickup and drop destination are in the same state"
+      );
+    }
     setFare(response.data);
   }
 
@@ -119,7 +129,7 @@ const Home = () => {
   useGSAP(() => {
     if (isPanelOpen) {
       gsap.to(panelRef.current, {
-        height: "70%",
+        height: "60%",
       });
 
       gsap.to(panelClose.current, {
@@ -214,7 +224,7 @@ const Home = () => {
         />
       </div>
 
-      <div className=" flex flex-col justify-end absolute h-screen top-0 w-full z-40 ">
+      <div className=" flex flex-col justify-end absolute h-screen top-0 w-full  ">
         <div className="h-[30%] relative bg-white p-6 ">
           {" "}
           <h5
@@ -290,7 +300,7 @@ const Home = () => {
 
       <div
         ref={vehiclePanelRef}
-        className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-10  border-white"
+        className="bg-white z-30 fixed bottom-0 w-full translate-y-full px-3 py-10  border-white"
       >
         <VehiclePanel
           fare={fare}

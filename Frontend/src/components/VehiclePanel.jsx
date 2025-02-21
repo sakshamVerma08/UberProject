@@ -2,7 +2,7 @@ import React from "react";
 
 const VehiclePanel = (props) => {
   return (
-    <div>
+    <div >
       <h5
         onClick={() => {
           props.setVehiclePanel(false);

@@ -9,6 +9,12 @@ async function getFare(pickup, destination) {
 
   const distanceTime = await mapService.getDistanceTime(pickup, destination);
 
+  if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
+    throw new Error(
+      "No valid route found. Please check the Pickup and Drop location"
+    );
+  }
+
   const baseFare = {
     auto: 30,
     car: 50,
@@ -47,7 +53,6 @@ async function getFare(pickup, destination) {
     ),
   };
 
-
   return fare;
 }
 
@@ -61,8 +66,8 @@ function getOtp(num) {
 module.exports.createRideService = async ({
   user,
   pickup,
-  destination, 
-  vehicleType,  
+  destination,
+  vehicleType,
 }) => {
   if (!user || !pickup || !destination || !vehicleType) {
     throw new Error("All fields are required");

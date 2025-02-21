@@ -44,6 +44,10 @@ module.exports.createRide = async (req, res) => {
         3
       );
 
+      if (captainsInRadius.length === 0) {
+        console.log("captainsInRadius: ", captainsInRadius);
+      }
+
       
       ride.otp = "";
 
