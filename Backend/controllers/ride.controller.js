@@ -43,6 +43,8 @@ module.exports.createRide = async (req, res) => {
         pickupCoordinates.lng,
         3
       );
+
+      
       ride.otp = "";
 
       captainsInRadius.map((captain) => {

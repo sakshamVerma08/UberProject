@@ -86,8 +86,11 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
     radius
   );
 
+  const latRange = 0.05;
+  const lngRange = 0.05;
+
   try {
-    let captains = await captainModel.find({
+    /*const captains = await captainModel.find({
       location: {
         $geoWithin: {
           $centerSphere: [[ltd, lng], radius / 6371],
@@ -95,49 +98,12 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
       },
     });
 
-    if (captains.length === 0) {
-      console.log("No captains found within the specified radius.");
+    */
 
-      const addTestCaptains = () => {
-        const testCaptains = [
-          {
-            fullname: { firstname: "Test1", lastname: "Captain" },
-            email: "test1@example.com",
-            password: "hashed_password",
-            status: "active",
-            vehicle: {
-              color: "red",
-              plate: "XYZ 123",
-              capacity: 4,
-              vehicleType: "car",
-            },
-            location: { type: "Point", coordinates: [77.8395, 29.9046] }, // Longitude first!
-            socketId: "testSocket1",
-          },
-          {
-            fullname: { firstname: "Test2", lastname: "Captain" },
-            email: "test2@example.com",
-            password: "hashed_password",
-            status: "active",
-            vehicle: {
-              color: "blue",
-              plate: "ABC 456",
-              capacity: 2,
-              vehicleType: "motorcycle",
-            },
-            location: { type: "Point", coordinates: [77.8397, 29.9048] },
-            socketId: "testSocket2",
-          },
-        ];
-
-        captains = captains.concat(testCaptains); // Append test data to captains array
-        console.log("Test captains added to the array!");
-      };
-
-      addTestCaptains();
-    } else {
-      console.log(`Found ${captains.length} captains within the radius.`);
-    }
+    const captains = await captainModel.find({
+      "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
+      "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
+    });
 
     return captains;
   } catch (error) {

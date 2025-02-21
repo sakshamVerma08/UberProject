@@ -36,20 +36,26 @@ function initializeSocket(server) {
       }
 
       const { userId, location } = data;
+      console.log("location object : \n", location);
 
       if (
         !location ||
         typeof location.ltd !== "number" ||
         typeof location.lng !== "number"
       ) {
-        console.log("from socket.js\n Latitude: ", location.ltd, "\nLongitude: ", location.lng);
+        console.log(
+          "from socket.js\n Latitude: ",
+          location.ltd,
+          "\nLongitude: ",
+          location.lng
+        );
         return socket.emit("error", { message: "Invalid Location" });
       }
 
       await captainModel.findByIdAndUpdate(userId, {
         location: {
-          type: "Point",
-          coordinates: [location.lng, location.ltd],
+          lat: location.ltd,
+          lng: location.lng,
         },
       });
     });
