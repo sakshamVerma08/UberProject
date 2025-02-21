@@ -160,9 +160,11 @@ const Home = () => {
   }, [confirmRidePanel]);
   useGSAP(() => {
     if (vehicleFound) {
-      gsap.to(vehicleFoundRef.current, {
-        transform: "translateY(8)",
-      });
+      gsap.fromTo(
+        vehicleFoundRef.current,
+        { transform: "translateY(100%)" },
+        { transform: "translateY(0)", duration: 0.5, ease: "power2.out" }
+      );
     } else {
       gsap.to(vehicleFoundRef.current, {
         transform: "translateY(100%)",
@@ -183,41 +185,36 @@ const Home = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/users/logout`,
-        {},
-        { withCredentials: true }
-      );
-      localStorage.removeItem("token");
-      navigate("/login");
+      navigate("/users/logout");
     } catch (err) {
       console.log("Logout failed: \n\n", err);
     }
   };
   return (
-    <div className="relative h-screen overflow-hidden">
-      <div className="fixed top-0 p-3 flex items-center justify-between w-full">
+    <div className="relative h-screen overflow-hidden ">
+      <div className="fixed top-0 p-3 flex items-center justify-between w-full z-50">
         <img
           className="w-16 top-5 left-5"
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
           alt="Uber-Logo.png"
         />
 
-        
-          <i className="ri-logout-box-line" onClick={handleLogout}></i>
-       
+        <i
+          className="ri-logout-box-line cursor-pointer text-xl m-2"
+          onClick={handleLogout}
+        ></i>
       </div>
 
       <div className="h-screen w-screen">
         {/* Temporary Image */}
         <img
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover "
           src="https://s.wsj.net/public/resources/images/BN-XR453_201802_M_20180228165619.gif"
           alt="temporary image"
         />
       </div>
 
-      <div className=" flex flex-col justify-end absolute h-screen top-0 w-full ">
+      <div className=" flex flex-col justify-end absolute h-screen top-0 w-full z-40 ">
         <div className="h-[30%] relative bg-white p-6 ">
           {" "}
           <h5
@@ -318,7 +315,7 @@ const Home = () => {
       </div>
       <div
         ref={vehicleFoundRef}
-        className="bg-white z-10 fixed bottom-0 w-full translate-y-[120%] px-3 py-12  border-white"
+        className="bg-white z-10 fixed bottom-0 w-full translate-y-[120%] px-3 py-12  border-white "
       >
         <LookingForDriver
           setVehicleFound={setVehicleFound}

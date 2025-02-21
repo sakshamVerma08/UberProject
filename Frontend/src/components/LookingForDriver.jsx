@@ -13,7 +13,7 @@ const LookingForDriver = (props) => {
       </h5>
       <h3 className="font-semibold text-2xl mb-3">Looking for Driver</h3>
 
-      <div className="flex flex-col justify-between items-center gap-2">
+      <div className="flex flex-col justify-between items-center gap-2 ">
         {props.vehicleType === "car" ? (
           <img
             className="h-20 "
