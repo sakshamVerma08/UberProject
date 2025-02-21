@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import "remixicon/fonts/remixicon.css";
@@ -12,6 +12,7 @@ import { SocketContext } from "../context/SocketContext";
 import { UserDataContext } from "../context/UserContext";
 import axios from "axios";
 const Home = () => {
+  const navigate = useNavigate();
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -160,7 +161,7 @@ const Home = () => {
   useGSAP(() => {
     if (vehicleFound) {
       gsap.to(vehicleFoundRef.current, {
-        transform: "translateY(-3)",
+        transform: "translateY(8)",
       });
     } else {
       gsap.to(vehicleFoundRef.current, {
@@ -180,6 +181,19 @@ const Home = () => {
     }
   }, [waitForDriverOpen]);
 
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/logout`,
+        {},
+        { withCredentials: true }
+      );
+      localStorage.removeItem("token");
+      navigate("/login");
+    } catch (err) {
+      console.log("Logout failed: \n\n", err);
+    }
+  };
   return (
     <div className="relative h-screen overflow-hidden">
       <div className="fixed top-0 p-3 flex items-center justify-between w-full">
@@ -189,12 +203,9 @@ const Home = () => {
           alt="Uber-Logo.png"
         />
 
-        <Link
-          to="/users/logout"
-          className=" flex z-11 items-center justify-center rounded-full bg-white w-10 h-10 "
-        >
-          <i className="ri-logout-box-line"></i>
-        </Link>
+        
+          <i className="ri-logout-box-line" onClick={handleLogout}></i>
+       
       </div>
 
       <div className="h-screen w-screen">
@@ -212,7 +223,7 @@ const Home = () => {
           <h5
             ref={panelClose}
             onClick={() => {
-              findTrip;
+              setIsPanelOpen(false);
             }}
             className="absolute opacity-0 top-5 text-2xl right-2"
           >

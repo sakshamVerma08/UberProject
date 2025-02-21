@@ -12,10 +12,9 @@ const SocketProvider = ({ children }) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Disconnected from server");
+      console.log("Disconnected from server (from socketContext.jsx)");
     });
   }, []);
-
 
   return (
     <SocketContext.Provider value={{ socket }}>
