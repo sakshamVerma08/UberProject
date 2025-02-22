@@ -261,7 +261,7 @@ const Home = () => {
               value={destination}
               onChange={handleDestinationChange}
               onClick={() => {
-                setIsPanelOpen(true);
+                // setIsPanelOpen(true);
                 setActiveField("destination");
               }}
               placeholder="Enter your Destination"

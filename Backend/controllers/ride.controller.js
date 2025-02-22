@@ -2,6 +2,8 @@ const rideService = require("../services/ride.service");
 const { validationResult } = require("express-validator");
 const mapService = require("../services/maps.service");
 const { sendMessageToSocketId } = require("../socket");
+const rideModel = require("../models/ride.model");
+const captainModel = require("../models/captain.model");
 module.exports.createRide = async (req, res) => {
   const errors = validationResult(req);
 
@@ -23,7 +25,6 @@ module.exports.createRide = async (req, res) => {
 
     try {
       const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
-      console.log("PickupCoordinates =", pickupCoordinates);
       if (
         !pickupCoordinates ||
         !pickupCoordinates.ltd ||
@@ -41,26 +42,51 @@ module.exports.createRide = async (req, res) => {
       const captainsInRadius = await mapService.getCaptainsInTheRadius(
         pickupCoordinates.ltd,
         pickupCoordinates.lng,
-        3
+        15
       );
 
       if (captainsInRadius.length === 0) {
-        console.log("captainsInRadius: ", captainsInRadius);
+        // const dummyCaptain = {
+        //   fullname: {
+        //     firstname: "testCaptain1",
+        //     lastname: "testCaptain_lastname",
+        //     email: "test_email@gmail.com",
+
+        //     vehicle: {
+        //       color: "black",
+        //       plate: "DL 8H BZ 9924",
+        //       capacity: 3,
+        //       vehicleType: "car",
+        //     },
+        //     socketId: "h1pkO_MlcO20-7duAAAD",
+        //   },
+        // };
+
+        // captainsInRadius.push(dummyCaptain);
+
+        const randomCaptains = await captainModel.find({});
+
+        if (randomCaptains) {
+          randomCaptains.map((cpn, index) => {
+            captainsInRadius.push(cpn);
+          });
+        } else {
+          console.log(
+            "No captains available in database who have a valid socketID"
+          );
+        }
       }
 
-      
       ride.otp = "";
 
+      const rideWithUser = await rideModel
+        .findOne({ _id: ride._id })
+        .populate("user");
+
       captainsInRadius.map((captain) => {
-        console.log(
-          "From ride-controller.js \n\ncaptain= ",
-          captain,
-          "\nride= ",
-          ride
-        );
         sendMessageToSocketId(captain.socketId, {
           event: "new-ride",
-          data: ride,
+          data: rideWithUser,
         });
       });
     } catch (err) {

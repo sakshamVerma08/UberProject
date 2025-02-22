@@ -20,7 +20,11 @@ const RidePopUp = (props) => {
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjsdrJhuv3FcZmEE9MHYjIaJ5DOxSIQ39BWg&s"
             alt="user-image"
           />
-          <h2 className="font-medium text-lg">Harsh Patel</h2>
+          <h2 className="font-medium text-lg">
+            {props.ride?.user.fullname.firstname +
+              " " +
+              props.ride?.user.fullname.lastname}
+          </h2>
         </div>
         <h5 className="text-lg font-semibold">2.2 KM</h5>
       </div>
@@ -32,7 +36,7 @@ const RidePopUp = (props) => {
             <div>
               <h3 className="text-lg font-bold">562/11-A </h3>
               <p className="text-gray-600 text-base font-semibold">
-                Kankariya Talab , Ahemdabad
+                {props.ride?.pickup}
               </p>
             </div>
           </div>
@@ -42,7 +46,7 @@ const RidePopUp = (props) => {
             <div>
               <h3 className="text-lg font-bold">562/11-A </h3>
               <p className="text-gray-600 text-base font-semibold">
-                Kankariya Talab , Ahemdabad
+                {props.ride?.destination}
               </p>
             </div>
           </div>
@@ -50,7 +54,7 @@ const RidePopUp = (props) => {
           <div className="flex items-center gap-5 p-3 border-gray-400">
             <i className="ri-currency-line"></i>
             <div>
-              <h3 className="text-lg font-bold">₹193.20 </h3>
+              <h3 className="text-lg font-bold">₹{props.ride?.fare} </h3>
               <p className="text-gray-600 text-base font-semibold">Cash</p>
             </div>
           </div>

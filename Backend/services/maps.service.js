@@ -77,14 +77,6 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 };
 
 module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
-  console.log(
-    "\nFrom 'getCaptainsInRadius'\n Ltd:",
-    ltd,
-    "\nLng: ",
-    lng,
-    "\nRadius:",
-    radius
-  );
 
   const latRange = 0.05;
   const lngRange = 0.05;
@@ -104,6 +96,8 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
       "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
       "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
     });
+
+   
 
     return captains;
   } catch (error) {

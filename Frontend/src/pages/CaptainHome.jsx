@@ -8,12 +8,14 @@ import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
 import { SocketContext } from "../context/SocketContext";
 import { CaptainDataContext } from "../context/CaptainContext";
 const CaptainHome = () => {
-  const [ridePopUpPanel, setRidePopUpPanel] = useState(true);
+  const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false);
   const ridePopUpPanelRef = useRef(null);
   const confirmRidePopUpPanelRef = useRef(null);
   const { socket } = useContext(SocketContext);
   const { captain } = useContext(CaptainDataContext);
+
+  const [ride, setRide] = useState(null);
 
   useEffect(() => {
     socket.emit("join", { userType: "captain", userId: captain._id });
@@ -37,7 +39,10 @@ const CaptainHome = () => {
   }, [captain]);
 
   socket.on("new-ride", (data) => {
-    console.log("\nDATA:\n ", data);
+    console.log("\nRide Received:\n");
+    console.log("\n RIDE:\n ", data);
+    setRide(data);
+    setRidePopUpPanel(true);
   });
 
   useGSAP(() => {
@@ -95,6 +100,7 @@ const CaptainHome = () => {
         className="fixed w-full z-10 bottom-0 bg-white px-3 py-10 pt-12 translate-y-full"
       >
         <RidePopUp
+          ride={ride}
           setRidePopUpPanel={setRidePopUpPanel}
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
