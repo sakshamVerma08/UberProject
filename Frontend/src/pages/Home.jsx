@@ -35,6 +35,10 @@ const Home = () => {
 
   useEffect(() => {
     socket.emit("join", { userType: "user", userId: user._id });
+
+    socket.on("ride-confirmed", (ride) => {
+      setWaitForDriverOpen(true);
+    });
   }, [user]);
 
   const vehicleFoundRef = useRef(null);
