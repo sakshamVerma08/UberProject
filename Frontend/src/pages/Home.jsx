@@ -33,14 +33,6 @@ const Home = () => {
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
 
-  useEffect(() => {
-    socket.emit("join", { userType: "user", userId: user._id });
-
-    socket.on("ride-confirmed", (ride) => {
-      setWaitForDriverOpen(true);
-    });
-  }, [user]);
-
   const vehicleFoundRef = useRef(null);
   const waitForDriverRef = useRef(null);
 
@@ -81,9 +73,9 @@ const Home = () => {
     } catch (err) {
       console.log(
         "error in handleDestination change method (Home.jsx)",
-        "\nError message  is: ",
         err.message
       );
+      console.log("No ride found !");
     }
   };
 
@@ -126,6 +118,19 @@ const Home = () => {
     console.log("createRide data = ", response.data);
   }
 
+  useEffect(() => {
+    if (!user || !user._id) {
+      console.log("User ID is NULL:", user);
+      return;
+    }
+    socket.emit("join", { userType: "user", userId: user?._id });
+
+    socket.on("ride-confirmed", (ride) => {
+      setWaitForDriverOpen(true);
+    });
+  }, [user]);
+
+  
   const submitHandler = (e) => {
     e.preventDefault();
   };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const RidePopUp = (props) => {
   return (
@@ -73,7 +73,7 @@ const RidePopUp = (props) => {
         <button
           onClick={() => {
             props.setConfirmRidePopUpPanel(true);
-            props.confirmRide()
+            props.confirmRide();
           }}
           className=" bg-green-600 p-2 px-8 font-semibold text-white rounded-lg"
         >

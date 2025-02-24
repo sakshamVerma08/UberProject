@@ -17,7 +17,7 @@ module.exports.createRide = async (req, res) => {
     console.error("req.user is null!");
     return res.status(401).json({ message: "Unauthorized: No user found" });
   }
-  
+
   try {
     const ride = await rideService.createRideService({
       user: req.user._id,
@@ -51,24 +51,6 @@ module.exports.createRide = async (req, res) => {
       );
 
       if (captainsInRadius.length === 0) {
-        // const dummyCaptain = {
-        //   fullname: {
-        //     firstname: "testCaptain1",
-        //     lastname: "testCaptain_lastname",
-        //     email: "test_email@gmail.com",
-
-        //     vehicle: {
-        //       color: "black",
-        //       plate: "DL 8H BZ 9924",
-        //       capacity: 3,
-        //       vehicleType: "car",
-        //     },
-        //     socketId: "h1pkO_MlcO20-7duAAAD",
-        //   },
-        // };
-
-        // captainsInRadius.push(dummyCaptain);
-
         const randomCaptains = await captainModel.find({});
 
         if (randomCaptains) {
@@ -88,6 +70,13 @@ module.exports.createRide = async (req, res) => {
         .findOne({ _id: ride._id })
         .populate("user");
 
+      console.log("ride = ", rideWithUser);
+
+      if (!rideWithUser) {
+        console.log(
+          "problem in Ride Creation (createRide() in rideController.js)"
+        );
+      }
       captainsInRadius.map((captain) => {
         sendMessageToSocketId(captain.socketId, {
           event: "new-ride",
@@ -130,6 +119,10 @@ module.exports.confirmRide = async (req, res) => {
   }
 
   const { rideId } = req.body;
+
+  if (!rideId) {
+    return res.status(400).json({ message: "Ride Id is invalid" });
+  }
 
   try {
     const ride = await rideService.confirmRide({

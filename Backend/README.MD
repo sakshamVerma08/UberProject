@@ -501,3 +501,89 @@ Authorization: Bearer <your_token>
 ## Developer
 
 This API is part of the ride service system.
+
+# Confirm Ride API
+
+## Overview
+
+The `/rides/confirm` endpoint allows a captain to confirm a ride request. Once confirmed, the ride status is updated, and the user is notified via WebSocket.
+
+## Endpoint Details
+
+- **URL**: `/rides/confirm`
+- **Method**: `POST`
+- **Authentication**: Required (Captain must be authenticated)
+- **Headers**:
+  - `Content-Type: application/json`
+  - `Authorization: Bearer <token>`
+
+## Request
+
+### Body Parameters
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `rideId`  | String | Yes      | The unique identifier of the ride to confirm |
+
+### Example Request
+
+```json
+{
+  "rideId": "65d123abc456def789012345"
+}
+```
+
+## Response
+
+### Success Response (200 OK)
+
+```json
+{
+  "_id": "65d123abc456def789012345",
+  "status": "accepted",
+  "captain": "65c678def123abc456789012",
+  "user": {
+    "_id": "65b789012345abc678def123",
+    "name": "John Doe",
+    "socketId": "xyz123socketid"
+  }
+}
+```
+
+### Error Responses
+
+#### Missing Ride ID (400 Bad Request)
+
+```json
+{
+  "message": "Ride Id is invalid"
+}
+```
+
+#### Ride Not Found (500 Internal Server Error)
+
+```json
+{
+  "message": "Ride not found!"
+}
+```
+
+## Implementation Details
+
+- **Validation**: Checks if `rideId` is provided in the request body.
+- **Service Logic**:
+  - Finds and updates the ride status to `accepted`.
+  - Assigns the captain to the ride.
+  - Fetches ride details including user information.
+- **WebSocket Notification**:
+  - Sends a `ride-confirmed` event to the user's socket ID.
+- **Error Handling**: Proper error messages for missing ride ID and non-existing rides.
+
+## Notes
+
+- Ensure the captain is authenticated before calling this API.
+- The WebSocket event should be handled on the frontend for real-time ride updates.
+
+---
+
+This API is a crucial part of the ride confirmation process, ensuring a smooth experience for both captains and users.

@@ -36,7 +36,7 @@ function initializeSocket(server) {
       }
 
       const { userId, location } = data;
-      console.log("location object : \n", location);
+      // console.log("location object : \n", location);
 
       if (
         !location ||

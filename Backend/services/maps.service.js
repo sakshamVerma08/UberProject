@@ -12,7 +12,7 @@ module.exports.getAddressCoordinates = async (address) => {
 
     if (response.data.status === "OK") {
       const location = response.data.results[0]?.geometry?.location;
-      console.log("From map-services\nLocation = ", location);
+      // console.log("From map-services\nLocation = ", location);
 
       if (!location || !location.lat || !location.lng) {
         throw new Error("Invalid location data received from Google Maps API");
