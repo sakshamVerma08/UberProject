@@ -13,6 +13,11 @@ module.exports.createRide = async (req, res) => {
 
   const { pickup, destination, vehicleType } = req.body;
 
+  if (!req.user) {
+    console.error("req.user is null!");
+    return res.status(401).json({ message: "Unauthorized: No user found" });
+  }
+  
   try {
     const ride = await rideService.createRideService({
       user: req.user._id,
