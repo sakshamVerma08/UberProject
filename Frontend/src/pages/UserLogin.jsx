@@ -35,66 +35,74 @@ const UserLogin = () => {
     }
   };
   return (
-    <div className="p-7 h-screen flex flex-col justify-between">
-      <div>
-        {" "}
-        <img
-          className="w-16 mb-10"
-          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-          alt="Uber-Logo.png"
-        />
-        <form
-          onSubmit={(e) => {
-            submitHandler(e);
-          }}
-        >
-          <h3 className="text-lg font-medium mb-2">What's your email</h3>
-
-          <input
-            className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-            placeholder="email@example.com"
+    <div className="md:flex justify-between items-center">
+      <div className="p-7 h-screen flex flex-col justify-between md:max-w-lg md:ml-2">
+        <div>
+          {" "}
+          <img
+            className="w-16 mb-10 md:w-20 lg:w-24"
+            src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+            alt="Uber-Logo.png"
           />
-
-          <h3 className="text-lg font-medium mb-2">Enter Password</h3>
-
-          <input
-            className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border"
-            type="password"
-            required
-            placeholder="Password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
+          <form
+            onSubmit={(e) => {
+              submitHandler(e);
             }}
-          />
+          >
+            <h3 className="text-lg font-medium mb-2 md:text-xl md:mb-3">
+              What's your email
+            </h3>
 
-          <button className="w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded ">
-            Login
-          </button>
-        </form>
-        <p className="text-center">
-          New here?{" "}
-          <Link to={"/signup"} className="text-blue-600">
-            Create a new Account
+            <input
+              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              placeholder="email@example.com"
+            />
+
+            <h3 className="text-lg font-medium mb-2 md:text-xl md:mb-3">
+              Enter Password
+            </h3>
+
+            <input
+              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl"
+              type="password"
+              required
+              placeholder="Password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+            />
+
+            <button className="w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded md:px-auto md:py-2 md:text-xl md:placeholder:text-2xl md:max-w-lg md:mt-5 ">
+              Login
+            </button>
+          </form>
+          <p className="text-center md:text-lg ">
+            New here?{" "}
+            <Link to={"/signup"} className="text-blue-600">
+              Create a new Account
+            </Link>
+          </p>
+        </div>
+
+        <div>
+          <Link
+            to={"/captain-login"}
+            className="w-full flex justify-center items-center mb-5 px-4 py-2 bg-[#0f0e12c7] text-lg text-white font-semibold placeholder:text-base rounded md:max-w-lg "
+          >
+            Sign In as Captain
           </Link>
-        </p>
+        </div>
       </div>
 
-      <div>
-        <Link
-          to={"/captain-login"}
-          className="w-full flex justify-center items-center mb-5 px-4 py-2 bg-[#10b461] text-lg text-white font-semibold placeholder:text-base rounded "
-        >
-          Sign In as Captain
-        </Link>
-      </div>
+      <div className="hidden md:block h-screen w-1/2 bg-[url(https://images.unsplash.com/photo-1593950315186-76a92975b60c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] bg-cover "></div>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 export const SocketContext = createContext();
 
-const socket = io(`${import.meta.env.VITE_BASE_URL}`);
+ const socket = io(`${import.meta.env.VITE_BASE_URL}`);
 
 const SocketProvider = ({ children }) => {
   useEffect(() => {
@@ -15,6 +15,9 @@ const SocketProvider = ({ children }) => {
       console.log("Disconnected from server (from socketContext.jsx)");
     });
   }, []);
+
+  
+
 
   return (
     <SocketContext.Provider value={{ socket }}>
