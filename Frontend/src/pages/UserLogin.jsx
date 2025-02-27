@@ -35,8 +35,8 @@ const UserLogin = () => {
     }
   };
   return (
-    <div className="md:flex justify-between items-center">
-      <div className="p-7 h-screen flex flex-col justify-between md:max-w-lg md:ml-2">
+    <div className="md:flex justify-between  items-center">
+      <div className="p-7 h-screen flex flex-col justify-between md:max-w-lg md:ml-2 ">
         <div>
           {" "}
           <img
@@ -54,7 +54,7 @@ const UserLogin = () => {
             </h3>
 
             <input
-              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl"
+              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl lg:max-w-6xl"
               type="email"
               required
               value={email}
@@ -69,7 +69,7 @@ const UserLogin = () => {
             </h3>
 
             <input
-              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl"
+              className="w-full mb-7 px-4 py-2 bg-[#eeeeee] text-lg placeholder:text-base rounded border md:max-w-2xl lg:max-w-6xl"
               type="password"
               required
               placeholder="Password"
@@ -102,7 +102,7 @@ const UserLogin = () => {
         </div>
       </div>
 
-      <div className="hidden md:block h-screen w-1/2 bg-[url(https://images.unsplash.com/photo-1593950315186-76a92975b60c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] bg-cover "></div>
+      <div className="hidden md:block h-screen w-1/2 bg-[url(https://images.unsplash.com/photo-1554260570-83dc2f46ef79?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] bg-cover "></div>
     </div>
   );
 };
