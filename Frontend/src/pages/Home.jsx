@@ -251,9 +251,9 @@ const Home = () => {
               submitHandler(e);
             }}
           >
-            <div className="line absolute bg-gray-500 h-15 w-1 top-[40%] left- rounded-full "></div>
+            {/* <div className="line absolute bg-gray-500 h-15 w-1 top-[40%] left-10 rounded-full "></div> */}
             <input
-              className="bg-[#eee] px-12 py-2 rounded-lg text-base w-full mt-4"
+              className="bg-[#eee] px-12 py-2 rounded-lg text-base w-full mt-4" 
               value={pickup}
               onChange={handlePickupChange}
               onClick={() => {

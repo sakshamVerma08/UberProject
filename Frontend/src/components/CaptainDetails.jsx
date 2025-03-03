@@ -31,8 +31,8 @@ const CaptainDetails = () => {
         </div>
       </div>
 
-      <div className="flex justify-center gap-5 items-start p-5 mt-6 bg-gray-100 rounded-xl ">
-        <div className="text-center">
+      <div className="flex justify-center gap-5 items-start p-5 mt-6 bg-gray-100 rounded-xl sm:justify-around">
+        <div className="text-center ">
           <i className="text-3xl mb-2 font-thin ri-timer-2-line"></i>
           <h5 className="text-lg font-medium">10.2</h5>
           <p className="text-sm text-gray-600">Hours Online</p>
