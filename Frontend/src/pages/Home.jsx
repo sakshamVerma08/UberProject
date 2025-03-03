@@ -50,8 +50,8 @@ const Home = () => {
       );
 
       setPickupSuggestion(response.data);
-    } catch (err) {
-      console.log(err.message);
+    } catch(err){
+      console.log("error in getting map suggestions", err.message);
     }
   };
 
