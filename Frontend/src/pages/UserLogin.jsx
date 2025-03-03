@@ -30,8 +30,9 @@ const UserLogin = () => {
         navigate("/home");
       }
     } catch (err) {
-      console.log("Error while Logging in");
-      console.log(err.message);
+      setTimeout(() => {
+        alert("Invalid email or password");
+      }, 3000);
     }
   };
   return (

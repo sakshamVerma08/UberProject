@@ -55,6 +55,15 @@ const CaptainHome = () => {
   });
 
   async function confirmRide() {
+    if (!ride || !ride._id) {
+      console.log("Ride or ride id is missing");
+      return;
+    }
+
+    if (!captain || !captain._id) {
+      console.log("Captain or captain id is missing");
+      return;
+    }
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
@@ -67,8 +76,7 @@ const CaptainHome = () => {
         }
       );
     } catch (err) {
-      console.log("Error in fetching data from /rides/confirm");
-      console.log(err);
+      console.log("Error in Confirming the ride", err);
     }
 
     setRidePopUpPanel(false);

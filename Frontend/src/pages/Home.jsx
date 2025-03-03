@@ -76,7 +76,7 @@ const Home = () => {
       setDestinationSuggestion(response.data);
     } catch (err) {
       console.log(
-        "error in handleDestination change method (Home.jsx)",
+        "error in entering Destination /maps/get-suggestions",
         err.message
       );
       console.log("No ride found !");

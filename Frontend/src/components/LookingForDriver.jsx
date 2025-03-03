@@ -2,7 +2,7 @@ import React from "react";
 
 const LookingForDriver = (props) => {
   return (
-    <div>
+    <div >
       <h5
         onClick={() => {
           props.setVehicleFound(false);

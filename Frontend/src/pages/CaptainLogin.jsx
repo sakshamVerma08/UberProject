@@ -32,7 +32,9 @@ const CaptainLogin = () => {
         navigate("/captain-home");
       }
     } catch (err) {
-      console.log("Error while logging in", err);
+      setTimeout(() => {
+        alert("Invalid email or password");
+      }, 3000);
     }
   };
   return (

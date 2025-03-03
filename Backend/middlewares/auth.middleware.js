@@ -9,8 +9,7 @@ module.exports.authUser = async (req, res, next) => {
   const token = req.cookies.token || (authHeader && authHeader.split(" ")[1]);
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized (middleware)" });
-    console.log("token = ", token);
+    return res.status(401).json({ message: "Unauthorized : Invalid token" });
   }
 
   const isBlackListed = await blackListTokenModel.findOne({ token: token });
@@ -25,8 +24,10 @@ module.exports.authUser = async (req, res, next) => {
       return res.status(401).json({ message: "couldn't decode token" });
     }
 
-
     const user = await userModel.findById(decodedToken._id);
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
+    }
     req.user = user;
 
     return next();
@@ -52,11 +53,15 @@ module.exports.authCaptain = async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const captain = await captainModel.findById(decodedToken._id);
 
+    if (!captain) {
+      return res.status(401).json({ message: "Captain not found" });
+    }
+
     req.captain = captain;
     return next();
   } catch (err) {
     return res
       .status(401)
-      .json({ message: "Unauthorized{error in middleware)", error: err });
+      .json({ message: "Unauthorized", error: err.message });
   }
 };

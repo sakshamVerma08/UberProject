@@ -10,54 +10,51 @@ async function getFare(pickup, destination) {
 
     const distanceTime = await mapService.getDistanceTime(pickup, destination);
 
-    if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
-      return { error: "No valid route found between pickup and destination" };
-    }
+    const baseFare = {
+      auto: 30,
+      car: 50,
+      motorcycle: 20,
+    };
+
+    const perKmRate = {
+      auto: 10,
+      car: 15,
+      motorcycle: 8,
+    };
+
+    const perMinuteRate = {
+      auto: 2,
+      car: 3,
+      motorcycle: 1.5,
+    };
+
+    const fare = {
+      auto: Math.round(
+        baseFare.auto +
+          (distanceTime.distance.value / 1000) * perKmRate.auto +
+          (distanceTime.duration.value / 60) * perMinuteRate.auto
+      ),
+      car: Math.round(
+        baseFare.car +
+          (distanceTime.distance.value / 1000) * perKmRate.car +
+          (distanceTime.duration.value / 60) * perMinuteRate.car
+      ),
+      motorcycle: Math.round(
+        baseFare.motorcycle +
+          (distanceTime.distance.value / 1000) * perKmRate.motorcycle +
+          (distanceTime.duration.value / 60) * perMinuteRate.motorcycle
+      ),
+    };
+
+    return fare;
   } catch (err) {
     console.log("Error in getFare", err);
+    return res
+      .status(400)
+      .json({ message: "error in getting fare for the ride" });
   }
-
-  const baseFare = {
-    auto: 30,
-    car: 50,
-    motorcycle: 20,
-  };
-
-  const perKmRate = {
-    auto: 10,
-    car: 15,
-    motorcycle: 8,
-  };
-
-  const perMinuteRate = {
-    auto: 2,
-    car: 3,
-    motorcycle: 1.5,
-  };
-
-  if (!distanceTime) {
-    return { error: "No valid route found between pickup and destination" };
-  }
-  const fare = {
-    auto: Math.round(
-      baseFare.auto +
-        (distanceTime.distance.value / 1000) * perKmRate.auto +
-        (distanceTime.duration.value / 60) * perMinuteRate.auto
-    ),
-    car: Math.round(
-      baseFare.car +
-        (distanceTime.distance.value / 1000) * perKmRate.car +
-        (distanceTime.duration.value / 60) * perMinuteRate.car
-    ),
-    motorcycle: Math.round(
-      baseFare.motorcycle +
-        (distanceTime.distance.value / 1000) * perKmRate.motorcycle +
-        (distanceTime.duration.value / 60) * perMinuteRate.motorcycle
-    ),
-  };
-
-  return fare;
 }
+
 module.exports.getFare = getFare;
 function getOtp(num) {
   const otp = crypto
@@ -89,10 +86,9 @@ module.exports.createRideService = async ({
 };
 
 module.exports.confirmRide = async ({ rideId, captainId }) => {
-  console.log("rideID=", rideId);
-
   if (!rideId) {
     throw new Error("Ride ID is Required");
+    console.log("Ride ID = ", rideId);
   }
 
   await rideModel.findByIdAndUpdate(rideId, {

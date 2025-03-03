@@ -107,12 +107,10 @@ module.exports.getFare = async (req, res) => {
     return res.status(200).json(fare);
   } catch (err) {
     console.log(err);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "error in getting the fare of the ride",
-      });
+    return res.status(500).json({
+      success: false,
+      message: "error in getting the fare of the ride",
+    });
   }
 };
 
@@ -127,6 +125,10 @@ module.exports.confirmRide = async (req, res) => {
 
   if (!rideId) {
     return res.status(400).json({ message: "Ride Id is invalid" });
+  }
+
+  if (!req.captain || !req.captain._id) {
+    return res.status(400).json({ message: "Unauthorized:Captain Not found" });
   }
 
   try {
