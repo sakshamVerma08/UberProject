@@ -15,10 +15,7 @@ app.use(cookieParser());
 const cors = require("cors");
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://uberproject-frontend-6qzp.onrender.com",
-    ],
+    origin: ["http://localhost:5173", "http://localhost:4000"],
     methods: ["GET", "POST"],
     credentials: true,
   })

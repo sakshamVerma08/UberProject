@@ -15,7 +15,6 @@ import Riding from "./pages/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
 
 const App = () => {
-  console.log("This is the App component");
   return (
     <div>
       <Routes>

@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { CaptainDataContext } from "../context/CaptainContext";
 const CaptainDetails = () => {
-  // const { captain } = useContext(CaptainDataContext);
-  const captain = JSON.parse(localStorage.getItem("captain"));
+  const { captain } = useContext(CaptainDataContext);
+  //const captain = JSON.parse(localStorage.getItem("captain"));
 
   if (!captain) {
     return (

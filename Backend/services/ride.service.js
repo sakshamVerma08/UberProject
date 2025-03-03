@@ -3,16 +3,18 @@ const mapService = require("../services/maps.service");
 const crypto = require("crypto");
 
 async function getFare(pickup, destination) {
-  if (!pickup || !destination) {
-    throw new Error("Pickup and destination are required");
-  }
+  try {
+    if (!pickup || !destination) {
+      return { error: "Pickup and Destination are required" };
+    }
 
-  const distanceTime = await mapService.getDistanceTime(pickup, destination);
+    const distanceTime = await mapService.getDistanceTime(pickup, destination);
 
-  if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
-    throw new Error(
-      "No valid route found. Please check the Pickup and Drop location"
-    );
+    if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
+      return { error: "No valid route found between pickup and destination" };
+    }
+  } catch (err) {
+    console.log("Error in getFare", err);
   }
 
   const baseFare = {
@@ -33,8 +35,9 @@ async function getFare(pickup, destination) {
     motorcycle: 1.5,
   };
 
-  console.log("Distance time=", distanceTime);
-
+  if (!distanceTime) {
+    return { error: "No valid route found between pickup and destination" };
+  }
   const fare = {
     auto: Math.round(
       baseFare.auto +
@@ -55,7 +58,6 @@ async function getFare(pickup, destination) {
 
   return fare;
 }
-
 module.exports.getFare = getFare;
 function getOtp(num) {
   const otp = crypto
@@ -88,15 +90,15 @@ module.exports.createRideService = async ({
 
 module.exports.confirmRide = async ({ rideId, captainId }) => {
   console.log("rideID=", rideId);
-  
+
   if (!rideId) {
     throw new Error("Ride ID is Required");
   }
 
-  await rideModel.findByIdAndUpdate(
-    rideId,
-    { status: "accepted", captain: captainId }
-  );
+  await rideModel.findByIdAndUpdate(rideId, {
+    status: "accepted",
+    captain: captainId,
+  });
 
   const ride = await rideModel
     .findOne({

@@ -50,8 +50,12 @@ const Home = () => {
       );
 
       setPickupSuggestion(response.data);
-    } catch(err){
-      console.log("error in getting map suggestions", err.message);
+    } catch (err) {
+      console.log(
+        "error in handlePickup change method (Home.jsx)",
+        err.message
+      );
+      console.log("No ride found !");
     }
   };
 
@@ -83,25 +87,24 @@ const Home = () => {
     setVehiclePanel(true);
     setIsPanelOpen(false);
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
-      {
-        params: {
-          pickup,
-          destination,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    if (!response.data || response.data.status === "NOT_FOUND") {
-      alert(
-        "Invalid Route ! Please make sure your pickup and drop destination are in the same state"
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
+        {
+          params: {
+            pickup,
+            destination,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
+
+      setFare(response.data);
+    } catch (err) {
+      console.log("Error in Finding Trip\n", err.message);
     }
-    setFare(response.data);
   }
 
   async function createRide() {
@@ -130,7 +133,6 @@ const Home = () => {
     });
   }, [user]);
 
-  
   const submitHandler = (e) => {
     e.preventDefault();
   };
@@ -253,7 +255,7 @@ const Home = () => {
           >
             {/* <div className="line absolute bg-gray-500 h-15 w-1 top-[40%] left-10 rounded-full "></div> */}
             <input
-              className="bg-[#eee] px-12 py-2 rounded-lg text-base w-full mt-4" 
+              className="bg-[#eee] px-12 py-2 rounded-lg text-base w-full mt-4"
               value={pickup}
               onChange={handlePickupChange}
               onClick={() => {

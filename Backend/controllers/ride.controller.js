@@ -107,7 +107,12 @@ module.exports.getFare = async (req, res) => {
     return res.status(200).json(fare);
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: err.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "error in getting the fare of the ride",
+      });
   }
 };
 
