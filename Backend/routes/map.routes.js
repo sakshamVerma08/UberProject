@@ -21,7 +21,10 @@ router.get(
 
 router.get(
   "/get-suggestions",
-  query("input").isString().isLength({ min: 3 }),
+  query("input")
+    .isString()
+    .isLength({ min: 3 })
+    .withMessage("Valid Input is required"),
   authMiddleware.authUser,
   mapController.getAutoCompleteSuggestions
 );

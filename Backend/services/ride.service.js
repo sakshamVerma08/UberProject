@@ -88,7 +88,6 @@ module.exports.createRideService = async ({
 module.exports.confirmRide = async ({ rideId, captainId }) => {
   if (!rideId) {
     throw new Error("Ride ID is Required");
-    console.log("Ride ID = ", rideId);
   }
 
   await rideModel.findByIdAndUpdate(rideId, {

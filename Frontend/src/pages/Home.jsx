@@ -32,6 +32,7 @@ const Home = () => {
 
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
+  const token = localStorage.getItem("token");
 
   const vehicleFoundRef = useRef(null);
   const waitForDriverRef = useRef(null);
@@ -39,7 +40,7 @@ const Home = () => {
   const handlePickupChange = async (e) => {
     setPickup(e.target.value);
     try {
-      const response = await axios.get(
+      const response = axios.get(
         `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
         {
           params: { input: e.target.value },
@@ -48,14 +49,8 @@ const Home = () => {
           },
         }
       );
-
-      setPickupSuggestion(response.data);
     } catch (err) {
-      console.log(
-        "error in handlePickup change method (Home.jsx)",
-        err.message
-      );
-      console.log("No ride found !");
+      console.log("Error while getting pickup suggestions", err.message);
     }
   };
 
@@ -75,11 +70,7 @@ const Home = () => {
 
       setDestinationSuggestion(response.data);
     } catch (err) {
-      console.log(
-        "error in entering Destination /maps/get-suggestions",
-        err.message
-      );
-      console.log("No ride found !");
+      console.log("Error while getting detination suggestions", err.message);
     }
   };
 

@@ -14,6 +14,7 @@ const CaptainProtectedWrapper = ({ children }) => {
 
   useEffect(() => {
     if (!token) {
+      console.log("Token not found");
       navigate("/captain-login");
     } else {
       NProgress.start();
@@ -31,7 +32,7 @@ const CaptainProtectedWrapper = ({ children }) => {
           }
         })
         .catch((err) => {
-          console.log("Error = ", err);
+          console.log("Error in captain protect wrapper = ", err);
           localStorage.removeItem("token");
           navigate("/captain-login");
         })

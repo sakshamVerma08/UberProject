@@ -31,7 +31,7 @@ function initializeSocket(server) {
         });
       }
 
-      console.log("Updated User/Captain = ", updatedUser);
+      // console.log("Updated User/Captain = ", updatedUser);
     });
 
     socket.on("update-location-captain", async (data) => {
@@ -71,7 +71,7 @@ function initializeSocket(server) {
 }
 
 function sendMessageToSocketId(socketId, messageObject) {
-  console.log(`sending message to ${socketId}, message = `, messageObject);
+  // console.log(`sending message to ${socketId}, message = `, messageObject);
   if (io) {
     io.to(socketId).emit(messageObject.event, messageObject.data);
   } else {

@@ -55,7 +55,9 @@ module.exports.createRide = async (req, res) => {
 
         if (randomCaptains) {
           randomCaptains.map((cpn, index) => {
-            captainsInRadius.push(cpn);
+            if (cpn.socketId) {
+              captainsInRadius.push(cpn);
+            }
           });
         } else {
           console.log(
@@ -70,12 +72,8 @@ module.exports.createRide = async (req, res) => {
         .findOne({ _id: ride._id })
         .populate("user");
 
-      console.log("ride = ", rideWithUser);
-
       if (!rideWithUser) {
-        console.log(
-          "problem in Ride Creation (createRide() in rideController.js)"
-        );
+        console.log("problem in Ride Creation ");
       }
       captainsInRadius.map((captain) => {
         sendMessageToSocketId(captain.socketId, {
@@ -84,11 +82,10 @@ module.exports.createRide = async (req, res) => {
         });
       });
     } catch (err) {
-      console.log("Couldn't process captains in the backend");
-      console.log("error in ride-controller.js", err);
+      console.log("Couldn't process captains in the backend", err.message);
     }
   } catch (err) {
-    console.log("Error in ride-controller", err);
+    console.log("Error in Ride Creation", err.message);
   }
 };
 

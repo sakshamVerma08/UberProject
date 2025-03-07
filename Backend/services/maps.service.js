@@ -69,15 +69,16 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     const response = await axios.get(url);
     if (response.data.status === "OK") {
       return response.data.predictions;
+    } else if (response.data.status === "REQUEST_DENIED") {
+      console.log(response.data.error_message);
     }
   } catch (err) {
-    console.log(err);
-    throw new err();
+    console.log(err.message);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
 module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
-
   const latRange = 0.05;
   const lngRange = 0.05;
 
@@ -96,8 +97,6 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
       "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
       "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
     });
-
-   
 
     return captains;
   } catch (error) {

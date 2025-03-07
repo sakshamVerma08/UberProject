@@ -37,11 +37,9 @@ app.use("/rides", rideRoutes);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://uberproject-frontend-6qzp.onrender.com",
-    ],
+    origin: ["http://localhost:5173", "http://localhost:4000"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
