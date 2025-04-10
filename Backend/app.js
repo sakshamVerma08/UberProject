@@ -15,7 +15,7 @@ app.use(cookieParser());
 const cors = require("cors");
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:4000"],
+    origin: ["http://localhost:5173", "https://uber-project-jade.vercel.app/"],
     methods: ["GET", "POST"],
     credentials: true,
   })
