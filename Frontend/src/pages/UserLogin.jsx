@@ -30,7 +30,8 @@ const UserLogin = () => {
         navigate("/home");
       }
     } catch (err) {
-      console.log(err); 
+      console.log(err);
+      console.log("Login Failed");
     }
   };
   return (

@@ -40,7 +40,7 @@ const Home = () => {
   const handlePickupChange = async (e) => {
     setPickup(e.target.value);
     try {
-      const response = axios.get(
+      const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
         {
           params: { input: e.target.value },
