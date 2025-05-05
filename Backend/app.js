@@ -17,6 +17,7 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "https://uber-project-jade.vercel.app/"],
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true,
   })
 );

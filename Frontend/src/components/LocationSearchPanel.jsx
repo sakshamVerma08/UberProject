@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const LocationSearchPanel = (props) => {
   const suggestions = Array.isArray(props.suggestions) ? props.suggestions : [];
+
   return (
     <div>
       {suggestions.length > 0 ? (

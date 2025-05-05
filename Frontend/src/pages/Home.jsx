@@ -49,6 +49,8 @@ const Home = () => {
           },
         }
       );
+
+      setPickupSuggestion(response.data);
     } catch (err) {
       console.log("Error while getting pickup suggestions", err.message);
     }
