@@ -4,6 +4,7 @@ const mapService = require("../services/maps.service");
 const { sendMessageToSocketId } = require("../socket");
 const rideModel = require("../models/ride.model");
 const captainModel = require("../models/captain.model");
+
 module.exports.createRide = async (req, res) => {
   const errors = validationResult(req);
 
@@ -14,7 +15,6 @@ module.exports.createRide = async (req, res) => {
   const { pickup, destination, vehicleType } = req.body;
 
   if (!req.user) {
-    console.error("req.user is null!");
     return res.status(401).json({ message: "Unauthorized: No user found" });
   }
 
@@ -26,8 +26,6 @@ module.exports.createRide = async (req, res) => {
       vehicleType,
     });
 
-    res.status(201).json(ride);
-
     try {
       const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
       if (
@@ -35,12 +33,6 @@ module.exports.createRide = async (req, res) => {
         !pickupCoordinates.ltd ||
         !pickupCoordinates.lng
       ) {
-        console.log(
-          "\nFrom ride-controller\n Pickup latitude: ",
-          pickupCoordinates.ltd,
-          "\nPickupCoordinates longitude: ",
-          pickupCoordinates.lng
-        );
         return res.status(400).json({ message: "Invalid pickup location" });
       }
 
@@ -51,8 +43,8 @@ module.exports.createRide = async (req, res) => {
       );
 
       if (captainsInRadius.length === 0) {
-        const randomCaptains = await captainModel.find({});
-
+        const randomCaptains = await captainModel.find();
+        console.log("RANDOM CPTS= ", randomCaptains);
         if (randomCaptains) {
           randomCaptains.map((cpn, index) => {
             if (cpn.socketId) {
@@ -81,6 +73,8 @@ module.exports.createRide = async (req, res) => {
           data: rideWithUser,
         });
       });
+
+      res.status(201).json(ride);
     } catch (err) {
       console.log("Couldn't process captains in the backend", err.message);
     }

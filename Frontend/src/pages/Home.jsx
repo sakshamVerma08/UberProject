@@ -93,7 +93,7 @@ const Home = () => {
           },
         }
       );
-
+      
       setFare(response.data);
     } catch (err) {
       console.log("Error in Finding Trip\n", err.message);

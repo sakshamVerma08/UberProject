@@ -5,7 +5,9 @@ const crypto = require("crypto");
 async function getFare(pickup, destination) {
   try {
     if (!pickup || !destination) {
-      return { error: "Pickup and Destination are required" };
+      return res
+        .status(400)
+        .json({ error: "Pickup and Destination are required" });
     }
 
     const distanceTime = await mapService.getDistanceTime(pickup, destination);
@@ -48,10 +50,7 @@ async function getFare(pickup, destination) {
 
     return fare;
   } catch (err) {
-    console.log("Error in getFare", err);
-    return res
-      .status(400)
-      .json({ message: "error in getting fare for the ride" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
