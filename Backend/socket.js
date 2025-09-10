@@ -4,6 +4,7 @@ const captainModel = require("./models/captain.model");
 
 let io;
 
+
 function initializeSocket(server) {
   io = socketIo(server, {
     cors: {
@@ -17,7 +18,7 @@ function initializeSocket(server) {
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;
-      console.log(`${userType} id = ${userId}, Joined as : ${userType}`);
+      console.log(`${userType} Mongo_id = ${userId}, Joined as : ${userType}`);
 
       let updatedUser;
 
@@ -32,6 +33,11 @@ function initializeSocket(server) {
       }
 
       // console.log("Updated User/Captain = ", updatedUser);
+    });
+
+    socket.on("new-ride-request", async (rideData) => {
+      console.log("\nNew Ride Request received on server", rideData);
+      const nearbyCaptains = await mongoose;
     });
 
     socket.on("update-location-captain", async (data) => {
