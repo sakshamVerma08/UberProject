@@ -5,7 +5,14 @@ const { Server } = require("socket.io");
 const captainRoutes = require("./routes/captain.routes");
 const mapRoutes = require("./routes/map.routes");
 const rideRoutes = require("./routes/ride.routes");
-dotenv.config();
+// Loading the correct environment
+let env = process.env.NODE_ENV || "development";
+
+dotenv.config({ path: `.env.${env}`, override: true });
+console.log("Running it in :", env);
+
+// dotenv.config({ path: ".env.local", override: true });
+
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
