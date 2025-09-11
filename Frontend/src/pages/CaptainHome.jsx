@@ -47,7 +47,7 @@ const CaptainHome = () => {
     updateLocation();
   }, [captain]);
 
-  socket.on("new-ride", (data) => {
+  socket.on("new-ride-request", (data) => {
     console.log("\nRide Received:\n");
     console.log("\n RIDE:\n ", data);
     setRide(data);

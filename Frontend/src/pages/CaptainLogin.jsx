@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CaptainDataContext } from "../context/CaptainContext";
 import { SocketContext } from "../context/SocketContext";
+import { toast, Toaster } from "react-hot-toast";
 
 const CaptainLogin = () => {
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ const CaptainLogin = () => {
         const data = response.data;
         //setCaptain(data.captain);
         updateCaptain(data.captain);
+        toast.success(response.data.message);
 
         socket.emit("join", {
           userId: data.captain._id,
@@ -38,11 +40,11 @@ const CaptainLogin = () => {
 
         localStorage.setItem("token", data.token);
         navigate("/captain-home");
+      } else if (response.status == 404) {
+        toast.error("Something went wrong. Please try again");
       }
     } catch (err) {
-      setTimeout(() => {
-        alert("Invalid email or password");
-      }, 3000);
+      toast.error(err.msg);
     }
   };
   return (

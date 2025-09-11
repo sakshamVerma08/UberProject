@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const UserLogout = () => {
   const token = localStorage.getItem("token");
@@ -18,11 +19,13 @@ const UserLogout = () => {
       if (response.status === 200) {
         localStorage.removeItem("token");
         console.log("token removed from localStorage");
+        toast.success("Logged out successfully ");
         navigate("/login");
       }
     })
     .catch((err) => {
       console.log("Error during Logout = ", err);
+      toast.error("Something went wrong. Please try again");
     });
 
   return <div>User Logout </div>;

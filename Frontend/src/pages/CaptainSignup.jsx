@@ -4,6 +4,7 @@ import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
+import { toast } from "react-hot-toast";
 
 const CaptainSignup = () => {
   const [email, setEmail] = useState("");
@@ -49,6 +50,7 @@ const CaptainSignup = () => {
         const data = response.data;
 
         updateCaptain(data.captain);
+        toast.success(response.data.message);
 
         socket.emit("join", {
           userId: data.captain._id,
