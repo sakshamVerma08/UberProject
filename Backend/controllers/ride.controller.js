@@ -42,9 +42,14 @@ module.exports.createRide = async (req, res) => {
         15
       );
 
+      // if (captainsInRadius.data.status == 404) {
+      //   return res
+      //     .status(404)
+      //     .json({ message: "No Captains were found in Radius" });
+      // }
+
       if (captainsInRadius.length === 0) {
         const randomCaptains = await captainModel.find();
-        console.log("RANDOM CPTS= ", randomCaptains);
         if (randomCaptains) {
           randomCaptains.map((cpn, index) => {
             if (cpn.socketId) {
@@ -72,7 +77,7 @@ module.exports.createRide = async (req, res) => {
       console.log("\nCaptains in Radius Array = ", captainsInRadius);
       captainsInRadius.map((captain) => {
         sendMessageToSocketId(captain.socketId, {
-          event: "new-ride",
+          event: "new-ride-request",
           data: rideWithUser,
         });
       });

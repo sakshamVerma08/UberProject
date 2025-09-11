@@ -30,6 +30,11 @@ function initializeSocket(server) {
         updatedUser = await userModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
         });
+
+        console.warn(
+          "User socket.id was updated successfully ✅\nNew socket id = ",
+          updatedUser.socketId
+        );
       } else if (userType === "captain") {
         updatedCaptain = await captainModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
@@ -44,10 +49,13 @@ function initializeSocket(server) {
       // console.log("Updated User/Captain = ", updatedUser);
     });
 
-    socket.on("new-ride-request", async (rideData) => {
-      console.log("\nNew Ride Request received on server", rideData);
-      const nearbyCaptains = await mongoose;
-    });
+    // socket.on("new-ride-request", async (data) => {
+    //   console.log("\nNew Ride Request received on server", data);
+
+    //   // WIP: Write the updated code here
+
+    //   console.log("\nData sent to captains in Radius ✅");
+    // });
 
     socket.on("update-location-captain", async (data) => {
       if (!data) {

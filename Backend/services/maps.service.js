@@ -98,6 +98,12 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
       "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
     });
 
+    if (!captains) {
+      return res
+        .status(404)
+        .json({ message: "No Captains available in the radius" });
+    }
+
     return captains;
   } catch (error) {
     console.log("Error in fetching captains: ", error);
