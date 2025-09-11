@@ -93,7 +93,7 @@ const Home = () => {
           },
         }
       );
-      
+
       setFare(response.data);
     } catch (err) {
       console.log("Error in Finding Trip\n", err.message);
@@ -110,6 +110,13 @@ const Home = () => {
       },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
+
+    socket.emit("new-ride-request", {
+      rideId: response.data._id,
+      pickup,
+      destination,
+      userId: response.data.user,
+    });
 
     console.log("createRide data = ", response.data);
   }
@@ -327,6 +334,7 @@ const Home = () => {
           setVehicleFound={setVehicleFound}
         />
       </div>
+
       <div
         ref={vehicleFoundRef}
         className="bg-white z-10 fixed bottom-0 w-full translate-y-[120%] px-3 py-12  border-white "
@@ -339,6 +347,7 @@ const Home = () => {
           destination={destination}
         />
       </div>
+
       <div
         ref={waitForDriverRef}
         className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-12  border-white"

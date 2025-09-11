@@ -58,15 +58,18 @@ module.exports.createRide = async (req, res) => {
         }
       }
 
-      ride.otp = "";
+      console.warn("\nCreated Ride Details:");
+      console.log(ride);
 
       const rideWithUser = await rideModel
         .findOne({ _id: ride._id })
         .populate("user");
 
       if (!rideWithUser) {
-        console.log("problem in Ride Creation ");
+        console.log("Problem in Ride Creation ");
       }
+
+      console.log("\nCaptains in Radius Array = ", captainsInRadius);
       captainsInRadius.map((captain) => {
         sendMessageToSocketId(captain.socketId, {
           event: "new-ride",

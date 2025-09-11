@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { SocketContext } from "../context/SocketContext";
 
 const CaptainSignup = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ const CaptainSignup = () => {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   // const [captainData, setCaptainData] = useState({});
+  const { socket } = useContext(SocketContext);
 
   const [vehicleColor, setVehicleColor] = useState("");
   const [vehiclePlate, setVehiclePlate] = useState("");
@@ -45,8 +47,13 @@ const CaptainSignup = () => {
 
       if (response.status === 201) {
         const data = response.data;
-        //setCaptain(data.captain);
+
         updateCaptain(data.captain);
+
+        socket.emit("join", {
+          userId: data.captain._id,
+          userType: "captain",
+        });
 
         localStorage.setItem("token", data.token);
         navigate("/captain-home");

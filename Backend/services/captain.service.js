@@ -37,6 +37,8 @@ module.exports.createCaptain = async ({
       capacity,
       vehicleType,
     },
+
+    socketId: "",
   });
 
   return captain;

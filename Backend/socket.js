@@ -4,7 +4,6 @@ const captainModel = require("./models/captain.model");
 
 let io;
 
-
 function initializeSocket(server) {
   io = socketIo(server, {
     cors: {
@@ -17,19 +16,29 @@ function initializeSocket(server) {
     console.log("Connected", socket.id);
 
     socket.on("join", async (data) => {
+      console.warn("\nSocket Join Event was received\n");
+
       const { userId, userType } = data;
       console.log(`${userType} Mongo_id = ${userId}, Joined as : ${userType}`);
 
+      console.warn(`SocketId of ${userType} = ${socket.id}`);
+
       let updatedUser;
+      let updatedCaptain;
 
       if (userType === "user") {
-        updatedUser = userModel.findByIdAndUpdate(userId, {
+        updatedUser = await userModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
         });
       } else if (userType === "captain") {
-        updatedUser = captainModel.findByIdAndUpdate(userId, {
+        updatedCaptain = await captainModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
         });
+
+        console.warn(
+          "Captain socket.id was updated successfully ✅\nNew socket id = ",
+          updatedCaptain.socketId
+        );
       }
 
       // console.log("Updated User/Captain = ", updatedUser);

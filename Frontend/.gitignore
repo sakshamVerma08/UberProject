@@ -23,4 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-
+# Adding Dev and Prod environment variables to gitignore
+.env.development
+.env.production

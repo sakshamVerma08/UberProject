@@ -83,6 +83,9 @@ captainSchema.methods.generateAuthToken = function () {
 };
 
 captainSchema.methods.comparePassword = async function (password) {
+  if (typeof password !== "string") {
+    throw new Error("Password & hash must be string");
+  }
   return await bcrypt.compare(password, this.password);
 };
 
