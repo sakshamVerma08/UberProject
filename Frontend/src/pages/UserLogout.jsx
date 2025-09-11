@@ -17,7 +17,7 @@ const UserLogout = () => {
     })
     .then((response) => {
       if (response.status === 200) {
-        localStorage.removeItem("token");
+        localStorage.removeItem("user_token");
         console.log("token removed from localStorage");
         toast.success("Logged out successfully ");
         navigate("/login");

@@ -74,8 +74,8 @@ const CaptainSignup = () => {
     setVehicleType("");
   };
   return (
-    <div className="md:flex md:justify-center md:items-center">
-      <div className="p-7 h-screen flex flex-col justify-between">
+    <div className="md:flex md:justify-between md:items-center">
+      <div className="p-7 h-screen flex flex-col justify-between md:pt-10 md:pl-15">
         <div>
           {" "}
           <img
@@ -198,7 +198,7 @@ const CaptainSignup = () => {
               </div>
             </div>
 
-            <button className="w-full mb-6 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-lg rounded ">
+            <button className="cursor-pointer w-full mb-6 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-lg rounded ">
               Signup as Captain
             </button>
           </form>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 const ConfirmRidePopUpPanel = (props) => {
   const [otp, setOtp] = useState("");
+  
   const navigate = useNavigate();
   const submitHandler = (e) => {
     e.preventDefault();
@@ -29,7 +30,7 @@ const ConfirmRidePopUpPanel = (props) => {
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjsdrJhuv3FcZmEE9MHYjIaJ5DOxSIQ39BWg&s"
             alt="user-image"
           />
-          <h2 className="font-medium text-lg">Harsh Patel</h2>
+          <h2 className="font-medium text-lg">Harsh Patel </h2>
         </div>
         <h5 className="text-lg font-semibold">2.2 KM</h5>
       </div>

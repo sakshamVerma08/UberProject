@@ -28,7 +28,8 @@ const UserLogin = () => {
         const data = response.data;
         setUser(data.user);
         toast.success(response.data.message);
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("user_token", data.token);
+
         navigate("/home");
       } else if (response.status === 404) {
         toast.error(response.data.message);
@@ -39,8 +40,8 @@ const UserLogin = () => {
     }
   };
   return (
-    <div className="md:flex justify-between  items-center">
-      <div className="p-7 h-screen flex flex-col justify-between md:max-w-lg md:ml-2 ">
+    <div className="md:flex justify-between items-center">
+      <div className="p-7 md:pl-15 md:pt-15 h-screen flex flex-col justify-between md:max-w-lg md:ml-2 ">
         <div>
           {" "}
           <img
@@ -84,7 +85,7 @@ const UserLogin = () => {
               }}
             />
 
-            <button className="w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded md:px-auto md:py-2 md:text-xl md:placeholder:text-2xl md:max-w-lg md:mt-5 ">
+            <button className="cursor-pointer w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded md:px-auto md:py-2 md:text-xl md:placeholder:text-2xl md:max-w-lg md:mt-5 ">
               Login
             </button>
           </form>

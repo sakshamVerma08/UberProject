@@ -48,8 +48,8 @@ const CaptainLogin = () => {
     }
   };
   return (
-    <div className="md:flex md:justify-between md:items-center ">
-      <div className="p-7 h-screen flex flex-col justify-between">
+    <div className="md:flex md:justify-between md:items-center">
+      <div className="p-7 h-screen flex flex-col justify-between md:pl-13 md:pt-10">
         <div>
           {" "}
           <img
@@ -93,7 +93,7 @@ const CaptainLogin = () => {
               }}
             />
 
-            <button className="w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded md:max-w-lg ">
+            <button className="cursor-pointer w-full mb-7 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-base rounded md:max-w-lg ">
               Login
             </button>
           </form>

@@ -37,7 +37,7 @@ const UserSignup = () => {
       const data = response.data;
 
       setUser(data.user);
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("user_token", data.token);
       navigate("/home");
     } else {
       console.log("Not Done correctly");
@@ -45,7 +45,7 @@ const UserSignup = () => {
   };
   return (
     <div className="md:flex md:justify-between md:items-center">
-      <div className="p-7 h-screen flex flex-col justify-between">
+      <div className="p-7 h-screen flex flex-col justify-between md:pt-8 md:pl-10">
         <div>
           {" "}
           <img
@@ -114,7 +114,7 @@ const UserSignup = () => {
               placeholder="Password"
             />
 
-            <button className="w-full mb-6 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-lg rounded ">
+            <button className="cursor-pointer w-full mb-6 px-4 py-2 bg-[#111] text-lg text-white font-semibold placeholder:text-lg rounded ">
               Signup
             </button>
           </form>

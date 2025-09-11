@@ -29,10 +29,23 @@ const Home = () => {
   const [activeField, setActiveField] = useState(null);
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState("");
+  const [rideData, setRideData] = useState({});
+  const [captainData, setCaptainData] = useState({
+    fullname: {
+      firstname: "",
+      lastname: "",
+    },
+    vehicle: {
+      plate: "DL 8H BZ 8074",
+      color: "grey",
+      vehicleType: "car",
+      capacity: 3,
+    },
+  });
 
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("user_token");
 
   const vehicleFoundRef = useRef(null);
   const waitForDriverRef = useRef(null);
@@ -45,7 +58,7 @@ const Home = () => {
         {
           params: { input: e.target.value },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
           },
         }
       );
@@ -65,7 +78,7 @@ const Home = () => {
         {
           params: { input: e.target.value },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
           },
         }
       );
@@ -89,7 +102,7 @@ const Home = () => {
             destination,
           },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
           },
         }
       );
@@ -108,7 +121,11 @@ const Home = () => {
         destination,
         vehicleType,
       },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+        },
+      }
     );
 
     socket.emit("new-ride-request", {
@@ -118,7 +135,12 @@ const Home = () => {
       userId: response.data.user,
     });
 
-    console.log("createRide data = ", response.data);
+    // setDestination(response.data.destination);
+    // setFare(response.data.fare);
+    // setPickup(response.data.pickup);
+
+    // setRideData(response.data.ride);
+    // setCaptainData(response.data.captain);
   }
 
   useEffect(() => {
@@ -128,10 +150,12 @@ const Home = () => {
     }
     socket.emit("join", { userType: "user", userId: user?._id });
 
-    socket.on("ride-confirmed", (ride) => {
+    socket.on("ride-confirmed", (data) => {
+      setRideData(data.ride);
+      setCaptainData(data.captainDetails);
       setWaitForDriverOpen(true);
     });
-  }, [user]);
+  }, [user, socket]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -352,7 +376,11 @@ const Home = () => {
         ref={waitForDriverRef}
         className="bg-white z-10 fixed bottom-0 w-full translate-y-full px-3 py-12  border-white"
       >
-        <WaitForDriver setWaitForDriverOpen={setWaitForDriverOpen} />
+        <WaitForDriver
+          setWaitForDriverOpen={setWaitForDriverOpen}
+          rideData={rideData}
+          captainData={captainData}
+        />
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
 import { SocketContext } from "../context/SocketContext";
 import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false);
@@ -57,6 +59,7 @@ const CaptainHome = () => {
   async function confirmRide() {
     if (!ride || !ride._id) {
       console.log("Ride or ride id is missing");
+      toast.error("Something went wrong. Please try to accept the ride again");
       return;
     }
 
@@ -75,8 +78,16 @@ const CaptainHome = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
+
+      if (response.status === 200) {
+        console.log("Ride Accepted by captain\n");
+        toast.success(response.data.message);
+      } else if (response.status === 400) {
+        toast.error(response.data.message);
+      }
     } catch (err) {
       console.log("Error in Confirming the ride", err);
+      toast.error("Something went wrong. Please try again");
     }
 
     setRidePopUpPanel(false);

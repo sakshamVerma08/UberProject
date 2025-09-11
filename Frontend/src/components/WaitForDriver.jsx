@@ -1,6 +1,6 @@
 import React from "react";
 
-const WaitForDriver = () => {
+const WaitForDriver = ({ rideData, captainData }) => {
   return (
     <div>
       <h5
@@ -18,9 +18,18 @@ const WaitForDriver = () => {
           alt="Car.png"
         />
         <div className="text-right">
-          <h2 className="font-semibold text-lg">Ramesh</h2>
-          <h4 className="text-2xl font-medium ">DL 8H BZ 9924</h4>
-          <p className="text-sm text-gray-600">Maruti Suzuki Swift</p>
+          <h2 className="font-semibold text-lg">
+            {captainData.firstname + captainData.lastname}
+          </h2>
+          <h4 className="text-2xl font-medium ">
+            {/* {captainData.vehicle.plate
+              ? captainData.vehicle.plate
+              : "DL 8H BZ 8074"} */}
+            Random Plate
+          </h4>
+          <p className="text-sm text-gray-600">
+            {captainData.vehicle.vehicleType}
+          </p>
         </div>
       </div>
 
@@ -31,7 +40,7 @@ const WaitForDriver = () => {
             <div>
               <h3 className="text-lg font-bold">562/11-A </h3>
               <p className="text-gray-600 text-base font-semibold">
-                Kankariya Talab , Ahemdabad
+                {rideData.pickup}
               </p>
             </div>
           </div>
@@ -41,7 +50,7 @@ const WaitForDriver = () => {
             <div>
               <h3 className="text-lg font-bold">562/11-A </h3>
               <p className="text-gray-600 text-base font-semibold">
-                Kankariya Talab , Ahemdabad
+                {rideData.destination}
               </p>
             </div>
           </div>
@@ -49,7 +58,7 @@ const WaitForDriver = () => {
           <div className="flex items-center gap-5 p-3 border-gray-400">
             <i className="ri-currency-line"></i>
             <div>
-              <h3 className="text-lg font-bold">₹193.20 </h3>
+              <h3 className="text-lg font-bold">{rideData.fare}</h3>
               <p className="text-gray-600 text-base font-semibold">Cash</p>
             </div>
           </div>
