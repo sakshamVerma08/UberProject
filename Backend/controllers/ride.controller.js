@@ -120,13 +120,13 @@ module.exports.confirmRide = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { rideId } = req.body;
+  const { rideId, captainId } = req.body;
 
   if (!rideId) {
     return res.status(400).json({ message: "Ride Id is invalid" });
   }
 
-  if (!req.captain || !req.captain._id) {
+  if (!captainId) {
     return res.status(400).json({ message: "Unauthorized:Captain Not found" });
   }
 
@@ -136,12 +136,25 @@ module.exports.confirmRide = async (req, res) => {
       captainId: req.captain._id,
     });
 
+    const captainDetails = await captainModel.findById(captainId);
+
+    if (!captainDetails) {
+      return res
+        .status(404)
+        .json({ message: "No associated Captain found with the created ride" });
+    }
+
     sendMessageToSocketId(ride.user.socketId, {
       event: "ride-confirmed",
-      data: ride,
+      data: {
+        ride: ride,
+        captain: captainDetails,
+      },
     });
 
-    return res.status(200).json(ride);
+    return res
+      .status(200)
+      .json({ ride, message: "Ride Accepted Successfully", captainDetails });
   } catch (err) {
     console.log("\nerror in confirming ride\n");
     return res.status(500).json({ message: err.message });

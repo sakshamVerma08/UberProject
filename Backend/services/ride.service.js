@@ -5,9 +5,7 @@ const crypto = require("crypto");
 async function getFare(pickup, destination) {
   try {
     if (!pickup || !destination) {
-      return res
-        .status(400)
-        .json({ error: "Pickup and Destination are required" });
+      console.error("Pickup & Destination are required (one is undefined)");
     }
 
     const distanceTime = await mapService.getDistanceTime(pickup, destination);
@@ -49,6 +47,7 @@ async function getFare(pickup, destination) {
     };
 
     return fare;
+    
   } catch (err) {
     return res.status(500).json({ message: "Internal Server Error" });
   }

@@ -29,10 +29,9 @@ module.exports.registerCaptain = async (req, res, next) => {
     plate: vehicle.plate,
     capacity: vehicle.capacity,
     vehicleType: vehicle.vehicleType,
-    
   });
 
-    // console.log("captain obj=", captain);
+  // console.log("captain obj=", captain);
 
   const token = await captain.generateAuthToken();
 
@@ -40,7 +39,9 @@ module.exports.registerCaptain = async (req, res, next) => {
     return res.status(401).json({ message: "token was not generated" });
   }
 
-  res.status(201).json({ token, captain });
+  res
+    .status(201)
+    .json({ token, captain, message: "Account created Successfully" });
 };
 
 module.exports.loginCaptain = async (req, res, next) => {
@@ -54,12 +55,9 @@ module.exports.loginCaptain = async (req, res, next) => {
 
   const captain = await captainModel.findOne({ email }).select("+password");
 
-
   if (!captain) {
-    return res.status(400).json({ message: "Invalid Email or Password" });
+    return res.status(404).json({ message: "Invalid Email or Password" });
   }
-
-  
 
   const isMatch = captain.comparePassword(password);
 
@@ -74,7 +72,7 @@ module.exports.loginCaptain = async (req, res, next) => {
   }
 
   res.cookie("token", token);
-  res.status(200).json({ token, captain });
+  res.status(200).json({ token, captain, message: "Captain Login Successful" });
 };
 
 module.exports.getCaptainProfile = async (req, res, next) => {

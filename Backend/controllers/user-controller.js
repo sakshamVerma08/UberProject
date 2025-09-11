@@ -16,7 +16,6 @@ module.exports.registerUser = async (req, res, next) => {
 
   if (isUserAlreadyExists) {
     return res.status(400).json({ message: "Email already exists" });
-    
   }
 
   const hashedPassword = await userModel.hashPassword(password);
@@ -31,7 +30,9 @@ module.exports.registerUser = async (req, res, next) => {
   console.log("user=", user);
   const token = user.generateAuthToken();
 
-  res.status(201).json({ token, user });
+  res
+    .status(201)
+    .json({ token, user, message: "Account created successfully" });
 };
 
 module.exports.loginUser = async (req, res, next) => {
@@ -45,9 +46,8 @@ module.exports.loginUser = async (req, res, next) => {
 
   const user = await userModel.findOne({ email }).select("+password");
 
-
   if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
+    return res.status(404).json({ message: "Invalid email or password" });
   }
 
   const isMatch = await user.comparePassword(password);
@@ -60,7 +60,7 @@ module.exports.loginUser = async (req, res, next) => {
 
   res.cookie("token", token);
 
-  res.status(200).json({ token, user });
+  res.status(200).json({ token, user, message: "User Login Successful" });
 };
 
 module.exports.getUserProfile = async (req, res, next) => {
