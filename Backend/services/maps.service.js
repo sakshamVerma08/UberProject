@@ -83,7 +83,7 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
   const lngRange = 0.05;
 
   try {
-    /*const captains = await captainModel.find({
+    const captains = await captainModel.find({
       location: {
         $geoWithin: {
           $centerSphere: [[ltd, lng], radius / 6371],
@@ -91,12 +91,18 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
       },
     });
 
-    */
+    // If the $geoWithin method fails, use the below code:
 
-    const captains = await captainModel.find({
-      "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
-      "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
-    });
+    /* const captains = await captainModel.find({
+       "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
+       "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
+     });
+     */
+
+    console.warn(
+      `Total ${captains.length} captains were found to be in radius\nCaptains array from $geoWithin\n`
+    );
+    console.log(captains);
 
     if (!captains) {
       return res

@@ -44,7 +44,7 @@ const CaptainLogin = () => {
         toast.error("Something went wrong. Please try again");
       }
     } catch (err) {
-      toast.error(err.msg);
+      toast.error(err.msg || "Something went wrong. Please try again");
     }
   };
   return (

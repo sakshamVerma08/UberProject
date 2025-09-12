@@ -34,7 +34,7 @@ const RidePopUp = (props) => {
           <div className="flex items-center gap-5  border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">{props.ride.pickup}</h3>
+              <h3 className="text-lg font-bold">{props.ride?.pickup}</h3>
               {/* <p className="text-gray-600 text-base font-semibold">
                 {props.ride?.pickup}
               </p> */}
@@ -44,7 +44,7 @@ const RidePopUp = (props) => {
           <div className="flex items-center gap-5 border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">{props.ride.destination} </h3>
+              <h3 className="text-lg font-bold">{props.ride?.destination} </h3>
               {/* <p className="text-gray-600 text-base font-semibold">
                 {props.ride?.destination}
               </p> */}
@@ -66,7 +66,7 @@ const RidePopUp = (props) => {
           onClick={() => {
             props.setRidePopUpPanel(false);
           }}
-          className=" bg-gray-300 p-2 px-8 font-semibold text-gray-700 rounded-lg  "
+          className="cursor-pointer bg-gray-300 p-2 px-8 font-semibold text-gray-700 rounded-lg  "
         >
           Ignore
         </button>
@@ -75,7 +75,7 @@ const RidePopUp = (props) => {
             props.setConfirmRidePopUpPanel(true);
             props.confirmRide();
           }}
-          className=" bg-green-600 p-2 px-8 font-semibold text-white rounded-lg"
+          className="cursor-pointer bg-green-600 p-2 px-8 font-semibold text-white rounded-lg"
         >
           Accept
         </button>

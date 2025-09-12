@@ -11,6 +11,8 @@ import WaitForDriver from "../components/WaitForDriver";
 import { SocketContext } from "../context/SocketContext";
 import { UserDataContext } from "../context/UserContext";
 import axios from "axios";
+import GoogleMapComponent from "../components/GoogleMapComponent";
+
 const Home = () => {
   const navigate = useNavigate();
   const [pickup, setPickup] = useState("");
@@ -235,8 +237,9 @@ const Home = () => {
       console.log("Logout failed: \n\n", err);
     }
   };
+
   return (
-    <div className="relative h-screen overflow-hidden ">
+    <div className="relative h-screen overflow-hidden">
       <div className="fixed top-0 p-3 flex items-center justify-between w-full z-50">
         <img
           className="w-16 top-5 left-5"
@@ -245,21 +248,23 @@ const Home = () => {
         />
 
         <i
-          className="ri-logout-box-line cursor-pointer text-xl m-2"
+          className="  ri-logout-box-line cursor-pointer text-xl m-2"
           onClick={handleLogout}
         ></i>
       </div>
 
-      <div className="h-screen w-screen">
+      <div className="h-screen overflow-hidden relative">
         {/* Temporary Image */}
-        <img
-          className="h-full w-full object-cover "
-          src="https://s.wsj.net/public/resources/images/BN-XR453_201802_M_20180228165619.gif"
-          alt="temporary image"
-        />
+
+        <GoogleMapComponent className="z-50"></GoogleMapComponent>
+        {/* <img
+             className="h-full w-full object-cover "
+             src="https://s.wsj.net/public/resources/images/BN-XR453_201802_M_20180228165619.gif"
+             alt="temporary image"
+           /> */}
       </div>
 
-      <div className=" flex flex-col justify-end absolute h-screen top-0 w-full  ">
+      <div className=" flex flex-col justify-end h-screen top-0 w-full absolute z-10">
         <div className="h-[30%] relative bg-white p-6 ">
           {" "}
           <h5

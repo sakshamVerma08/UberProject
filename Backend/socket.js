@@ -49,13 +49,6 @@ function initializeSocket(server) {
       // console.log("Updated User/Captain = ", updatedUser);
     });
 
-    // socket.on("new-ride-request", async (data) => {
-    //   console.log("\nNew Ride Request received on server", data);
-
-    //   // WIP: Write the updated code here
-
-    //   console.log("\nData sent to captains in Radius ✅");
-    // });
 
     socket.on("update-location-captain", async (data) => {
       if (!data) {
