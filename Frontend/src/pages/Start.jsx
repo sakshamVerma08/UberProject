@@ -1,75 +1,96 @@
 import React from "react";
 import { Link } from "react-router-dom";
-/*
-const Start = () => {
-  return (
-    <div>
-      <div className="bg-cover bg-center bg-[url(https://images.unsplash.com/photo-1557404763-69708cd8b9ce?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)]  h-screen w-full pt-8 flex flex-col justify-between">
-        <img
-          className="w-16 ml-8 md:w-20 lg:w-24 md:ml-12 lg:ml-16"
-          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-          alt="Uber-Logo.png"
-        />
-        <div className="bg-white py-5 px-4 pb-7 md:px-8 lg:px-12">
-          <h2 className="text-3xl font-bold md:text-3xl lg:text-4xl lg:mt-4">
-            Get started with Uber
-          </h2>
-          <Link
-            to="/login"
-            className="flex justify-center items-center w-full py-3 bg-black text-white rounded mt-5 md:py-3.5 lg:py-4 md:text-lg hover:bg-gray-800 transition"
-          >
-            Continue
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
-*/
 
 const Start = () => {
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row">
-      {/* Left: Background image */}
-      <div
-        className="min-h-[65vh] md:h-auto md:w-3/4 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1557404763-69708cd8b9ce?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-          
-        }}
-      >
-        {/* Logo: show only on mobile */}
-        <img
-          className="w-16 ml-8 pt-8"
-          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-          alt="Uber-Logo.png"
-        />
-      </div>
-      {/* Right: Content */}
-      <div className="flex flex-col justify-center items-center md:justify-around bg-white bg-opacity-95 md:w-1/2 min-h-[30vh] md:min-h-screen px-4 py-8 md:px-12 lg:px-20">
-        {/* Logo: show only on md+ */}
-        <img
-          className="w-20 mb-8 hidden lg:w-24"
-          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-          alt="Uber-Logo.png"
-        />
-        <div>
-          <h2 className="text-3xl font-bold md:text-3xl lg:text-4xl text-center mb-8 md:text-left">
-            Request a ride for now or later
-          </h2>
-          <h5 className="hidden md:block md:text-[11px]">
-            Up to 50% off your first 5 Uber rides. T&Cs apply.* *Valid within 15
-            days of signup.
-          </h5>
-        </div>
-
-        <Link
-          to="/login"
-          className="flex justify-center items-center w-full py-3 bg-black text-white rounded mt-2 md:py-3.5 lg:py-4 md:text-lg hover:bg-gray-800 transition"
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-gray-50">
+      {/* Left: Hero Section */}
+      <div className="lg:w-1/2 relative overflow-hidden">
+        <div
+          className="h-[40vh] lg:h-full w-full bg-cover bg-center 
+           transition-all duration-700 hover:scale-105"
         >
-          Continue
-        </Link>
+          <div className="absolute inset-0  bg-black bg-opacity-30 flex flex-col justify-between p-8 lg:p-12">
+            <img
+              className="w-16 lg:w-24"
+              src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+              alt="Uber Logo"
+            />
+            <div className="text-white">
+              <h1 className="text-3xl lg:text-5xl font-bold mb-4">Get there</h1>
+              <h2 className="text-2xl lg:text-4xl font-light">
+                Your ride, on demand
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Content Section */}
+      <div className="lg:w-1/2 flex flex-col justify-between p-8 lg:p-12 bg-white">
+        <div className="max-w-md mx-auto w-full">
+          {/* Logo for mobile */}
+          <img
+            className="w-16 mb-8 lg:hidden"
+            src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+            alt="Uber Logo"
+          />
+
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                Request a ride now
+              </h2>
+              <p className="text-gray-600">
+                Get where you want to go with the tap of a button. Available in
+                10,000+ cities worldwide.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Link
+                to="/login"
+                className="block w-full py-4 px-6 bg-black text-white text-center font-medium rounded-lg hover:bg-gray-900 transition-colors duration-200 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+              >
+                Sign in to ride
+              </Link>
+
+              <Link
+                to="/signup"
+                className="block w-full py-4 px-6 bg-white text-black border-2 border-black text-center font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              >
+                Sign up to ride
+              </Link>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="text-sm font-medium text-gray-500 mb-3">
+                Drive with Uber
+              </h3>
+              <div className="flex space-x-4">
+                <Link
+                  to="/captain-login"
+                  className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-center rounded-lg text-sm font-medium transition-colors"
+                >
+                  Sign in to drive
+                </Link>
+                <Link
+                  to="/captain-signup"
+                  className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-center rounded-lg text-sm font-medium transition-colors"
+                >
+                  Sign up to drive
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-6 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-center">
+            By proceeding, you agree to our Terms of Use and confirm you have
+            read our Privacy Notice.
+          </p>
+        </div>
       </div>
     </div>
   );

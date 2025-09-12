@@ -1,121 +1,105 @@
 import React from "react";
+import LookingForDriver from "./LookingForDriver";
 
 const VehiclePanel = (props) => {
+  const handleVehicleSelect = (vehicleType) => {
+    props.selectVehicle(vehicleType);
+    // Show the LookingForDriver component with the selected vehicle type
+    props.setWaitForDriverOpen(true);
+    props.setVehiclePanel(false);
+  };
+
   return (
-    <div>
+    <div className="p-4">
       <h5
         onClick={() => {
           props.setVehiclePanel(false);
         }}
-        className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
+        className="text-right text-lg mb-5 absolute top-5 right-5"
       >
-        <i className="cursor-pointer ri-arrow-down-line text-3xl"></i>
+        <i className="cursor-pointer ri-close-line text-2xl"></i>
       </h5>
-      <h3 className="font-semibold text-2xl mb-3">Choose a Vehicle</h3>
+      <h3 className="font-semibold text-2xl mb-6">Choose a ride</h3>
 
-      {/* VEHICLE DIVS
-       ******************/}
+      {/* VEHICLE DIVS */}
       <div
-        onClick={() => {
-          props.setConfirmRidePanel(true);
-          props.setVehiclePanel(false);
-        }}
-        className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2"
+        onClick={() => handleVehicleSelect("car")}
+        className="flex items-center w-full p-4 mb-3 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
-        {" "}
         <img
-          className="h-16"
-          src=" https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s "
-          alt="car png"
+          className="h-16 mr-4"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s"
+          alt="car"
         />
-        <div
-          className=" w-1/2"
-          onClick={() => {
-            props.selectVehicle("car");
-          }}
-        >
-          <h4 className="font-medium text-base ">
-            UberGo{" "}
-            <span>
-              <i className="ri-user-3-fill"></i>4
+        <div className="flex-1">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-base">UberGo</h4>
+            <span className="text-gray-500 text-sm">
+              <i className="ri-user-3-fill mr-1"></i>4
             </span>
-          </h4>
-          <h5 className="font-medium text-sm ">2 mins away </h5>
-          <p className="font-normal text-sm text-gray-400 ">
+          </div>
+          <p className="text-sm text-gray-500 mt-1">
             Affordable, compact rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹{props.fare.car}</h2>
+        <div className="ml-4 text-right">
+          <div className="font-semibold text-lg">₹{props.fare.car}</div>
+          <div className="text-xs text-gray-500">2 min away</div>
+        </div>
       </div>
-      {/* ***************************** */}
-
-      {/* ***************************** */}
 
       <div
-        onClick={() => {
-          props.setConfirmRidePanel(true);
-          props.setVehiclePanel(false);
-        }}
-        className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2"
+        onClick={() => handleVehicleSelect("motorcycle")}
+        className="flex items-center w-full p-4 mb-3 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
-        {" "}
         <img
-          className="h-16"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s "
-          alt="moto png"
+          className="h-16 mr-4"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s"
+          alt="motorcycle"
         />
-        <div
-          className=" w-1/2"
-          onClick={() => {
-            props.selectVehicle("motorcycle");
-          }}
-        >
-          <h4 className="font-medium text-base ">
-            UberMoto{" "}
-            <span>
-              <i className="ri-user-3-fill"></i>1
+        <div className="flex-1">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-base">UberMoto</h4>
+            <span className="text-gray-500 text-sm">
+              <i className="ri-user-3-fill mr-1"></i>1
             </span>
-          </h4>
-          <h5 className="font-medium text-sm ">2 mins away </h5>
-          <p className="font-normal text-sm text-gray-400 ">
+          </div>
+          <p className="text-sm text-gray-500 mt-1">
             Affordable, motorcycle rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹{props.fare.motorcycle}</h2>
+        <div className="ml-4 text-right">
+          <div className="font-semibold text-lg">₹{props.fare.motorcycle}</div>
+          <div className="text-xs text-gray-500">2 min away</div>
+        </div>
       </div>
-      {/* ***************************** */}
+
       <div
-        onClick={() => {
-          props.setConfirmRidePanel(true);
-          props.setVehiclePanel(false);
-        }}
-        className="flex border-2 border-white  active:border-black rounded-xl justify-between items-center w-full p-3 mb-2"
+        onClick={() => handleVehicleSelect("auto")}
+        className="flex items-center w-full p-4 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
-        {" "}
         <img
-          className="h-16"
+          className="h-16 mr-4"
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s"
-          alt="car png"
+          alt="auto"
         />
-        <div
-          className=" w-1/2"
-          onClick={() => {
-            props.selectVehicle("auto");
-          }}
-        >
-          <h4 className="font-medium text-base ">
-            UberAuto{" "}
-            <span>
-              <i className="ri-user-3-fill"></i>3
+        <div className="flex-1">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-base">UberAuto</h4>
+            <span className="text-gray-500 text-sm">
+              <i className="ri-user-3-fill mr-1"></i>3
             </span>
-          </h4>
-          <h5 className="font-medium text-sm ">2 mins away </h5>
-          <p className="font-normal text-sm text-gray-400 ">
+          </div>
+          <p className="text-sm text-gray-500 mt-1">
             Affordable, three wheeler auto rides
           </p>
         </div>
-        <h2 className="font-semibold text-xl ">₹{props.fare.auto}</h2>
+        <div className="ml-4 text-right">
+          <div className="font-semibold text-lg">₹{props.fare.auto}</div>
+          <div className="text-xs text-gray-500">2 min away</div>
+        </div>
       </div>
+      {props.lookingForDriver && <LookingForDriver />}
     </div>
   );
 };

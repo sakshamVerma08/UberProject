@@ -11,6 +11,15 @@ const center = {
   lng: 77.209,
 };
 
+const mapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+  gestureHandling: "greedy", // Allows map interaction without holding Ctrl
+};
+
 const GoogleMapComponent = () => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -26,6 +35,7 @@ const GoogleMapComponent = () => {
       mapContainerStyle={containerStyle}
       center={center}
       zoom={12}
+      options={mapOptions}
     ></GoogleMap>
   );
 };
