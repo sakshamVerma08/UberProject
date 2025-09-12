@@ -780,6 +780,8 @@ import RideConfirmation from "../components/ConfirmRidePopUpPanel";
 import WaitForDriver from "../components/WaitForDriver";
 import VehiclePanel from "../components/VehiclePanel";
 import LookingForDriver from "../components/LookingForDriver";
+import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import RouteRenderer from "../components/RouteRenderer";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -807,6 +809,12 @@ const Home = () => {
       vehicleType: "car",
       capacity: 3,
     },
+  });
+  const [routeInfo, setRouteInfo] = useState({
+    origin: null,
+    destination: null,
+    distance: null,
+    duration: null,
   });
 
   // Refs for GSAP animations
@@ -966,6 +974,14 @@ const Home = () => {
     };
   }, [socket]);
 
+  const handleRouteCalculated = (data) => {
+    setRouteInfo((prev) => ({
+      ...prev,
+      distance: data.distance,
+      duration: data.duration,
+    }));
+  };
+
   // GSAP Animations
   useGSAP(() => {
     // Panel animation
@@ -1068,11 +1084,31 @@ const Home = () => {
     <div className="h-screen w-full flex flex-col bg-gray-50">
       {/* Map View */}
       <div className="flex-1 relative">
-        <GoogleMapComponent
-          pickup={pickup}
-          destination={destination}
-          className="absolute inset-0 w-full h-full"
-        />
+        <LoadScript
+          googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+          libraries={["places", "directions"]}
+          
+        >
+          {pickup && destination ? (
+            <RouteRenderer
+              origin={pickup}
+              destination={destination}
+              onRouteCalculated={handleRouteCalculated}
+            />
+          ) : (
+            <GoogleMap
+              mapContainerStyle={{ width: "100%", height: "100%" }}
+              center={{ lat: 28.6139, lng: 77.209 }} // Add your default center
+              zoom={13}
+              options={{
+                zoomControl: false,
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+              }}
+            />
+          )}
+        </LoadScript>
 
         {/* Top Bar */}
         <div className="absolute top-0 left-0 right-0 bg-white shadow-sm z-10 p-4">
@@ -1281,16 +1317,14 @@ const Home = () => {
             selectVehicle={setVehicleType}
             setConfirmRidePanel={setConfirmRidePanel}
             setVehiclePanel={setVehiclePanel}
-            setWaitForDriverOpen = {setWaitForDriverOpen}
+            setWaitForDriverOpen={setWaitForDriverOpen}
           />
         </div>
 
-
-        <div ref = {vehicleFoundRef}>
+        <div ref={vehicleFoundRef}>
           <LookingForDriver
-          rideData = {rideData}
-          setVehicleFound = {setVehicleFound}
-                  
+            rideData={rideData}
+            setVehicleFound={setVehicleFound}
           />
         </div>
 
