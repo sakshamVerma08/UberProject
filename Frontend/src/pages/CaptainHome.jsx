@@ -156,7 +156,7 @@ const CaptainHome = () => {
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
       </div>
-      <div
+      {/* <div
         ref={confirmRidePopUpPanelRef}
         className="fixed w-full h-screen z-10 bottom-0 bg-white px-3 py-10 pt-12 translate-y-full"
       >
@@ -164,7 +164,7 @@ const CaptainHome = () => {
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
           setRidePopUpPanel={setRidePopUpPanel}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

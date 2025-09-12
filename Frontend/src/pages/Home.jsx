@@ -146,13 +146,13 @@ const Home = () => {
   useEffect(() => {
     if (!user || !user._id) {
       console.log("User ID is NULL:", user);
-      return;
+      return <div>User Not found.</div>;
     }
     socket.emit("join", { userType: "user", userId: user?._id });
 
     socket.on("ride-confirmed", (data) => {
       setRideData(data.ride);
-      setCaptainData(data.captainDetails);
+      setCaptainData(data.captain);
       setWaitForDriverOpen(true);
     });
   }, [user, socket]);
@@ -219,7 +219,7 @@ const Home = () => {
   useGSAP(() => {
     if (waitForDriverOpen) {
       gsap.to(waitForDriverRef.current, {
-        transform: "translateY(0)",
+        transform: "translateY(-10%)",
       });
     } else {
       gsap.to(waitForDriverRef.current, {

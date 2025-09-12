@@ -9,7 +9,7 @@ const WaitForDriver = ({ rideData, captainData }) => {
         }}
         className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
       >
-        <i className="ri-arrow-down-line text-3xl "></i>
+        <i className="cursor-pointer ri-arrow-down-line text-3xl "></i>
       </h5>
       <div className="flex justify-between items-center">
         <img
@@ -19,16 +19,18 @@ const WaitForDriver = ({ rideData, captainData }) => {
         />
         <div className="text-right">
           <h2 className="font-semibold text-lg">
-            {captainData.firstname + captainData.lastname}
+            {captainData.fullname?.firstname + captainData.fullname?.lastname}
           </h2>
           <h4 className="text-2xl font-medium ">
             {/* {captainData.vehicle.plate
               ? captainData.vehicle.plate
               : "DL 8H BZ 8074"} */}
-            Random Plate
+            {captainData.vehicle?.plate
+              ? captainData.vehicle.plate
+              : "DL 8H BZ 8074"}
           </h4>
           <p className="text-sm text-gray-600">
-            {captainData.vehicle.vehicleType}
+            {captainData.vehicle?.vehicleType}
           </p>
         </div>
       </div>
@@ -38,20 +40,20 @@ const WaitForDriver = ({ rideData, captainData }) => {
           <div className="flex items-center gap-5  border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">562/11-A </h3>
-              <p className="text-gray-600 text-base font-semibold">
+              <h3 className="text-lg font-bold">{rideData.pickup}</h3>
+              {/* <p className="text-gray-600 text-base font-semibold">
                 {rideData.pickup}
-              </p>
+              </p> */}
             </div>
           </div>
 
           <div className="flex items-center gap-5 border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">562/11-A </h3>
-              <p className="text-gray-600 text-base font-semibold">
+              <h3 className="text-lg font-bold">{rideData.destination} </h3>
+              {/* <p className="text-gray-600 text-base font-semibold">
                 {rideData.destination}
-              </p>
+              </p> */}
             </div>
           </div>
 

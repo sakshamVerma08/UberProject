@@ -2,14 +2,14 @@ import React from "react";
 
 const VehiclePanel = (props) => {
   return (
-    <div >
+    <div>
       <h5
         onClick={() => {
           props.setVehiclePanel(false);
         }}
         className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
       >
-        <i className=" ri-arrow-down-line text-3xl"></i>
+        <i className="cursor-pointer ri-arrow-down-line text-3xl"></i>
       </h5>
       <h3 className="font-semibold text-2xl mb-3">Choose a Vehicle</h3>
 

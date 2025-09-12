@@ -17,7 +17,7 @@ const ConfirmRidePopUpPanel = (props) => {
         }}
         className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
       >
-        <i className="ri-arrow-down-line text-3xl "></i>
+        <i className="cursor-pointer ri-arrow-down-line text-3xl "></i>
       </h5>
       <h3 className="font-semibold text-2xl mb-3">
         Confirm this ride to Start{" "}
