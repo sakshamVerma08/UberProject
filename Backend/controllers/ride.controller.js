@@ -152,6 +152,8 @@ module.exports.confirmRide = async (req, res) => {
       },
     });
 
+    console.warn("\nCaptain Details that are sent in 'ride-confirmed' socket.io event are: ", captainDetails);
+
     return res
       .status(200)
       .json({ ride, message: "Ride Accepted Successfully", captainDetails });
