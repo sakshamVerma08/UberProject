@@ -1086,8 +1086,7 @@ const Home = () => {
       <div className="flex-1 relative">
         <LoadScript
           googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          libraries={["places", "directions"]}
-          
+          libraries={["places"]}
         >
           {pickup && destination ? (
             <RouteRenderer

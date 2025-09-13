@@ -2,6 +2,7 @@ import React from "react";
 import LookingForDriver from "./LookingForDriver";
 
 const VehiclePanel = (props) => {
+  
   const handleVehicleSelect = (vehicleType) => {
     props.selectVehicle(vehicleType);
     // Show the LookingForDriver component with the selected vehicle type

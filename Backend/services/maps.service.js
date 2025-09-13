@@ -104,7 +104,7 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
     );
     console.log(captains);
 
-    if (!captains) {
+    if (captains.length == 0) {
       return res
         .status(404)
         .json({ message: "No Captains available in the radius" });

@@ -29,4 +29,15 @@ router.get(
   mapController.getAutoCompleteSuggestions
 );
 
+router.get(
+  "/drivers/nearby",
+  
+  query("lat").isNumeric().withMessage("Latitude must be a numeric value"),
+  query("lng").isNumeric().withMessage("Longitude must be a numeric value"),
+  query("radius").isNumeric().withMessage("Radius must be a numeric value"),
+
+  authMiddleware.authUser,
+  mapController.getNearbyDrivers
+);
+
 module.exports = router;
