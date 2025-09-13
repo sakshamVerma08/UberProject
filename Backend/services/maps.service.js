@@ -78,17 +78,25 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
   }
 };
 
-module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
+module.exports.getCaptainsInTheRadius = async (
+  ltd,
+  lng,
+  radius,
+  vehicleType
+) => {
   const latRange = 0.05;
   const lngRange = 0.05;
 
   try {
+    console.log("Chosen vehicle type: ", vehicleType);
     const captains = await captainModel.find({
       location: {
         $geoWithin: {
           $centerSphere: [[ltd, lng], radius / 6371],
         },
       },
+
+      "vehicle.vehicleType": vehicleType,
     });
 
     // If the $geoWithin method fails, use the below code:
@@ -104,10 +112,9 @@ module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
     );
     console.log(captains);
 
-    if (captains.length == 0) {
-      return res
-        .status(404)
-        .json({ message: "No Captains available in the radius" });
+    if (!captains) {
+      console.error("No captains were found in the Vicinity");
+      return [];
     }
 
     return captains;

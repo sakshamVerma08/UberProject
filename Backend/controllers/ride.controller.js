@@ -39,7 +39,8 @@ module.exports.createRide = async (req, res) => {
       const captainsInRadius = await mapService.getCaptainsInTheRadius(
         pickupCoordinates.ltd,
         pickupCoordinates.lng,
-        15
+        15,
+        vehicleType
       );
 
       // if (captainsInRadius.data.status == 404) {
@@ -48,19 +49,24 @@ module.exports.createRide = async (req, res) => {
       //     .json({ message: "No Captains were found in Radius" });
       // }
 
-      if (captainsInRadius.length === 0) {
+      if (!captainsInRadius) {
+        // When no captains are found, return something to suggest that no drivers are found for that particular vehicleType.
+        return res.status(404).json({
+          message: `No ${vehicleType} drivers were found in Vicinity`,
+        });
+
+        // If above doesn't work, use the code below.
+
+        /*
         const randomCaptains = await captainModel.find();
+
         if (randomCaptains) {
           randomCaptains.map((cpn, index) => {
-            if (cpn.socketId) {
+            if (cpn.socketId && cpn.vehicle.vehicleType === vehicleType) {
               captainsInRadius.push(cpn);
             }
           });
-        } else {
-          console.log(
-            "No captains available in database who have a valid socketID"
-          );
-        }
+          */
       }
 
       console.warn("\nCreated Ride Details:");
@@ -152,7 +158,10 @@ module.exports.confirmRide = async (req, res) => {
       },
     });
 
-    console.warn("\nCaptain Details that are sent in 'ride-confirmed' socket.io event are: ", captainDetails);
+    console.warn(
+      "\nCaptain Details that are sent in 'ride-confirmed' socket.io event are: ",
+      captainDetails
+    );
 
     return res
       .status(200)

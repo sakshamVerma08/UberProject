@@ -66,6 +66,7 @@ module.exports.authCaptain = async (req, res, next) => {
 
     req.captain = captain;
     return next();
+    
   } catch (err) {
     return res
       .status(401)

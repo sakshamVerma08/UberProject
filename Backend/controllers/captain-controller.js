@@ -3,7 +3,7 @@ const blackListTokenModel = require("./blacklist-controller");
 const captainService = require("../services/captain.service");
 const { validationResult } = require("express-validator");
 
-module.exports.registerCaptain = async (req, res, next) => {
+module.exports.registerCaptain = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -31,15 +31,13 @@ module.exports.registerCaptain = async (req, res, next) => {
     vehicleType: vehicle.vehicleType,
   });
 
-  // console.log("captain obj=", captain);
-
   const token = await captain.generateAuthToken();
 
   if (!token) {
     return res.status(401).json({ message: "token was not generated" });
   }
 
-  res
+  return res
     .status(201)
     .json({ token, captain, message: "Account created Successfully" });
 };
@@ -59,7 +57,7 @@ module.exports.loginCaptain = async (req, res, next) => {
     return res.status(404).json({ message: "Invalid Email or Password" });
   }
 
-  const isMatch = captain.comparePassword(password);
+  const isMatch = await captain.comparePassword(password);
 
   if (!isMatch) {
     return res.status(400).json({ message: "Invalid Email or Password" });
@@ -91,4 +89,3 @@ module.exports.logoutCaptain = async (req, res, next) => {
 
   res.status(200).json({ message: "Logged out successfully" });
 };
-

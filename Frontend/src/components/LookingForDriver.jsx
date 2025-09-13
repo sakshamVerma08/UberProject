@@ -1,71 +1,30 @@
+// LookingForDriver.jsx
 import React from "react";
+import { FiLoader } from "react-icons/fi";
 
-const LookingForDriver = (props) => {
+const LookingForDriver = ({ setVehicleFound }) => {
   return (
-    <div>
-      <h5
-        onClick={() => {
-          props.setVehicleFound(false);
-        }}
-        className=" text-right text-lg mb-5 absolute top-5 w-[93%] "
+    <div className="flex flex-col items-center justify-center h-full text-center p-6">
+      {/* Close button */}
+      <button
+        onClick={() => setVehicleFound(false)}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
       >
-        <i className="cursor-pointer ri-arrow-down-line text-3xl "></i>
-      </h5>
-      <h3 className="font-semibold text-2xl mb-3">Looking for Driver</h3>
+        <i className="ri-arrow-down-line text-2xl"></i>
+      </button>
 
-      <div className="flex flex-col justify-between items-center gap-2 ">
-        {props?.vehicleType === "car" ? (
-          <img
-            className="h-20 "
-            src=" https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5O2PVmKwYLyptJf2j6AwLaJ8XiBAVt7Z8Cw&s "
-            alt="Car.png"
-          />
-        ) : props?.vehicleType === "auto" ? (
-          <img
-            className="h-20 "
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsFabRnJZ8deGXJSKA1QjN45920WytRrdFsA&s"
-            alt="Auto.png"
-          />
-        ) : (
-          <img
-            className="h-20 "
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQTJw6dzEo1MYXOAbONCG1oL82rxU_Bitb-g&s"
-            alt="Moto.png"
-          />
-        )}
-
-        <div className="w-full">
-          <div className="flex items-center gap-5  border-b-2 p-3 border-gray-400">
-            <i className=" text-lg ri-map-pin-line"></i>
-            <div>
-              <h3 className="text-lg font-bold">{props?.rideData?.pickup}</h3>
-              {/* <p className="text-gray-600 text-base font-semibold">
-                {props?.pickup}
-              </p> */}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-5 border-b-2 p-3 border-gray-400">
-            <i className=" text-lg ri-map-pin-line"></i>
-            <div>
-              <h3 className="text-lg font-bold">
-                {props?.rideData?.destination}
-              </h3>
-              {/* <p className="text-gray-600 text-base font-semibold">
-                {props?.rideData?.destination}
-              </p> */}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-5 p-3 border-gray-400">
-            <i className="ri-currency-line"></i>
-            <div>
-              <h3 className="text-lg font-bold">₹{props?.rideData?.fare} </h3>
-              <p className="text-gray-600 text-base font-semibold">Cash</p>
-            </div>
-          </div>
-        </div>
+      {/* Spinner */}
+      <div className="flex items-center justify-center mb-6">
+        <FiLoader className="w-10 h-10 animate-spin text-black" />
       </div>
+
+      {/* Message */}
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        Finding your driver…
+      </h3>
+      <p className="text-gray-500 text-sm max-w-sm">
+        Please wait while we connect you with a nearby driver.
+      </p>
     </div>
   );
 };

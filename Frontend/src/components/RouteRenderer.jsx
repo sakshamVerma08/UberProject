@@ -101,6 +101,7 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
           mapTypeControl: false,
           fullscreenControl: false,
         }}
+        
       >
         {directions && (
           <DirectionsRenderer
@@ -117,12 +118,14 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
         )}
 
         {nearbyDrivers.map((driver) => {
-          <DriverMarker
-            key={driver.id}
-            position={driver.position}
-            driverId={driver.id}
-            vehicleType={driver.vehicle?.vehicleType || "car"}
-          />;
+          return (
+            <DriverMarker
+              key={driver.id}
+              position={driver.position}
+              driverId={driver.id}
+              vehicleType={driver.vehicle?.vehicleType || "car"}
+            />
+          );
         })}
       </GoogleMap>
     </div>

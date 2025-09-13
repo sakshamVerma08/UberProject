@@ -69,7 +69,7 @@ const ConfirmPanel = (props) => {
         onClick={() => {
           props.setVehicleFound(true);
           props.setConfirmRidePanel(false);
-          props.createRide();
+          props.createRide(props.vehicleType);
         }}
         className="w-full bg-green-600 p-2 font-semibold text-white rounded-lg mt-5"
       >

@@ -2,14 +2,6 @@ import React from "react";
 import LookingForDriver from "./LookingForDriver";
 
 const VehiclePanel = (props) => {
-  
-  const handleVehicleSelect = (vehicleType) => {
-    props.selectVehicle(vehicleType);
-    // Show the LookingForDriver component with the selected vehicle type
-    props.setWaitForDriverOpen(true);
-    props.setVehiclePanel(false);
-  };
-
   return (
     <div className="p-4">
       <h5
@@ -24,7 +16,7 @@ const VehiclePanel = (props) => {
 
       {/* VEHICLE DIVS */}
       <div
-        onClick={() => handleVehicleSelect("car")}
+        onClick={() => props.handleVehicleSelect("car")}
         className="flex items-center w-full p-4 mb-3 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
         <img
@@ -44,13 +36,15 @@ const VehiclePanel = (props) => {
           </p>
         </div>
         <div className="ml-4 text-right">
-          <div className="font-semibold text-lg">₹{props.fare.car}</div>
+          <div className="font-semibold text-lg">
+            ₹{props.fare?.car ?? "--"}
+          </div>
           <div className="text-xs text-gray-500">2 min away</div>
         </div>
       </div>
 
       <div
-        onClick={() => handleVehicleSelect("motorcycle")}
+        onClick={() => props.handleVehicleSelect("motorcycle")}
         className="flex items-center w-full p-4 mb-3 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
         <img
@@ -70,13 +64,15 @@ const VehiclePanel = (props) => {
           </p>
         </div>
         <div className="ml-4 text-right">
-          <div className="font-semibold text-lg">₹{props.fare.motorcycle}</div>
+          <div className="font-semibold text-lg">
+            ₹{props.fare?.motorcycle ?? "--"}
+          </div>
           <div className="text-xs text-gray-500">2 min away</div>
         </div>
       </div>
 
       <div
-        onClick={() => handleVehicleSelect("auto")}
+        onClick={() => props.handleVehicleSelect("auto")}
         className="flex items-center w-full p-4 border-2 border-gray-100 rounded-xl hover:border-gray-200 active:border-black transition-colors cursor-pointer"
       >
         <img
@@ -96,7 +92,9 @@ const VehiclePanel = (props) => {
           </p>
         </div>
         <div className="ml-4 text-right">
-          <div className="font-semibold text-lg">₹{props.fare.auto}</div>
+          <div className="font-semibold text-lg">
+            ₹{props.fare?.auto ?? "--"}
+          </div>
           <div className="text-xs text-gray-500">2 min away</div>
         </div>
       </div>
