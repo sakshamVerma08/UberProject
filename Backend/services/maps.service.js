@@ -18,6 +18,8 @@ module.exports.getAddressCoordinates = async (address) => {
       }
 
       return { lat: location.lat, lng: location.lng };
+    } else if (response.data.status === "ZERO_RESULTS") {
+      return null;
     } else {
       throw new Error(`Google Maps API Error: ${response.data.status}`);
     }
@@ -69,7 +71,7 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     }
   } catch (err) {
     console.log(err.message);
-    return res.status(500).json({ message: "Internal server error" });
+    throw new Error(err.message);
   }
 };
 
@@ -118,7 +120,7 @@ module.exports.getCaptainsInTheRadius = async (
      */
 
     console.warn(
-      `Total ${captains.length} captains were found to be in radius\nCaptains array from $geoWithin\n`
+      `Total ${captains.length} captains were found to be in radius\nCaptains array from $near\n`
     );
     console.log(captains);
 
