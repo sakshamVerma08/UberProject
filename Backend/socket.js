@@ -49,7 +49,6 @@ function initializeSocket(server) {
       // console.log("Updated User/Captain = ", updatedUser);
     });
 
-
     socket.on("update-location-captain", async (data) => {
       if (!data) {
         return socket.emit("error", { message: "Invalid Data" });
@@ -77,6 +76,25 @@ function initializeSocket(server) {
           lat: location.ltd,
           lng: location.lng,
         },
+      });
+    });
+
+    socket.on("new-ride-request", async (data) => {
+      console.log("\nNew Ride request received :\n");
+      console.log(data);
+
+      data.captainsInRadius.forEach((cpn) => {
+        sendMessageToSocketId(cpn.socketId, {
+          event: "new-ride-request",
+          data: {
+            userId: data.userId,
+            vehicleType: data.vehicleType,
+            pickup: data.pickup,
+            destination: data.destination,
+            distance: data.distance,
+            duration: data.duration,
+          },
+        });
       });
     });
 

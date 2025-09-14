@@ -1,18 +1,19 @@
 import React from "react";
 import LookingForDriver from "./LookingForDriver";
+import { IoCloseOutline } from "react-icons/io5";
 
 const VehiclePanel = (props) => {
   return (
     <div className="p-4">
-      <h5
-        onClick={() => {
-          props.setVehiclePanel(false);
-        }}
-        className="text-right text-lg mb-5 absolute top-5 right-5"
-      >
-        <i className="cursor-pointer ri-close-line text-2xl"></i>
-      </h5>
-      <h3 className="font-semibold text-2xl mb-6">Choose a ride</h3>
+      {/* <i className="cursor-pointer ri-close-line text-2xl"></i> */}
+
+      <div className=" w-full h-full flex justify-between">
+        <h3 className="font-semibold text-2xl mb-6">Choose a ride</h3>
+        <IoCloseOutline
+          className="cursor-pointer text-2xl"
+          onClick={() => props.setVehiclePanel(false)}
+        />
+      </div>
 
       {/* VEHICLE DIVS */}
       <div

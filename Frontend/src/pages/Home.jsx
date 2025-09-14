@@ -10,19 +10,33 @@ import axios from "axios";
 import { SocketContext } from "../context/SocketContext";
 import { UserDataContext } from "../context/UserContext";
 import GoogleMapComponent from "../components/GoogleMapComponent";
-import VehicleSelection from "../components/VehiclePanel";
-import RideConfirmation from "../components/ConfirmRidePopUpPanel";
 import WaitForDriver from "../components/WaitForDriver";
 import VehiclePanel from "../components/VehiclePanel";
 import LookingForDriver from "../components/LookingForDriver";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import RouteRenderer from "../components/RouteRenderer";
 import useNearbyDrivers from "../hooks/useNearbyDrivers";
+import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
 
 const mapLibraries = ["places"];
 
+/* Use State variables mapping for easier Reference 
+
+isPanelOpen---> Bottom Search panel (Location Panel)
+pickup ---> Pickup Location (textual)
+destination ---> Destination location(textual)
+pickupSuggestion---> Suggestions array for pickup field.
+destinationSuggestion---> Suggestions array for destination field.
+isLookingForCaptains---> Opening and closing of the <LookingForDriver/> component Panel.
+pickupCoords---> Pickup coordinates (lat & lng)
+vehiclePanel---> Used to toggle opening and closing of Vehicle Panel
+selectedVehicle---> Represents the vehicle user chose for his/her ride.
+
+*/
+
 const Home = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+
   const [routeInfo, setRouteInfo] = useState({
     distance: null,
     duration: null,
@@ -46,12 +60,12 @@ const Home = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   // Refs for GSAP animations
-  const panelRef = useRef(null);
-  const panelClose = useRef(null);
-  const vehiclePanelRef = useRef(null);
-  const confirmRideRef = useRef(null);
-  const isLookingForCaptainsRef = useRef(null);
-  const waitForDriverRef = useRef(null);
+  const panelRef = useRef(null); // Location panel screen
+  const panelClose = useRef(null); // Location panel close button
+  const vehiclePanelRef = useRef(null); // Vehicle panel screen
+  const confirmRideRef = useRef(null); // user confirmation screen
+  const isLookingForCaptainsRef = useRef(null); // Loading screen
+  const waitForDriverRef = useRef(null); // After booking wait screen.
 
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
@@ -180,7 +194,10 @@ const Home = () => {
       return;
     }
 
-    setIsLookingForCaptains(true);
+    console.log("\nFinding a ride...\n");
+
+    // setIsLookingForCaptains(true);
+    setVehiclePanel(true);
     setIsPanelOpen(false);
 
     try {
@@ -203,8 +220,23 @@ const Home = () => {
 
   // Handle vehicle selection from VehiclePanel
   const handleVehicleSelect = async (selectedVehicle) => {
+    console.log("\nselected vehicle: ", selectedVehicle);
+
     setSelectedVehicle(selectedVehicle);
     setIsLookingForCaptains(true);
+    setVehiclePanel(false);
+
+    socket.emit("new-ride-request", {
+      userId: user?._id,
+      captainsInRadius: drivers,
+      vehicleType: selectedVehicle,
+      pickup,
+      pickupCoords,
+      destination,
+      distance,
+      duration,
+      fare,
+    });
   };
 
   // Handle ride confirmation
@@ -282,7 +314,7 @@ const Home = () => {
 
     // Vehicle panel animation
     gsap.to(vehiclePanelRef.current, {
-      y: vehiclePanel || isLookingForCaptains ? "0" : "100%",
+      y: vehiclePanel ? "0" : "100%",
       duration: 0.3,
       ease: "power2.inOut",
     });
@@ -295,7 +327,7 @@ const Home = () => {
     });
 
     // Vehicle found animation
-    if (isLookingForCaptains) {
+    /* if (isLookingForCaptains) {
       gsap.fromTo(
         isLookingForCaptainsRef.current,
         { y: "100%" },
@@ -311,7 +343,14 @@ const Home = () => {
           // },
         }
       );
-    }
+    }*/
+
+    // <LookingForDriver/> component animation
+    gsap.to(isLookingForCaptainsRef.current, {
+      y: isLookingForCaptains ? "0" : "100%",
+      duration: 0.5,
+      ease: "back.out(1.7)",
+    });
 
     // Wait for driver animation
     if (waitForDriverOpen) {
@@ -589,30 +628,34 @@ const Home = () => {
         </div>
 
         {/* Vehicle Selection Panel */}
-        <div
+         <div
           ref={vehiclePanelRef}
           className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
         >
           <VehiclePanel
             fare={fare}
             handleVehicleSelect={handleVehicleSelect}
+            setVehiclePanel={setVehiclePanel}
             setIsLookingForCaptains={setIsLookingForCaptains}
+            // setIsPanelOpen={setIsPanelOpen}
           />
         </div>
 
-        <div ref={isLookingForCaptainsRef}>
-          <LookingForDriver
-            rideData={rideData}
-            isLookingForCaptains={isLookingForCaptains}
-          />
-        </div>
+       
+          <div ref={isLookingForCaptainsRef}>
+            <LookingForDriver
+              rideData={rideData}
+              isLookingForCaptains={isLookingForCaptains}
+            />
+          </div>
+  
 
         {/* Confirm Ride Panel */}
         <div
           ref={confirmRideRef}
           className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-40 p-6 transform translate-y-full"
         >
-          <RideConfirmation
+          <ConfirmRidePopUpPanel
             pickup={pickup}
             destination={destination}
             selectedVehicle={selectedVehicle}
