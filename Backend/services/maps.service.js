@@ -84,11 +84,28 @@ module.exports.getCaptainsInTheRadius = async (
   radius,
   vehicleType
 ) => {
-  const latRange = 0.05;
-  const lngRange = 0.05;
+  // const latRange = 0.05;
+  // const lngRange = 0.05;
 
   try {
     console.log("Chosen vehicle type: ", vehicleType);
+
+    const captains = await captainModel.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, ltd],
+          },
+
+          $maxDistance: radius * 1000,
+          $minDistance: 0,
+        },
+      },
+      "vehicle.vehicleType": vehicleType,
+    });
+
+    /*
     const captains = await captainModel.find({
       location: {
         $geoWithin: {
@@ -98,6 +115,7 @@ module.exports.getCaptainsInTheRadius = async (
 
       "vehicle.vehicleType": vehicleType,
     });
+    */
 
     // If the $geoWithin method fails, use the below code:
 
