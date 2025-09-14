@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import UserContext from "./context/UserContext.jsx";
 import CaptainContext from "./context/CaptainContext.jsx";
 import SocketProvider from "./context/SocketContext.jsx";
-import { Analytics } from "@vercel/analytics";
+import { Analytics } from "@vercel/analytics/react";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
