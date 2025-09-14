@@ -7,7 +7,7 @@ import {
 import DriverMarker from "./DriverMarker";
 import useNearbyDrivers from "../hooks/useNearbyDrivers";
 
-const libraries = ["places", "directions"];
+// const libraries = ["places", "directions"];
 
 const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
   const directionsServiceRef = useRef(null);
@@ -16,7 +16,10 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
   const lastRouteRef = useRef({ origin: null, destination: null });
 
   const calculateRoute = useCallback(async () => {
-    if (!origin || !destination || !directionsServiceRef.current) return;
+    if (!origin || !destination || !directionsServiceRef.current) {
+      console.warn("Origin or Destination is Missing");
+      return;
+    }
 
     // Skip if we already have directions for these points
     if (
@@ -27,16 +30,32 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
     }
 
     try {
-      console.log("Calculating route...");
-      const results = await directionsServiceRef.current.route({
-        origin: origin,
-        destination: destination,
+      const request = {
+        origin,
+        destination,
         travelMode: window.google.maps.TravelMode.DRIVING,
         provideRouteAlternatives: false,
-      });
+      };
+      console.log("Calculating route...");
 
-      lastRouteRef.current = { origin, destination };
-      setDirections(results);
+      // const results = await directionsServiceRef.current.route({
+      //   origin: origin,
+      //   destination: destination,
+      //   travelMode: window.google.maps.TravelMode.DRIVING,
+      //   provideRouteAlternatives: false,
+      // });
+
+      const results = await directionsServiceRef.current.route(
+        request,
+        (result, status) => {
+          if (status === "OK") {
+            setDirections(result);
+            lastRouteRef.current = { origin, destination };
+          }
+        }
+      );
+
+      console.log("Route Found \n");
 
       if (onRouteCalculated) {
         onRouteCalculated({
@@ -101,7 +120,6 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
           mapTypeControl: false,
           fullscreenControl: false,
         }}
-        
       >
         {directions && (
           <DirectionsRenderer

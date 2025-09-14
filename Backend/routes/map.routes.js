@@ -6,7 +6,10 @@ const { query } = require("express-validator");
 
 router.get(
   "/get-coordinates",
-  query("address").isString().isLength({ min: 3 }),
+  query("address")
+    .isString()
+    .isLength({ min: 3 })
+    .withMessage("Invalid Address"),
   authMiddleware.authUser,
   mapController.getCoordinates
 );

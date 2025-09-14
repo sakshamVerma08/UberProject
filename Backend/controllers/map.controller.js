@@ -1,7 +1,7 @@
 const mapService = require("../services/maps.service");
 const { validationResult } = require("express-validator");
 
-module.exports.getCoordinates = async (req, res, next) => {
+module.exports.getCoordinates = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -11,13 +11,24 @@ module.exports.getCoordinates = async (req, res, next) => {
 
   try {
     const coordinates = await mapService.getAddressCoordinates(address);
-    res.status(200).json(coordinates);
+
+    if (!coordinates) {
+      return res.status(400).json({
+        mssage: "Invalid location data received from Google Maps API",
+      });
+    }
+
+    return res.status(200).json({
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+    });
   } catch (err) {
-    res.status(404).json({ message: "Coordinates not found" });
+    // console.error("Error while fetching Coordinates of address", err);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-module.exports.getDistanceTime = async (req, res, next) => {
+module.exports.getDistanceTime = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -34,7 +45,7 @@ module.exports.getDistanceTime = async (req, res, next) => {
   }
 };
 
-module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
+module.exports.getAutoCompleteSuggestions = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -51,7 +62,7 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
   }
 };
 
-module.exports.getNearbyDrivers = async (req, res, next) => {
+module.exports.getNearbyDrivers = async (req, res) => {
   try {
     const { lat, lng, radius, vehicleType } = req.query;
 
@@ -62,14 +73,13 @@ module.exports.getNearbyDrivers = async (req, res, next) => {
       vehicleType
     );
 
-    if (!captains) {
+    if (captains.length == 0) {
       return res
         .status(400)
         .json({ message: "Couldn't get any captains in radius" });
     }
 
     res.status(200).json(captains);
-    
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });

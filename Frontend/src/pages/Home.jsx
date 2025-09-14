@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { FiX, FiMapPin, FiNavigation, FiClock, FiUser } from "react-icons/fi";
@@ -15,7 +15,6 @@ import VehiclePanel from "../components/VehiclePanel";
 import LookingForDriver from "../components/LookingForDriver";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import RouteRenderer from "../components/RouteRenderer";
-import useNearbyDrivers from "../hooks/useNearbyDrivers";
 import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
 
 const mapLibraries = ["places"];
@@ -43,6 +42,7 @@ const Home = () => {
   });
 
   const [pickupCoords, setPickupCoords] = useState(null);
+  const [destinationCoords, setDestinationCoords] = useState(null);
 
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
@@ -59,6 +59,10 @@ const Home = () => {
   const [isLookingForCaptains, setIsLookingForCaptains] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
+  const [nearbyDrivers, setNearbyDrivers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [driversError, setDriversError] = useState(null);
+
   // Refs for GSAP animations
   const panelRef = useRef(null); // Location panel screen
   const panelClose = useRef(null); // Location panel close button
@@ -71,51 +75,103 @@ const Home = () => {
   const { user } = useContext(UserDataContext);
   const token = localStorage.getItem("user_token");
 
-  /* Getting the Nearby Drivers from useNearbyDrivers custom hook */
-  const {
-    drivers: nearbyDrivers,
-    loading,
-    errors: driversError,
-  } = useNearbyDrivers({
-    center: {
-      lat: pickupCoords?.lat,
-      lng: pickupCoords?.lng,
-    },
-    radius: 0.05,
-    updateInterval: 5000,
-    vehicleType: selectedVehicle,
-  });
+  // Fetch nearby drivers when pickupCoords or selectedVehicle changes
+  useEffect(() => {
+    const fetchNearbyDrivers = async () => {
+      if (!pickupCoords || !selectedVehicle) return;
+
+      setLoading(true);
+      setDriversError(null);
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
+          {
+            params: {
+              lat: pickupCoords.lat,
+              lng: pickupCoords.lng,
+              radius: 7, // 5km radius, adjusted as needed (adjusted in backend to be 5000m for mongoDB $geoWithin)
+              vehicleType: selectedVehicle,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.length == 0) {
+          toast.error("No drivers were found in your vicinity");
+        }
+
+        setNearbyDrivers(response.data);
+        console.log(
+          "\nTotal of ",
+          response.data.length,
+          " captains were found within the radius"
+        );
+
+        console.log("Nearby captains are :", response.data);
+      } catch (error) {
+        console.error("Error fetching nearby drivers:", error);
+        setDriversError("Failed to fetch nearby drivers");
+        toast.error("Failed to find available drivers");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Add a small delay to prevent too many requests
+    const timer = setTimeout(() => {
+      fetchNearbyDrivers();
+    }, 500);
+
+    // Cleanup function
+    return () => clearTimeout(timer);
+  }, [pickupCoords, selectedVehicle, token]);
 
   useEffect(() => {
-    if (pickup && !pickupCoords) {
-      const fetchCoords = async () => {
-        try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-            {
-              params: {
-                address: pickup,
-              },
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+    const fetchCoordinates = async (address) => {
+      if (address.length < 5) return;
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
+          {
+            params: {
+              address: address,
+            },
+
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.length == 0) {
+          console.error(
+            "Couldn't get either Pickup geo-coords or Destination geo-coords"
           );
-
-          console.log("\nCoordinates for Pickup: ", response.data);
-
-          setPickupCoords({ lat: response.data.ltd, lng: response.data.lng });
-        } catch (err) {
-          console.error("Error fetching coordinates");
-          toast.error("Failed to fetch pickup coordinates");
+          throw new Error("Couldn't get Coordinates from google API");
         }
-      };
 
-      fetchCoords();
+        console.log("Pickup Coords: ", response.data);
+        return response.data;
+      } catch (err) {
+        console.error("Error fetching  pickup coordinates");
+        toast.error(`Failed to fetch ${address} coordinates`);
+      }
+    };
+
+    if (pickup && !pickupCoords && pickup.length > 5) {
+      const coordinates = fetchCoordinates(pickup);
+      setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
     }
-  }, [pickup, pickupCoords, token]);
 
-  /* ********************************/
+    if (destination && !destinationCoords && destination.length > 5) {
+      const coordinates = fetchCoordinates(destination);
+      setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
+    }
+  }, [pickup, pickupCoords, destination, destinationCoords]);
 
   useEffect(() => {
     if (!selectedVehicle) return;
@@ -178,7 +234,7 @@ const Home = () => {
     const value = e.target.value;
     setPickup(value);
 
-    if (value.length > 2) {
+    if (value.length > 4) {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -202,7 +258,7 @@ const Home = () => {
     const value = e.target.value;
     setDestination(value);
 
-    if (value.length > 2) {
+    if (value.length > 4) {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -359,30 +415,12 @@ const Home = () => {
       ease: "power2.inOut",
     });
 
-    // Vehicle found animation
-    /* if (isLookingForCaptains) {
-      gsap.fromTo(
-        isLookingForCaptainsRef.current,
-        { y: "100%" },
-        {
-          y: 0,
-          duration: 0.5,
-          ease: "back.out(1.7)",
-          // onComplete: () => {
-          //   // Auto-hide after 3 seconds
-          //   // setTimeout(() => {
-          //   //   setVehicleFound(false);
-          //   // }, 3000);
-          // },
-        }
-      );
-    }*/
+    // Looking for captains animation
 
-    // <LookingForDriver/> component animation
     gsap.to(isLookingForCaptainsRef.current, {
       y: isLookingForCaptains ? "0" : "100%",
-      duration: 0.5,
-      ease: "back.out(1.7)",
+      duration: 0.3,
+      ease: "power2.inOut",
     });
 
     // Wait for driver animation
@@ -674,12 +712,17 @@ const Home = () => {
           />
         </div>
 
-        <div ref={isLookingForCaptainsRef}>
-          <LookingForDriver
-            rideData={rideData}
-            isLookingForCaptains={isLookingForCaptains}
-          />
-        </div>
+        {isLookingForCaptains ? (
+          <div
+            ref={isLookingForCaptainsRef}
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
+          >
+            <LookingForDriver
+              rideData={rideData}
+              isLookingForCaptains={isLookingForCaptains}
+            />
+          </div>
+        ) : null}
 
         {/* Confirm Ride Panel */}
         <div
@@ -695,28 +738,6 @@ const Home = () => {
             onBack={() => setConfirmRidePanel(false)}
           />
         </div>
-
-        {/* Vehicle Found Notification
-        {vehicleFound && (
-          <div
-            ref={isLookingForCaptainsRef}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-xl z-50 p-4 w-11/12 max-w-md"
-          >
-            <div className="flex items-center">
-              <div className="bg-green-100 p-2 rounded-full mr-3">
-                <FiCar className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <div className="font-medium">Vehicle Found!</div>
-                <div className="text-sm text-gray-500">
-                  Your driver is on the way
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        */}
 
         {/* Wait for Driver Panel */}
         {waitForDriverOpen && (

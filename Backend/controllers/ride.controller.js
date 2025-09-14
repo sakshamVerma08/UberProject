@@ -30,14 +30,14 @@ module.exports.createRide = async (req, res) => {
       const pickupCoordinates = await mapService.getAddressCoordinates(pickup);
       if (
         !pickupCoordinates ||
-        !pickupCoordinates.ltd ||
+        !pickupCoordinates.lat ||
         !pickupCoordinates.lng
       ) {
         return res.status(400).json({ message: "Invalid pickup location" });
       }
 
       const captainsInRadius = await mapService.getCaptainsInTheRadius(
-        pickupCoordinates.ltd,
+        pickupCoordinates.lat,
         pickupCoordinates.lng,
         5000,
         vehicleType

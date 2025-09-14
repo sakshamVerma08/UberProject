@@ -59,12 +59,12 @@ function initializeSocket(server) {
 
       if (
         !location ||
-        typeof location.ltd !== "number" ||
+        typeof location.lat !== "number" ||
         typeof location.lng !== "number"
       ) {
         console.log(
           "from socket.js\n Latitude: ",
-          location.ltd,
+          location.lat,
           "\nLongitude: ",
           location.lng
         );
@@ -73,7 +73,7 @@ function initializeSocket(server) {
 
       await captainModel.findByIdAndUpdate(userId, {
         location: {
-          lat: location.ltd,
+          lat: location.lat,
           lng: location.lng,
         },
       });

@@ -27,9 +27,8 @@ module.exports.authUser = async (req, res, next) => {
       return res.status(401).json({ message: "couldn't decode token" });
     }
 
-
     const user = await userModel.findById(decodedToken._id);
-    console.log("User in DB = ", user);
+    // console.log("User in DB = ", user);
     if (!user) {
       console.log("User not found in Database");
       return res.status(401).json({ message: "Unauthorized: User not found" });
@@ -66,7 +65,6 @@ module.exports.authCaptain = async (req, res, next) => {
 
     req.captain = captain;
     return next();
-    
   } catch (err) {
     return res
       .status(401)

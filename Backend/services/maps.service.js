@@ -12,22 +12,17 @@ module.exports.getAddressCoordinates = async (address) => {
 
     if (response.data.status === "OK") {
       const location = response.data.results[0]?.geometry?.location;
-      // console.log("From map-services\nLocation = ", location);
 
       if (!location || !location.lat || !location.lng) {
         throw new Error("Invalid location data received from Google Maps API");
       }
 
-      return {
-        ltd: location.lat,
-        lng: location.lng,
-      };
+      return { lat: location.lat, lng: location.lng };
     } else {
       throw new Error(`Google Maps API Error: ${response.data.status}`);
     }
   } catch (err) {
-    console.error("Error fetching Coordinates");
-    return { ltd: null, lng: null };
+    throw new Error("Error fetching Coordinates");
   }
 };
 
@@ -79,14 +74,11 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 };
 
 module.exports.getCaptainsInTheRadius = async (
-  ltd,
+  lat,
   lng,
   radius,
   vehicleType
 ) => {
-  // const latRange = 0.05;
-  // const lngRange = 0.05;
-
   try {
     console.log("Chosen vehicle type: ", vehicleType);
 
@@ -95,7 +87,7 @@ module.exports.getCaptainsInTheRadius = async (
         $near: {
           $geometry: {
             type: "Point",
-            coordinates: [lng, ltd],
+            coordinates: [lng, lat],
           },
 
           $maxDistance: radius * 1000,
