@@ -6,6 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import UserContext from "./context/UserContext.jsx";
 import CaptainContext from "./context/CaptainContext.jsx";
 import SocketProvider from "./context/SocketContext.jsx";
+import { Analytics } from "@vercel/analytics";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <CaptainContext>
@@ -13,6 +15,7 @@ createRoot(document.getElementById("root")).render(
         <SocketProvider>
           <BrowserRouter>
             <App />
+            <Analytics />
           </BrowserRouter>
         </SocketProvider>
       </UserContext>

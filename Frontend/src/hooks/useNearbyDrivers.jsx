@@ -12,7 +12,12 @@ const useNearbyDrivers = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!center) return;
+    if (!center || center.lat == null || center.lng == null || !vehicleType) {
+      setError(null);
+      setDrivers([]);
+      setLoading(false);
+      return;
+    }
 
     const fetchDrivers = async () => {
       try {
@@ -42,7 +47,6 @@ const useNearbyDrivers = ({
         }
 
         setError(null);
-        
       } catch (err) {
         console.error("Error fetching nearby drivers:", err);
         setError("Failed to load nearby drivers");
@@ -56,7 +60,7 @@ const useNearbyDrivers = ({
 
     const interval = setInterval(fetchDrivers, updateInterval);
     return () => clearInterval(interval);
-  }, [center, radius, updateInterval]);
+  }, [center?.lat, center?.lng, radius, updateInterval, radius, vehicleType]);
 
   return { drivers, loading, error };
 };

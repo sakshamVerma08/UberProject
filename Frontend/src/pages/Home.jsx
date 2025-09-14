@@ -42,7 +42,7 @@ const Home = () => {
     duration: null,
   });
 
-  const [pickupCoords, setPickupCoords] = useState({ lat: null, lng: null });
+  const [pickupCoords, setPickupCoords] = useState(null);
 
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
@@ -77,10 +77,12 @@ const Home = () => {
     loading,
     errors: driversError,
   } = useNearbyDrivers({
-    lat: pickupCoords.lat,
-    lng: pickupCoords.lng,
-    radius: 0.03,
-    updateInterval: 3000,
+    center: {
+      lat: pickupCoords?.lat,
+      lng: pickupCoords?.lng,
+    },
+    radius: 0.05,
+    updateInterval: 5000,
     vehicleType: selectedVehicle,
   });
 
@@ -92,13 +94,15 @@ const Home = () => {
             `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
             {
               params: {
-                addres: pickup,
+                address: pickup,
               },
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }
           );
+
+          console.log("\nCoordinates for Pickup: ", response.data);
 
           setPickupCoords({ lat: response.data.ltd, lng: response.data.lng });
         } catch (err) {
@@ -109,24 +113,65 @@ const Home = () => {
 
       fetchCoords();
     }
-  }, [pickupCoords, token]);
+  }, [pickup, pickupCoords, token]);
 
   /* ********************************/
 
   useEffect(() => {
-    if (pickupCoords && selectedVehicle) {
+    if (!selectedVehicle) return;
+
+    if (
+      pickupCoords &&
+      selectedVehicle &&
+      pickupCoords.lat !== null &&
+      pickupCoords.lng !== null
+    ) {
       // Only proceed if coords and vehicle are set
-      if (!loading && !driversError && nearbyDrivers.length > 0) {
+      if (
+        pickupCoords?.lat &&
+        pickupCoords?.lng &&
+        selectedVehicle &&
+        !loading &&
+        !driversError &&
+        nearbyDrivers.length > 0
+      ) {
         setCaptainData(nearbyDrivers);
         setIsLookingForCaptains(false);
-        // Optionally trigger next step (e.g., show confirmation)
+
+        socket.emit("new-ride-request", {
+          userId: user?._id,
+          captainsInRadius: nearbyDrivers,
+          vehicleType: selectedVehicle,
+          pickup,
+          pickupCoords,
+          destination,
+          distance: routeInfo?.distance,
+          duration: routeInfo?.duration,
+          fare,
+        });
       } else if (driversError) {
         console.error("Error fetching nearby drivers:", driversError);
         toast.error("Failed to find nearby drivers.");
         setIsLookingForCaptains(false);
       }
+    } else {
+      toast.error(`No nearby ${selectedVehicle} drivers were found.`);
+      setIsLookingForCaptains(false);
     }
-  }, [nearbyDrivers, loading, driversError, pickupCoords, selectedVehicle]);
+  }, [
+    nearbyDrivers,
+    loading,
+    isLookingForCaptains,
+    driversError,
+    pickupCoords,
+    selectedVehicle,
+    socket,
+    user,
+    pickup,
+    destination,
+    routeInfo,
+    fare,
+  ]);
 
   // Handle pickup input change and fetch suggestions
   const handlePickupChange = async (e) => {
@@ -225,18 +270,6 @@ const Home = () => {
     setSelectedVehicle(selectedVehicle);
     setIsLookingForCaptains(true);
     setVehiclePanel(false);
-
-    socket.emit("new-ride-request", {
-      userId: user?._id,
-      captainsInRadius: drivers,
-      vehicleType: selectedVehicle,
-      pickup,
-      pickupCoords,
-      destination,
-      distance,
-      duration,
-      fare,
-    });
   };
 
   // Handle ride confirmation
@@ -628,7 +661,7 @@ const Home = () => {
         </div>
 
         {/* Vehicle Selection Panel */}
-         <div
+        <div
           ref={vehiclePanelRef}
           className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
         >
@@ -641,14 +674,12 @@ const Home = () => {
           />
         </div>
 
-       
-          <div ref={isLookingForCaptainsRef}>
-            <LookingForDriver
-              rideData={rideData}
-              isLookingForCaptains={isLookingForCaptains}
-            />
-          </div>
-  
+        <div ref={isLookingForCaptainsRef}>
+          <LookingForDriver
+            rideData={rideData}
+            isLookingForCaptains={isLookingForCaptains}
+          />
+        </div>
 
         {/* Confirm Ride Panel */}
         <div
