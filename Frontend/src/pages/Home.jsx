@@ -17,6 +17,9 @@ import VehiclePanel from "../components/VehiclePanel";
 import LookingForDriver from "../components/LookingForDriver";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import RouteRenderer from "../components/RouteRenderer";
+import useNearbyDrivers from "../hooks/useNearbyDrivers";
+
+const mapLibraries = ["places"];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,6 +27,8 @@ const Home = () => {
     distance: null,
     duration: null,
   });
+
+  const [pickupCoords, setPickupCoords] = useState({ lat: null, lng: null });
 
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
@@ -51,6 +56,63 @@ const Home = () => {
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
   const token = localStorage.getItem("user_token");
+
+  /* Getting the Nearby Drivers from useNearbyDrivers custom hook */
+  const {
+    drivers: nearbyDrivers,
+    loading,
+    errors: driversError,
+  } = useNearbyDrivers({
+    lat: pickupCoords.lat,
+    lng: pickupCoords.lng,
+    radius: 0.03,
+    updateInterval: 3000,
+    vehicleType: selectedVehicle,
+  });
+
+  useEffect(() => {
+    if (pickup && !pickupCoords) {
+      const fetchCoords = async () => {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
+            {
+              params: {
+                addres: pickup,
+              },
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          setPickupCoords({ lat: response.data.ltd, lng: response.data.lng });
+        } catch (err) {
+          console.error("Error fetching coordinates");
+          toast.error("Failed to fetch pickup coordinates");
+        }
+      };
+
+      fetchCoords();
+    }
+  }, [pickupCoords, token]);
+
+  /* ********************************/
+
+  useEffect(() => {
+    if (pickupCoords && selectedVehicle) {
+      // Only proceed if coords and vehicle are set
+      if (!loading && !driversError && nearbyDrivers.length > 0) {
+        setCaptainData(nearbyDrivers);
+        setIsLookingForCaptains(false);
+        // Optionally trigger next step (e.g., show confirmation)
+      } else if (driversError) {
+        console.error("Error fetching nearby drivers:", driversError);
+        toast.error("Failed to find nearby drivers.");
+        setIsLookingForCaptains(false);
+      }
+    }
+  }, [nearbyDrivers, loading, driversError, pickupCoords, selectedVehicle]);
 
   // Handle pickup input change and fetch suggestions
   const handlePickupChange = async (e) => {
@@ -123,6 +185,7 @@ const Home = () => {
 
     try {
       // Get fare estimates for all vehicle types
+
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
         {
@@ -142,13 +205,6 @@ const Home = () => {
   const handleVehicleSelect = async (selectedVehicle) => {
     setSelectedVehicle(selectedVehicle);
     setIsLookingForCaptains(true);
-
-    // Emit event to find nearby captains
-    socket.emit("find-nearby-captains", {
-      pickup,
-      selectedVehicle,
-      userId: user?._id,
-    });
   };
 
   // Handle ride confirmation
@@ -312,7 +368,7 @@ const Home = () => {
       <div className="flex-1 relative">
         <LoadScript
           googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          libraries={["places"]}
+          libraries={mapLibraries}
         >
           {pickup && destination ? (
             <RouteRenderer

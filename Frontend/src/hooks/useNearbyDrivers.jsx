@@ -1,7 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-const useNearbyDrivers = ({ center, radius = 5000, updateInterval }) => {
+const useNearbyDrivers = ({
+  center,
+  radius = 5000,
+  updateInterval,
+  vehicleType,
+}) => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,7 +20,7 @@ const useNearbyDrivers = ({ center, radius = 5000, updateInterval }) => {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
           {
-            params: { lat: center.lat, lng: center.lng, radius },
+            params: { lat: center.lat, lng: center.lng, radius, vehicleType },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("user_token")}`,
             },
@@ -32,9 +37,12 @@ const useNearbyDrivers = ({ center, radius = 5000, updateInterval }) => {
               },
             };
           });
+
+          setDrivers(formattedDrivers);
         }
 
         setError(null);
+        
       } catch (err) {
         console.error("Error fetching nearby drivers:", err);
         setError("Failed to load nearby drivers");

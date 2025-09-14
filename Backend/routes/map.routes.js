@@ -31,10 +31,13 @@ router.get(
 
 router.get(
   "/drivers/nearby",
-  
+
   query("lat").isNumeric().withMessage("Latitude must be a numeric value"),
   query("lng").isNumeric().withMessage("Longitude must be a numeric value"),
   query("radius").isNumeric().withMessage("Radius must be a numeric value"),
+  query("vehicleType")
+    .isString()
+    .withMessage("Vehicle Type must be a string value"),
 
   authMiddleware.authUser,
   mapController.getNearbyDrivers
