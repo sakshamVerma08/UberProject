@@ -2,7 +2,15 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { FiX, FiMapPin, FiNavigation, FiClock, FiUser } from "react-icons/fi";
+import {
+  FiX,
+  FiMapPin,
+  FiNavigation,
+  FiClock,
+  FiUser,
+  FiSun,
+  FiMoon,
+} from "react-icons/fi";
 import { TfiCar as FiCar } from "react-icons/tfi";
 
 import { toast } from "react-hot-toast";
@@ -16,7 +24,7 @@ import LookingForDriver from "../components/LookingForDriver";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import RouteRenderer from "../components/RouteRenderer";
 import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
-
+import { useNavigate } from "react-router-dom";
 const mapLibraries = ["places"];
 
 /* Use State variables mapping for easier Reference 
@@ -34,7 +42,7 @@ selectedVehicle---> Represents the vehicle user chose for his/her ride.
 */
 
 const Home = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [routeInfo, setRouteInfo] = useState({
     distance: null,
@@ -63,6 +71,8 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [driversError, setDriversError] = useState(null);
 
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   // Refs for GSAP animations
   const panelRef = useRef(null); // Location panel screen
   const panelClose = useRef(null); // Location panel close button
@@ -74,6 +84,134 @@ const Home = () => {
   const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
   const token = localStorage.getItem("user_token");
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/users/logout`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status == 200) {
+        localStorage.removeItem("user_token");
+        console.log("Logout Successful");
+        navigate("/login");
+        toast.success("Logged out successfully");
+      }
+    } catch (err) {
+      console.error("Error while logging out", err);
+      toast.error("Error while logging out");
+    }
+  };
+
+  // Toggle dark/light mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  // Map styles
+  const darkMapStyles = [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#263c3f" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#6b9a76" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#746855" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1f2835" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#f3d19c" }],
+    },
+    {
+      featureType: "transit",
+      elementType: "geometry",
+      stylers: [{ color: "#2f3948" }],
+    },
+    {
+      featureType: "transit.station",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#515c6d" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#17263c" }],
+    },
+  ];
+
+  const lightMapStyles = [
+    {
+      featureType: "all",
+      elementType: "all",
+      stylers: [{ saturation: -100 }, { gamma: 0.5 }],
+    },
+  ];
+
+  const mapOptions = {
+    styles: isDarkMode ? darkMapStyles : lightMapStyles,
+    disableDefaultUI: true,
+    zoomControl: false,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: false,
+    backgroundColor: isDarkMode ? "#1a1a1a" : "#f0f0f0",
+  };
 
   // Fetch nearby drivers when pickupCoords or selectedVehicle changes
   useEffect(() => {
@@ -129,52 +267,6 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, [pickupCoords, selectedVehicle, token]);
 
-  /*
-  useEffect(() => {
-    const fetchCoordinates = async (address) => {
-      if (address.length < 5) return;
-
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-          {
-            params: {
-              address: address,
-            },
-
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.length == 0) {
-          console.error(
-            "Couldn't get either Pickup geo-coords or Destination geo-coords"
-          );
-          throw new Error("Couldn't get Coordinates from google API");
-        }
-
-        console.log("Pickup Coords: ", response.data);
-        return response.data;
-      } catch (err) {
-        console.error("Error fetching  pickup coordinates");
-        toast.error(`Failed to fetch ${address} coordinates`);
-      }
-    };
-
-    if (pickup && !pickupCoords && pickup.length > 5) {
-      const coordinates = fetchCoordinates(pickup);
-      setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
-    }
-
-    if (destination && !destinationCoords && destination.length > 5) {
-      const coordinates = fetchCoordinates(destination);
-      setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
-    }
-  }, [pickup, pickupCoords, destination, destinationCoords]);
-*/
-
   useEffect(() => {
     const handler = setTimeout(async () => {
       if (pickup && !pickupCoords && pickup.length > 5) {
@@ -186,6 +278,47 @@ const Home = () => {
     }, 500);
 
     return () => clearTimeout(handler);
+  }, [pickup, pickupCoords, destination, destinationCoords]);
+
+  useEffect(() => {
+    const fetchCoordinates = async (address) => {
+      if (!address || address.length < 5) return null;
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
+          {
+            params: { address },
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // backend returns { lat, lng } — check for lat
+        if (!response?.data || typeof response.data.lat === "undefined") {
+          console.error("Invalid coords from backend", response?.data);
+          return null;
+        }
+
+        return response.data;
+      } catch (err) {
+        console.error("Error fetching coordinates", err);
+        return null;
+      }
+    };
+
+    if (pickup && !pickupCoords && pickup.length > 5) {
+      const coordinates = fetchCoordinates(pickup);
+      if (coordinates) {
+        setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
+      }
+    }
+
+    if (destination && !destinationCoords && destination.length > 5) {
+      const coordinates = fetchCoordinates(destination);
+      if (coordinates) {
+        setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
+      }
+    }
   }, [pickup, pickupCoords, destination, destinationCoords]);
 
   useEffect(() => {
@@ -243,8 +376,6 @@ const Home = () => {
     routeInfo,
     fare,
   ]);
-
-  
 
   // Handle pickup input change and fetch suggestions
   const handlePickupChange = async (e) => {
@@ -404,7 +535,7 @@ const Home = () => {
     if (user?._id) {
       socket.emit("join", { userType: "user", userId: user._id });
     }
-  }, [user, socket]);
+  }, [user]);
 
   // Listen for ride confirmation
   useEffect(() => {
@@ -520,6 +651,32 @@ const Home = () => {
   // Main render
   return (
     <div className="h-screen w-full flex flex-col bg-gray-50">
+      {/* Top Bar with Logout */}
+
+      <div className="absolute top-4 right-20 z-50">
+        <button
+          onClick={toggleDarkMode}
+          className="bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
+          aria-label={
+            isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+          }
+        >
+          {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+        </button>
+      </div>
+
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => {
+            handleLogout();
+          }}
+          className="bg-black text-white px-4 py-2 rounded-full cursor-pointer text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+        >
+          <FiUser className="text-white" />
+          Logout
+        </button>
+      </div>
+
       {/* Map View */}
       <div className="flex-1 relative">
         <LoadScript
@@ -531,19 +688,17 @@ const Home = () => {
               origin={pickupCoords}
               destination={destinationCoords}
               onRouteCalculated={handleRouteCalculated}
+              isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
             />
           ) : (
             <GoogleMap
               mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={{ lat: 28.6139, lng: 77.209 }} // Add your default center
-              zoom={13}
-              options={{
-                zoomControl: false,
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-              }}
-            />
+              center={{ lat: 28.6139, lng: 77.209 }}
+              zoom={14}
+              options={mapOptions}
+            >
+              {/* Map content */}
+            </GoogleMap>
           )}
         </LoadScript>
 

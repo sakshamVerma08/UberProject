@@ -14,7 +14,8 @@ function initializeSocket(server) {
 
   io.on("connection", (socket) => {
     console.log("Connected", socket.id);
-
+    let lng = 0;
+    let lat = 0;
     socket.on("join", async (data) => {
       console.warn("\nSocket Join Event was received\n");
 
@@ -57,21 +58,26 @@ function initializeSocket(server) {
       const { userId, location } = data;
       // console.log("location object : \n", location);
 
-      if (!location || !location.lat || !location.lng) {
-        console.log(
-          "from socket.js\n Latitude: ",
-          location.lat,
-          "\nLongitude: ",
-          location.lng
-        );
-        socket.emit("error", { message: "Invalid Location" });
+      if (
+        location &&
+        location.coordinates &&
+        typeof location.coordinates[0] === "number" &&
+        typeof location.coordinates[1] === "number"
+      ) {
+        lng = location.coordinates[0];
+        lat = location.coordinates[1];
+
+        console.log(`From frontend: Longitude: ${lng}`);
+        console.log(`from frontend: Latitude: ${lat} \n`);
+      } else {
+        console.error("Invaid location received from Frontend ");
         return;
       }
 
       await captainModel.findByIdAndUpdate(userId, {
         location: {
           type: "Point",
-          coordinates: [location.lng, location.lat],
+          coordinates: [lng, lat],
         },
       });
     });
