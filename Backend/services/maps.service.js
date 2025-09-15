@@ -79,59 +79,46 @@ module.exports.getCaptainsInTheRadius = async (
   lat,
   lng,
   radius,
-  vehicleType
+  vehicleType,
+  location
 ) => {
   try {
     console.log("Chosen vehicle type: ", vehicleType);
-
-    const captains = await captainModel.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lng, lat],
-          },
-
-          $maxDistance: radius * 1000,
-          $minDistance: 0,
-        },
-      },
-      "vehicle.vehicleType": vehicleType,
-    });
-
-    /*
-    const captains = await captainModel.find({
-      location: {
-        $geoWithin: {
-          $centerSphere: [[ltd, lng], radius / 6371],
-        },
-      },
-
-      "vehicle.vehicleType": vehicleType,
-    });
-    */
-
-    // If the $geoWithin method fails, use the below code:
-
-    /* const captains = await captainModel.find({
-       "location.coordinates.1": { $gte: ltd - latRange, $lte: ltd + latRange },
-       "location.coordinates.0": { $gte: lng - lngRange, $lte: lng + lngRange },
-     });
-     */
-
-    console.warn(
-      `Total ${captains.length} captains were found to be in radius\nCaptains array from $near\n`
+    console.log(
+      `Searching for captains within ${radius} meters of [${lat}, ${lng}]`
     );
-    console.log(captains);
 
-    if (!captains) {
-      console.error("No captains were found in the Vicinity");
-      return [];
-    }
+    const captains = await captainModel.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [location.lng, location.lat],
+          },
+          distanceField: "dist.calculated",
+          maxDistance: radius,
+          spherical: true,
+        },
+      },
+
+      {
+        $match: {
+          "vehicle.vehicleType": vehicleType,
+          status: "active",
+        },
+      },
+
+      {
+        $sort: { "dist.calculated": 1 },
+      },
+    ]);
+
+    console.log(`Found ${captains.length} captains within ${radius} meters`);
 
     return captains;
   } catch (error) {
-    console.log("Error in fetching captains: ", error);
+    console.error("Error in getCaptainsInTheRadius:", error);
     return [];
+    // throw new Error("Failed to find nearby captains");
   }
 };

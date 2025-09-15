@@ -8,6 +8,7 @@ module.exports.createCaptain = async ({
   plate,
   capacity,
   vehicleType,
+  location,
 }) => {
   if (
     !firstname ||
@@ -17,7 +18,8 @@ module.exports.createCaptain = async ({
     !color ||
     !plate ||
     !capacity ||
-    !vehicleType
+    !vehicleType ||
+    !location
   ) {
     throw new Error("All fields are required");
   }
@@ -37,6 +39,8 @@ module.exports.createCaptain = async ({
       capacity,
       vehicleType,
     },
+
+    location,
 
     socketId: "",
   });

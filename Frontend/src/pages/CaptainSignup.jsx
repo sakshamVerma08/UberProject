@@ -30,6 +30,57 @@ const CaptainSignup = () => {
     }));
   };
 
+  function generateRandomDelhiCoords() {
+    // Delhi NCR Bounding Box Coordinates
+    // North: Rohini (28.8, 77.0)
+    // South: Faridabad (28.3, 77.3)
+    // East: Noida (28.5, 77.5)
+    // West: Gurugram (28.4, 76.9)
+    // Major Landmarks:
+    // - IIT Delhi: 28.5455° N, 77.1970° E
+    // - Red Fort: 28.6562° N, 77.2410° E
+    // - IGI Airport: 28.5562° N, 77.1000° E
+    // - Connaught Place: 28.6280° N, 77.2020° E
+
+    const minLat = 28.3; // Southernmost point (Faridabad)
+    const maxLat = 28.9; // Northernmost point (Rohini)
+    const minLng = 76.8; // Westernmost point (Gurugram)
+    const maxLng = 77.5; // Easternmost point (Noida)
+
+    return {
+      lat: Number((Math.random() * (maxLat - minLat) + minLat).toFixed(6)),
+      lng: Number((Math.random() * (maxLng - minLng) + minLng).toFixed(6)),
+    };
+  }
+
+  /*
+  const setDynamicLocation = () => {
+    if (import.meta.env.MODE === "development") {
+      console.log("DEV MODE: Generating random Delhi Coordinates ");
+      const coords = generateRandomDelhiCoords();
+      setLocation({
+        type: "Point",
+        coordinates: [coords.lng, coords.lat],
+      });
+      return;
+    }
+
+    console.log("PRODUCTION: Attempting to get real geolocation");
+
+    if (!navigator.geolocation) {
+      console.warn("Geolocation is not supported by this browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const coords = {
+        lat: position.coords.latitude ?? null,
+        lng: position.coords.longitude ?? null,
+      };
+      setLocation({ type: "Point", coordinates: [coords.lng, coords.lat] });
+    });
+  };
+*/
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -49,25 +100,74 @@ const CaptainSignup = () => {
 
     setIsLoading(true);
 
-    const captainData = {
-      fullname: {
-        firstname: formData.firstname.trim(),
-        lastname: formData.lastname.trim(),
-      },
-      email: formData.email.trim(),
-      password: formData.password,
-      vehicle: {
-        color: formData.vehicleColor.trim(),
-        plate: formData.vehiclePlate.trim(),
-        capacity: parseInt(formData.vehicleCapacity, 10),
-        vehicleType: formData.vehicleType,
-      },
-    };
-
     try {
+      // Get location first
+      const location = await new Promise((resolve) => {
+        if (import.meta.env.MODE === "development") {
+          console.log("DEV MODE: Generating random Delhi Coordinates");
+          const coords = generateRandomDelhiCoords();
+          resolve({
+            type: "Point",
+            coordinates: [coords.lng, coords.lat],
+          });
+        } else {
+          console.log("PRODUCTION: Attempting to get real geolocation");
+          if (!navigator.geolocation) {
+            console.warn("Geolocation is not supported by this browser");
+            // Default to Delhi coordinates if geolocation is not available
+            resolve({
+              type: "Point",
+              coordinates: [77.2185489602568, 28.52981308743132], // Default to New Delhi
+            });
+            return;
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                type: "Point",
+                coordinates: [
+                  position.coords.longitude,
+                  position.coords.latitude,
+                ],
+              });
+            },
+            (error) => {
+              console.error("Error getting location, using default:", error);
+              // Fallback to default location on error
+              resolve({
+                type: "Point",
+                coordinates: [77.209, 28.6139], // Default to New Delhi
+              });
+            }
+          );
+        }
+      });
+
+      const captainData = {
+        fullname: {
+          firstname: formData.firstname.trim(),
+          lastname: formData.lastname.trim(),
+        },
+        email: formData.email.trim(),
+        password: formData.password,
+        vehicle: {
+          color: formData.vehicleColor.trim(),
+          plate: formData.vehiclePlate.trim(),
+          capacity: parseInt(formData.vehicleCapacity, 10),
+          vehicleType: formData.vehicleType,
+        },
+        location,
+      };
+
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/captains/register`,
-        captainData
+        captainData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (response.status === 201) {
@@ -83,11 +183,12 @@ const CaptainSignup = () => {
         localStorage.setItem("token", data.token);
         navigate("/captain-home");
       }
-    } catch (err) {
+    } catch (error) {
       const errorMessage =
-        err.response?.data?.message || "Something went wrong. Please try again";
+        error.response?.data?.message ||
+        "Something went wrong. Please try again";
       toast.error(errorMessage);
-      console.error("Error during signup:", err);
+      console.error("Error during signup:", error);
     } finally {
       setIsLoading(false);
     }

@@ -10,7 +10,6 @@ import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false);
@@ -58,16 +57,21 @@ const CaptainHome = () => {
 
     const updateLocation = () => {
       // Dev mode → use random Delhi coordinates
+      /*
       if (import.meta.env.MODE === "development") {
         console.log("DEV MODE: Generating random Delhi coordinates");
         const coords = generateRandomDelhiCoords();
         console.log("Sending fake location update:", coords);
         socket.emit("update-location-captain", {
           userId: captain?._id,
-          location: coords,
+          location: {
+            type: "Point",
+            coordinates: [coords.lng, coords.lat],
+          },
         });
         return;
       }
+        */
 
       // Production → use real geolocation if available
       console.log("PRODUCTION: Attempting to get real geolocation");
@@ -85,7 +89,10 @@ const CaptainHome = () => {
           console.log("Sending real location update:", coords);
           socket.emit("update-location-captain", {
             userId: captain?._id,
-            location: coords,
+            location: {
+              type: "Point",
+              coordinates: [coords.lng, coords.lat],
+            },
           });
         },
         (error) => {

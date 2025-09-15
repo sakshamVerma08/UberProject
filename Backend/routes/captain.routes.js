@@ -19,7 +19,7 @@ router.post(
       .isLength({ min: 3 })
       .withMessage("Vehicle color should be atleast 3 characters long"),
     body("vehicle.plate")
-      .isLength({ min: 4 })
+      .isLength({ min: 3 })
       .withMessage("Vehicle plate number should be atleast 4 characters long"),
     body("vehicle.capacity")
       .isLength({ min: 1 })
@@ -27,6 +27,24 @@ router.post(
     body("vehicle.vehicleType")
       .isIn(["car", "motorcycle", "auto"])
       .withMessage("Invalid Vehicle Type"),
+
+    body("location.type")
+      .exists()
+      .withMessage("Location type must be present")
+      .isString()
+      .withMessage("Location type must be a string")
+      .isIn(["Point"])
+      .withMessage("Location must be a Point type"),
+
+    body("location.coordinates")
+      .exists()
+      .withMessage("Location coordinates must be present")
+      .isArray({ min: 2, max: 2 })
+      .withMessage("Both latitude and longitude are required in 'coordinates'"),
+
+    body("location.coordinates.*")
+      .isFloat()
+      .withMessage("Coordinates must be numbers."),
   ],
   captainController.registerCaptain
 );
@@ -53,7 +71,5 @@ router.post(
   authMiddleware.authCaptain,
   captainController.logoutCaptain
 );
-
-
 
 module.exports = router;

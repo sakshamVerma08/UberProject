@@ -17,6 +17,15 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
   const [error, setError] = useState(null);
   const lastRouteRef = useRef({ origin: null, destination: null });
 
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (mapRef.current && origin && !destination) {
+      mapRef.current.panTo(origin);
+      mapRef.current.setZoom(15);
+    }
+  }, [origin, destination]);
+
   const calculateRoute = useCallback(async () => {
     if (!origin || !destination || !directionsServiceRef.current) {
       console.warn("Origin or Destination is Missing");
@@ -92,6 +101,7 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
 
   const onLoad = useCallback((map) => {
     // Just storing the map instance if needed later
+    mapRef.current = map;
   }, []);
 
   // WIP: instead of this custom hook, call the backend customm api.

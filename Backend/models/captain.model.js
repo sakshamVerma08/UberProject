@@ -49,7 +49,7 @@ const captainSchema = new mongoose.Schema({
     plate: {
       type: String,
       required: true,
-      minlength: [4, "Number plate should be atleast 4 characters long"],
+      minlength: [3, "Number plate should be atleast 4 characters long"],
     },
 
     capacity: {
@@ -65,12 +65,18 @@ const captainSchema = new mongoose.Schema({
     },
   },
 
+
   location: {
-    lat: {
-      type: Number,
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+      default: "Point",
     },
-    lng: {
-      type: Number,
+
+    coordinates: {
+      type: [Number],
+      required: true,
     },
   },
 });
@@ -92,6 +98,8 @@ captainSchema.methods.comparePassword = async function (password) {
 captainSchema.statics.hashPassword = async function (password) {
   return await bcrypt.hash(password, 10);
 };
+
+captainSchema.index({ location: "2dsphere" });
 
 const captainModel = mongoose.model("captain", captainSchema);
 

@@ -244,6 +244,8 @@ const Home = () => {
     fare,
   ]);
 
+  
+
   // Handle pickup input change and fetch suggestions
   const handlePickupChange = async (e) => {
     const value = e.target.value;

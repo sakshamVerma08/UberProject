@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 const useNearbyDrivers = ({
   center,
-  radius = 5000,
+  radius = 7000,
   updateInterval,
   vehicleType,
 }) => {

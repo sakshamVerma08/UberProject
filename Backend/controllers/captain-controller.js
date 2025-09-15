@@ -7,10 +7,12 @@ module.exports.registerCaptain = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res
+      .status(400)
+      .json({ errors: errors.array(), message: "Error in route Validation" });
   }
 
-  const { fullname, email, password, vehicle } = req.body;
+  const { fullname, email, password, vehicle, location } = req.body;
 
   const isCaptainExists = await captainModel.findOne({ email });
 
@@ -29,6 +31,7 @@ module.exports.registerCaptain = async (req, res) => {
     plate: vehicle.plate,
     capacity: vehicle.capacity,
     vehicleType: vehicle.vehicleType,
+    location,
   });
 
   const token = await captain.generateAuthToken();
