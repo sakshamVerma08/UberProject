@@ -10,6 +10,7 @@ import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false);
@@ -20,33 +21,87 @@ const CaptainHome = () => {
 
   const [ride, setRide] = useState(null);
 
+  // This function is used as a fake driver spreader, so that drivers can have
+  // different locations on the grid (In Development Mode, don't use in prod).
+  function generateRandomDelhiCoords() {
+    // Delhi NCR Bounding Box Coordinates
+    // North: Rohini (28.8, 77.0)
+    // South: Faridabad (28.3, 77.3)
+    // East: Noida (28.5, 77.5)
+    // West: Gurugram (28.4, 76.9)
+    // Major Landmarks:
+    // - IIT Delhi: 28.5455° N, 77.1970° E
+    // - Red Fort: 28.6562° N, 77.2410° E
+    // - IGI Airport: 28.5562° N, 77.1000° E
+    // - Connaught Place: 28.6280° N, 77.2020° E
+
+    const minLat = 28.3; // Southernmost point (Faridabad)
+    const maxLat = 28.9; // Northernmost point (Rohini)
+    const minLng = 76.8; // Westernmost point (Gurugram)
+    const maxLng = 77.5; // Easternmost point (Noida)
+
+    return {
+      lat: Number((Math.random() * (maxLat - minLat) + minLat).toFixed(6)),
+      lng: Number((Math.random() * (maxLng - minLng) + minLng).toFixed(6)),
+    };
+  }
+
   useEffect(() => {
     if (captain && captain._id) {
+      console.log("Joining socket room as captain:", captain._id);
       socket.emit("join", { userType: "captain", userId: captain._id });
     } else {
+      console.log("No captain found, checking localStorage...");
       let storedCaptain = JSON.parse(localStorage.getItem("captain"));
       setCaptain(storedCaptain);
     }
 
-    if (captain && captain._id) {
-      socket.emit("join", { userType: "captain", userId: captain._id });
-    }
     const updateLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
+      // Dev mode → use random Delhi coordinates
+      if (import.meta.env.MODE === "development") {
+        console.log("DEV MODE: Generating random Delhi coordinates");
+        const coords = generateRandomDelhiCoords();
+        console.log("Sending fake location update:", coords);
+        socket.emit("update-location-captain", {
+          userId: captain?._id,
+          location: coords,
+        });
+        return;
+      }
+
+      // Production → use real geolocation if available
+      console.log("PRODUCTION: Attempting to get real geolocation");
+      if (!navigator.geolocation) {
+        console.warn("Geolocation is not supported by this browser");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            lat: position.coords.latitude ?? null,
+            lng: position.coords.longitude ?? null,
+          };
+          console.log("Sending real location update:", coords);
           socket.emit("update-location-captain", {
             userId: captain?._id,
-            location: {
-              lat: position.coords.latitude ?? null,
-              lng: position.coords.longitude ?? null,
-            },
+            location: coords,
           });
-        });
-      }
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error.message);
+        }
+      );
     };
 
+    console.log("Starting location updates every 10 seconds");
     const locationInterval = setInterval(updateLocation, 10000);
-    updateLocation();
+    updateLocation(); // Initial call
+
+    return () => {
+      console.log("Cleaning up location updates");
+      clearInterval(locationInterval);
+    };
   }, [captain]);
 
   socket.on("new-ride-request", (data) => {

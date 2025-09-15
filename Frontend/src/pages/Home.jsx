@@ -90,7 +90,7 @@ const Home = () => {
             params: {
               lat: pickupCoords.lat,
               lng: pickupCoords.lng,
-              radius: 7, // 5km radius, adjusted as needed (adjusted in backend to be 5000m for mongoDB $geoWithin)
+              radius: 10, // 5km radius, adjusted as needed (adjusted in backend to be 5000m for mongoDB $geoWithin)
               vehicleType: selectedVehicle,
             },
             headers: {
@@ -129,6 +129,7 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, [pickupCoords, selectedVehicle, token]);
 
+  /*
   useEffect(() => {
     const fetchCoordinates = async (address) => {
       if (address.length < 5) return;
@@ -171,6 +172,20 @@ const Home = () => {
       const coordinates = fetchCoordinates(destination);
       setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
     }
+  }, [pickup, pickupCoords, destination, destinationCoords]);
+*/
+
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (pickup && !pickupCoords && pickup.length > 5) {
+        const coordinates = await fetchCoordinates(pickup);
+        if (coordinates) {
+          setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
   }, [pickup, pickupCoords, destination, destinationCoords]);
 
   useEffect(() => {
@@ -278,13 +293,17 @@ const Home = () => {
   };
 
   // Handle selection of a suggestion
-  const handleSuggestionClick = (suggestion, field) => {
+  const handleSuggestionClick = async (suggestion, field) => {
     if (field === "pickup") {
       setPickup(suggestion.description);
       setPickupSuggestion([]);
+      const coords = await fetchCoordinates(suggestion.description);
+      if (coords) setPickupCoords(coords);
     } else {
       setDestination(suggestion.description);
       setDestinationSuggestion([]);
+      const coords = await fetchCoordinates(suggestion.description);
+      if (coords) setDestinationCoords(coords);
     }
   };
 
@@ -316,6 +335,31 @@ const Home = () => {
     } catch (err) {
       console.error("Error in Finding Trip\n", err);
       toast.error("Failed to get fare estimates. Please try again.");
+    }
+  };
+
+  const fetchCoordinates = async (address) => {
+    if (!address || address.length < 5) return null;
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
+        {
+          params: { address },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // backend returns { lat, lng } — check for lat
+      if (!response?.data || typeof response.data.lat === "undefined") {
+        console.error("Invalid coords from backend", response?.data);
+        return null;
+      }
+
+      return response.data;
+    } catch (err) {
+      console.error("Error fetching coordinates", err);
+      return null;
     }
   };
 
@@ -480,10 +524,10 @@ const Home = () => {
           googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
           libraries={mapLibraries}
         >
-          {pickup && destination ? (
+          {pickupCoords && destinationCoords ? (
             <RouteRenderer
-              origin={pickup}
-              destination={destination}
+              origin={pickupCoords}
+              destination={destinationCoords}
               onRouteCalculated={handleRouteCalculated}
             />
           ) : (

@@ -3,7 +3,9 @@ import {
   GoogleMap,
   useLoadScript,
   DirectionsRenderer,
+  Marker,
 } from "@react-google-maps/api";
+
 import DriverMarker from "./DriverMarker";
 import useNearbyDrivers from "../hooks/useNearbyDrivers";
 
@@ -92,6 +94,7 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
     // Just storing the map instance if needed later
   }, []);
 
+  // WIP: instead of this custom hook, call the backend customm api.
   const {
     drivers: nearbyDrivers,
     loading,
@@ -102,7 +105,7 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
       lng: (origin?.lng + destination?.lng) / 2,
     },
     0.03,
-    3000
+    10000
   );
   return (
     <div className="w-full h-full">
@@ -121,12 +124,33 @@ const RouteRenderer = ({ origin, destination, onRouteCalculated }) => {
           fullscreenControl: false,
         }}
       >
+        {/* Showing Pickup Marker */}
+        {origin && (
+          <Marker
+            position={origin}
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png", // pickup marker
+            }}
+          />
+        )}
+
+        {/* Showing Destination marker */}
+
+        {destination && (
+          <Marker
+            position={destination}
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+            }}
+          />
+        )}
+
         {directions && (
           <DirectionsRenderer
             options={{
               polylineOptions: {
                 strokeColor: "#000000",
-                strokeWeight: 5,
+                strokeWeight: 6,
                 strokeOpacity: 0.8,
               },
               suppressMarkers: true,

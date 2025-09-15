@@ -80,6 +80,7 @@ module.exports.getNearbyDrivers = async (req, res) => {
     }
 
     res.status(200).json(captains);
+    
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });

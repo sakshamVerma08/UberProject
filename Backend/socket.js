@@ -50,8 +50,7 @@ function initializeSocket(server) {
     });
 
     socket.on("update-location-captain", async (data) => {
-      // WIP: CONVERT THIS socket event to a SSE (server sent event) for real-time location updates.
-      
+            
       if (!data) {
         return socket.emit("error", { message: "Invalid Data" });
       }
