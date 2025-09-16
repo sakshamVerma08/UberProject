@@ -114,6 +114,7 @@ const Home = () => {
   };
 
   // Map styles
+
   const darkMapStyles = [
     { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -191,7 +192,7 @@ const Home = () => {
     {
       featureType: "water",
       elementType: "labels.text.stroke",
-      stylers: [{ color: "#17263c" }],
+      stylers: [{ color: "#17267c" }],
     },
   ];
 
@@ -214,11 +215,11 @@ const Home = () => {
   };
 
   // Function to fetch nearby drivers
-  const fetchNearbyDrivers = async () => {
-    if (!pickupCoords || !selectedVehicle || !pickup || !destination) {
-      toast.error("Please fill in all the required fields");
-      return false;
-    }
+  const fetchNearbyDrivers = async (vehicleType) => {
+    // if (!pickupCoords || !selectedVehicle || !pickup || !destination) {
+    //   toast.error("Please fill in all the required fields");
+    //   return false;
+    // }
 
     setLoading(true);
     setDriversError(null);
@@ -232,7 +233,7 @@ const Home = () => {
             lat: pickupCoords.lat,
             lng: pickupCoords.lng,
             radius: 10,
-            vehicleType: selectedVehicle,
+            vehicleType: selectedVehicle || vehicleType,
           },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -264,13 +265,13 @@ const Home = () => {
   };
 
   // Handle find ride button click
-  const handleFindRide = async () => {
+  const handleFindRide = async (vehicleType) => {
     if (!pickup || !destination) {
       toast.error("Please enter both pickup and destination locations");
       return;
     }
 
-    if (!selectedVehicle) {
+    if (!vehicleType) {
       toast.error("Please select a vehicle type");
       return;
     }
@@ -282,7 +283,7 @@ const Home = () => {
       return;
     }
 
-    const foundDrivers = await fetchNearbyDrivers();
+    const foundDrivers = await fetchNearbyDrivers(vehicleType);
 
     if (foundDrivers) {
       setCaptainData(nearbyDrivers);
@@ -290,7 +291,7 @@ const Home = () => {
       socket.emit("new-ride-request", {
         userId: user?._id,
         captainsInRadius: nearbyDrivers,
-        vehicleType: selectedVehicle,
+        vehicleType: vehicleType,
         pickup,
         pickupCoords,
         destination,
@@ -536,6 +537,14 @@ const Home = () => {
     setSelectedVehicle(selectedVehicle);
     setIsLookingForCaptains(true);
     setVehiclePanel(false);
+    try {
+      await handleFindRide(selectedVehicle);
+      console.log("'New Ride Request sent successfully to captain");
+    } catch (err) {
+      console.error("Error in handleVehicleSelect() function", err);
+      toast.error("Failed to find a ride. Please try again.");
+      setIsLookingForCaptains(false);
+    }
   };
 
   // Handle ride confirmation

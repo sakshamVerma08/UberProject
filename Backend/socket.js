@@ -28,26 +28,40 @@ function initializeSocket(server) {
       let updatedCaptain;
 
       if (userType === "user") {
-        updatedUser = await userModel.findByIdAndUpdate(userId, {
-          socketId: socket.id,
-        });
-
-        console.warn(
-          "User socket.id was updated successfully ✅\nNew socket id = ",
-          updatedUser.socketId
-        );
+        userModel
+          .findById(userId)
+          .then((user) => {
+            if (user && !user.socketId) {
+              return userModel.findByIdAndUpdate(userId, {
+                socketId: socket.id,
+              });
+            }
+          })
+          .then(() => {
+            console.log("User's socketId was updated successfully ✅");
+          })
+          .catch((err) => {
+            console.error("Error updating user's socketId: ", err);
+          });
       } else if (userType === "captain") {
-        updatedCaptain = await captainModel.findByIdAndUpdate(userId, {
-          socketId: socket.id,
-        });
-
-        console.warn(
-          "Captain socket.id was updated successfully ✅\nNew socket id = ",
-          updatedCaptain.socketId
-        );
+        captainModel
+          .findById(userId)
+          .then((captain) => {
+            if (captain && !captain.socketId) {
+              return captainModel.findByIdAndUpdate(userId, {
+                socketId: socket.id,
+              });
+            }
+          })
+          .then((updatedCaptain) => {
+            if (updatedCaptain) {
+              console.warn("Captain socketId was updated successfully ✅");
+            }
+          })
+          .catch((err) => {
+            console.error("Error updating captain's socketId: ", err);
+          });
       }
-
-      // console.log("Updated User/Captain = ", updatedUser);
     });
 
     socket.on("update-location-captain", async (data) => {
@@ -67,8 +81,8 @@ function initializeSocket(server) {
         lng = location.coordinates[0];
         lat = location.coordinates[1];
 
-        console.log(`From frontend: Longitude: ${lng}`);
-        console.log(`from frontend: Latitude: ${lat} \n`);
+        console.log(`From captain: Longitude: ${lng}`);
+        console.log(`from captain: Latitude: ${lat} \n`);
       } else {
         console.error("Invaid location received from Frontend ");
         return;
@@ -96,6 +110,10 @@ function initializeSocket(server) {
             destination: data.destination,
             distance: data.distance,
             duration: data.duration,
+            location: {
+              type: "Point",
+              coordinates: [lng, lat],
+            },
           },
         });
       });
