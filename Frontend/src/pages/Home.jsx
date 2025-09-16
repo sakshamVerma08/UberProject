@@ -213,59 +213,93 @@ const Home = () => {
     backgroundColor: isDarkMode ? "#1a1a1a" : "#f0f0f0",
   };
 
-  // Fetch nearby drivers when pickupCoords or selectedVehicle changes
-  useEffect(() => {
-    const fetchNearbyDrivers = async () => {
-      if (!pickupCoords || !selectedVehicle) return;
+  // Function to fetch nearby drivers
+  const fetchNearbyDrivers = async () => {
+    if (!pickupCoords || !selectedVehicle || !pickup || !destination) {
+      toast.error("Please fill in all the required fields");
+      return false;
+    }
 
-      setLoading(true);
-      setDriversError(null);
+    setLoading(true);
+    setDriversError(null);
+    setIsLookingForCaptains(true);
 
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
-          {
-            params: {
-              lat: pickupCoords.lat,
-              lng: pickupCoords.lng,
-              radius: 10, // 5km radius, adjusted as needed (adjusted in backend to be 5000m for mongoDB $geoWithin)
-              vehicleType: selectedVehicle,
-            },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.length == 0) {
-          toast.error("No drivers were found in your vicinity");
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
+        {
+          params: {
+            lat: pickupCoords.lat,
+            lng: pickupCoords.lng,
+            radius: 10,
+            vehicleType: selectedVehicle,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        setNearbyDrivers(response.data);
-        console.log(
-          "\nTotal of ",
-          response.data.length,
-          " captains were found within the radius"
-        );
-
-        console.log("Nearby captains are :", response.data);
-      } catch (error) {
-        console.error("Error fetching nearby drivers:", error);
-        setDriversError("Failed to fetch nearby drivers");
-        toast.error("Failed to find available drivers");
-      } finally {
-        setLoading(false);
+      if (response.data.length === 0) {
+        toast.error("No drivers were found in your vicinity");
+        return false;
       }
-    };
 
-    // Add a small delay to prevent too many requests
-    const timer = setTimeout(() => {
-      fetchNearbyDrivers();
-    }, 500);
+      setNearbyDrivers(response.data);
+      console.log(
+        "\nTotal of ",
+        response.data.length,
+        " captains were found within the radius"
+      );
+      console.log("Nearby captains are:", response.data);
+      return true;
+    } catch (error) {
+      console.error("Error fetching nearby drivers:", error);
+      setDriversError("Failed to fetch nearby drivers");
+      toast.error("Failed to find available drivers");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Cleanup function
-    return () => clearTimeout(timer);
-  }, [pickupCoords, selectedVehicle, token]);
+  // Handle find ride button click
+  const handleFindRide = async () => {
+    if (!pickup || !destination) {
+      toast.error("Please enter both pickup and destination locations");
+      return;
+    }
+
+    if (!selectedVehicle) {
+      toast.error("Please select a vehicle type");
+      return;
+    }
+
+    if (!pickupCoords) {
+      toast.error(
+        "Could not determine pickup location coordinates. Please try again."
+      );
+      return;
+    }
+
+    const foundDrivers = await fetchNearbyDrivers();
+
+    if (foundDrivers) {
+      setCaptainData(nearbyDrivers);
+
+      socket.emit("new-ride-request", {
+        userId: user?._id,
+        captainsInRadius: nearbyDrivers,
+        vehicleType: selectedVehicle,
+        pickup,
+        pickupCoords,
+        destination,
+        distance: routeInfo?.distance,
+        duration: routeInfo?.duration,
+        fare,
+      });
+    }
+  };
 
   useEffect(() => {
     const handler = setTimeout(async () => {
@@ -449,13 +483,8 @@ const Home = () => {
 
     console.log("\nFinding a ride...\n");
 
-    // setIsLookingForCaptains(true);
-    setVehiclePanel(true);
-    setIsPanelOpen(false);
-
+    // First, get the fare estimates
     try {
-      // Get fare estimates for all vehicle types
-
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
         {
@@ -465,6 +494,10 @@ const Home = () => {
       );
 
       setFare(response.data);
+
+      // Show vehicle selection panel
+      setVehiclePanel(true);
+      setIsPanelOpen(false);
     } catch (err) {
       console.error("Error in Finding Trip\n", err);
       toast.error("Failed to get fare estimates. Please try again.");
