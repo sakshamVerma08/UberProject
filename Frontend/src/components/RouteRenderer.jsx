@@ -228,7 +228,7 @@ const RouteRenderer = ({
               fillOpacity: 1,
               strokeColor: "white",
               strokeWeight: 2,
-              scale: 3.5,
+              scale: 1.5,
             }}
           />
         )}
@@ -242,7 +242,7 @@ const RouteRenderer = ({
               fillOpacity: 1,
               strokeColor: "white",
               strokeWeight: 2,
-              scale: 3.5,
+              scale: 1.5,
             }}
           />
         )}

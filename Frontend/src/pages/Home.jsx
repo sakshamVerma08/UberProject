@@ -66,6 +66,7 @@ const Home = () => {
   const [captainData, setCaptainData] = useState(null);
   const [isLookingForCaptains, setIsLookingForCaptains] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [ridingDriver, setRidingDriver] = useState({});
 
   const [nearbyDrivers, setNearbyDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -549,7 +550,7 @@ const Home = () => {
     }
   };
 
-  // Handle ride confirmation
+  // Handle ride confirmation by the user. Finally create ride in DB.
   const confirmRide = async () => {
     try {
       const response = await axios.post(
@@ -569,7 +570,7 @@ const Home = () => {
       setConfirmRidePanel(false);
       setWaitForDriverOpen(true);
 
-      // Notify the captain that ride is confirmed
+      //  Notify the captain that ride is confirmed
       socket.emit("ride-confirmed-by-user", {
         rideId: response.data.ride._id,
         captainId: response.data.captain._id,
@@ -590,9 +591,10 @@ const Home = () => {
   // Listen for ride confirmation
   useEffect(() => {
     const handleRideConfirmed = (data) => {
-      setRideData(data.ride);
-      setCaptainData(data.captain);
-      setWaitForDriverOpen(true);
+      console.log("Ride was confirmed by :", data.captain);
+      setIsLookingForCaptains(false); // Close the <LookingForDriver/> component.
+      setRidingDriver(data.captain);
+      setConfirmRidePanel(true);
     };
 
     socket.on("ride-confirmed", handleRideConfirmed);
@@ -968,10 +970,7 @@ const Home = () => {
             ref={isLookingForCaptainsRef}
             className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
           >
-            <LookingForDriver
-              rideData={rideData}
-              isLookingForCaptains={isLookingForCaptains}
-            />
+            <LookingForDriver isLookingForCaptains={isLookingForCaptains} />
           </div>
         ) : null}
 
@@ -981,10 +980,13 @@ const Home = () => {
           className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-40 p-6 transform translate-y-full"
         >
           <ConfirmRidePopUpPanel
+            captainData={ridingDriver}
             pickup={pickup}
             destination={destination}
             selectedVehicle={selectedVehicle}
             fare={fare}
+            distance={routeInfo.distance}
+            duration={routeInfo.duration}
             onConfirm={confirmRide}
             onBack={() => setConfirmRidePanel(false)}
           />

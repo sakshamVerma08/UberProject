@@ -49,6 +49,8 @@ const CaptainHome = () => {
     duration: null,
   });
 
+  const [userSocketId, setUserSocketId] = useState(null);
+
   const handleRouteCalculated = (data) => {
     setRouteInfo((prev) => ({
       ...prev,
@@ -190,6 +192,7 @@ const CaptainHome = () => {
         icon: "🔔",
       });
       setRide(data);
+      setUserSocketId(data.userSocketId);
       setPickupCoords(data.pickupCoords); // {lat: xyz, lng: xyz}
       setDestinationCoords(data.destinationCoords); // {lat: xyz, lng: xyz}
       setRidePopUpPanel(true);
@@ -210,47 +213,22 @@ const CaptainHome = () => {
   }, [currentLocation, calculateRoute, socket]);
 
   async function rejectRide() {
-    socket.emit("ride-rejected", ride._id);
+    socket.emit("ride-rejected", {});
     toast.success("Ride Rejected successfully");
     setRidePopUpPanel(false);
   }
 
   async function confirmRide() {
-    if (!ride || !ride._id) {
+    if (!ride) {
       console.log("Ride or ride id is missing");
       toast.error("Ride acceptance failed.");
       return;
     }
 
-    if (!captain || !captain._id) {
-      console.log("Captain or captain id is missing");
-      toast.error("Ride acceptance fialed.");
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
-        {
-          rideId: ride._id,
-          captainId: captain._id,
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Ride Accepted by captain\n");
-        socket.emit("ride-confirmed", response.data);
-
-        toast.success(response.data.message);
-      } else if (response.status === 400) {
-        toast.error(response.data.message);
-      }
-    } catch (err) {
-      console.log("Error in Confirming the ride", err);
-      toast.error("Something went wrong. Please try again");
-    }
+    socket.emit("ride-confirmed", {
+      captainId: captain._id,
+      userSocketId,
+    });
 
     setRidePopUpPanel(false);
     // WIP: Add the code here to Start the ride on captain's end
