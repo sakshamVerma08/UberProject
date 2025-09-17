@@ -26,7 +26,7 @@ const RidePopUp = (props) => {
               props.ride?.user.fullname.lastname}
           </h2>
         </div>
-        <h5 className="text-lg font-semibold">2.2 KM</h5>
+        <h5 className="text-lg font-semibold">{props.ride?.distance}</h5>
       </div>
 
       <div className="flex flex-col justify-between items-center gap-2">
@@ -34,20 +34,16 @@ const RidePopUp = (props) => {
           <div className="flex items-center gap-5  border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">{props.ride?.pickup}</h3>
-              {/* <p className="text-gray-600 text-base font-semibold">
-                {props.ride?.pickup}
-              </p> */}
+              <h3 className="text-lg font-bold">Pickup: {props.ride?.pickup}</h3>
+              
             </div>
           </div>
 
           <div className="flex items-center gap-5 border-b-2 p-3 border-gray-400">
             <i className=" text-lg ri-map-pin-line"></i>
             <div>
-              <h3 className="text-lg font-bold">{props.ride?.destination} </h3>
-              {/* <p className="text-gray-600 text-base font-semibold">
-                {props.ride?.destination}
-              </p> */}
+              <h3 className="text-lg font-bold">Destination: {props.ride?.destination} </h3>
+              
             </div>
           </div>
 

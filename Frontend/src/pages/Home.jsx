@@ -232,7 +232,7 @@ const Home = () => {
           params: {
             lat: pickupCoords.lat,
             lng: pickupCoords.lng,
-            radius: 10,
+            radius: 30,
             vehicleType: selectedVehicle || vehicleType,
           },
           headers: {
@@ -385,6 +385,7 @@ const Home = () => {
           pickup,
           pickupCoords,
           destination,
+          destinationCoords,
           distance: routeInfo?.distance,
           duration: routeInfo?.duration,
           fare,
@@ -553,7 +554,13 @@ const Home = () => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/create`,
-        { pickup, destination, selectedVehicle, pickupCoords,destinationCoords },
+        {
+          pickup,
+          destination,
+          selectedVehicle,
+          pickupCoords,
+          destinationCoords,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

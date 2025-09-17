@@ -43,6 +43,22 @@ const CaptainHome = () => {
 
   const [pickupCoords, setPickupCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [routeInfo, setRouteInfo] = useState({
+    distance: null,
+    duration: null,
+  });
+
+  const handleRouteCalculated = (data) => {
+    setRouteInfo((prev) => ({
+      ...prev,
+      distance: data.distance.text,
+      duration: data.duration.text,
+    }));
+
+    console.log("Distance = ", data.distance);
+    console.log("\nduration = ", data.duration);
+  };
 
   // This function is used as a fake driver spreader, so that drivers can have
   // different locations on the grid (In Development Mode, don't use in prod).
