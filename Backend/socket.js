@@ -14,7 +14,8 @@ function initializeSocket(server) {
 
   io.on("connection", (socket) => {
     console.log("Connected", socket.id);
-
+    let lng = 0;
+    let lat = 0;
     socket.on("join", async (data) => {
       console.warn("\nSocket Join Event was received\n");
 
@@ -23,30 +24,17 @@ function initializeSocket(server) {
 
       console.warn(`SocketId of ${userType} = ${socket.id}`);
 
-      let updatedUser;
-      let updatedCaptain;
+      let currentUser;
 
       if (userType === "user") {
-        updatedUser = await userModel.findByIdAndUpdate(userId, {
+        await userModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
         });
-
-        console.warn(
-          "User socket.id was updated successfully ✅\nNew socket id = ",
-          updatedUser.socketId
-        );
       } else if (userType === "captain") {
-        updatedCaptain = await captainModel.findByIdAndUpdate(userId, {
+        await captainModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
         });
-
-        console.warn(
-          "Captain socket.id was updated successfully ✅\nNew socket id = ",
-          updatedCaptain.socketId
-        );
       }
-
-      // console.log("Updated User/Captain = ", updatedUser);
     });
 
     socket.on("update-location-captain", async (data) => {
@@ -57,21 +45,26 @@ function initializeSocket(server) {
       const { userId, location } = data;
       // console.log("location object : \n", location);
 
-      if (!location || !location.lat || !location.lng) {
-        console.log(
-          "from socket.js\n Latitude: ",
-          location.lat,
-          "\nLongitude: ",
-          location.lng
-        );
-        socket.emit("error", { message: "Invalid Location" });
+      if (
+        location &&
+        location.coordinates &&
+        typeof location.coordinates[0] === "number" &&
+        typeof location.coordinates[1] === "number"
+      ) {
+        lng = location.coordinates[0];
+        lat = location.coordinates[1];
+
+        console.log(`From captain: Longitude: ${lng}`);
+        console.log(`from captain: Latitude: ${lat} \n`);
+      } else {
+        console.error("Invaid location received from Frontend ");
         return;
       }
 
       await captainModel.findByIdAndUpdate(userId, {
         location: {
           type: "Point",
-          coordinates: [location.lng, location.lat],
+          coordinates: [lng, lat],
         },
       });
     });
@@ -80,18 +73,58 @@ function initializeSocket(server) {
       console.log("\nNew Ride request received :\n");
       console.log(data);
 
+      await userModel
+        .findById(data.userId)
+        .then((user) => {
+          currentUser = user;
+        })
+        .catch((err) => {
+          console.error(
+            "Error finding the User who booked the Ride in DB\n",
+            err
+          );
+        });
+
       data.captainsInRadius.forEach((cpn) => {
         sendMessageToSocketId(cpn.socketId, {
           event: "new-ride-request",
           data: {
-            userId: data.userId,
+            user: currentUser,
+            userSocketId: socket.id,
             vehicleType: data.vehicleType,
             pickup: data.pickup,
             destination: data.destination,
+            pickupCoords: data.pickupCoords,
+            destinationCoords: data.destinationCoords,
             distance: data.distance,
             duration: data.duration,
+            location: {
+              type: "Point",
+              coordinates: [lng, lat],
+            },
           },
         });
+        console.log("Sent message to cpn");
+      });
+    });
+
+    socket.on("ride-confirmed", (data) => {
+      console.log("\nRide Accepted By captain");
+      sendMessageToSocketId(data.userId.socketId, {
+        event: "ride-confirmed",
+        data: {
+          rideId: data.ride._id,
+          captainId: data.captainDetails._id,
+          userSocketId: data.userId.socketId,
+        },
+      });
+    });
+
+    socket.on("ride-rejected", (data) => {
+      console.log("Ride rejected by captain");
+      sendMessageToSocketId(data.userId.socketId, {
+        event: "ride-rejected",
+        data,
       });
     });
 

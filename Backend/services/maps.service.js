@@ -76,16 +76,16 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
 };
 
 module.exports.getCaptainsInTheRadius = async (
-  lat,
-  lng,
   radius,
   vehicleType,
   location
 ) => {
   try {
+    const lat = location.coordinates[1];
+    const lng = location.coordinates[0];
     console.log("Chosen vehicle type: ", vehicleType);
     console.log(
-      `Searching for captains within ${radius} meters of [${lat}, ${lng}]`
+      `Searching for captains within ${radius} km of [${lat}, ${lng}]`
     );
 
     const captains = await captainModel.aggregate([
@@ -93,10 +93,10 @@ module.exports.getCaptainsInTheRadius = async (
         $geoNear: {
           near: {
             type: "Point",
-            coordinates: [location.lng, location.lat],
+            coordinates: [parseFloat(lng), parseFloat(lat)],
           },
           distanceField: "dist.calculated",
-          maxDistance: radius,
+          maxDistance: Number(radius) * 1000,
           spherical: true,
         },
       },
@@ -113,7 +113,7 @@ module.exports.getCaptainsInTheRadius = async (
       },
     ]);
 
-    console.log(`Found ${captains.length} captains within ${radius} meters`);
+    console.log(`Found ${captains.length} captains within ${radius} km`);
 
     return captains;
   } catch (error) {

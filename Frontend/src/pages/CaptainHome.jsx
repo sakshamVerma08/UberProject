@@ -1,5 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { Link } from "react-router-dom";
+import {
+  GoogleMap,
+  DirectionsRenderer,
+  Marker,
+  LoadScript,
+} from "@react-google-maps/api";
 import CaptainDetails from "../components/CaptainDetails";
 import RidePopUp from "../components/RidePopUp";
 import { useGSAP } from "@gsap/react";
@@ -9,6 +21,11 @@ import { SocketContext } from "../context/SocketContext";
 import { CaptainDataContext } from "../context/CaptainContext";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { RiMapPinUserFill } from "react-icons/ri";
+import { IoPrint } from "react-icons/io5";
+import RouteRenderer from "../components/RouteRenderer";
+
+const mapLibraries = ["places"];
 
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
@@ -19,6 +36,29 @@ const CaptainHome = () => {
   let { captain, setCaptain } = useContext(CaptainDataContext);
 
   const [ride, setRide] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [directions, setDirections] = useState(null);
+  const [map, setMap] = useState(null);
+  const directionsServiceRef = useRef(null);
+
+  const [pickupCoords, setPickupCoords] = useState(null);
+  const [destinationCoords, setDestinationCoords] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [routeInfo, setRouteInfo] = useState({
+    distance: null,
+    duration: null,
+  });
+
+  const handleRouteCalculated = (data) => {
+    setRouteInfo((prev) => ({
+      ...prev,
+      distance: data.distance.text,
+      duration: data.duration.text,
+    }));
+
+    console.log("Distance = ", data.distance);
+    console.log("\nduration = ", data.duration);
+  };
 
   // This function is used as a fake driver spreader, so that drivers can have
   // different locations on the grid (In Development Mode, don't use in prod).
@@ -45,61 +85,93 @@ const CaptainHome = () => {
     };
   }
 
+  // Calculate route between two points
+  const calculateRoute = useCallback((origin, destination) => {
+    if (
+      !window.google ||
+      !directionsServiceRef.current ||
+      !origin ||
+      !destination
+    )
+      return;
+
+    directionsServiceRef.current.route(
+      {
+        origin,
+        destination,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === window.google.maps.DirectionsStatus.OK) {
+          setDirections(result);
+        } else {
+          console.error(`Error fetching directions: ${status}`);
+        }
+      }
+    );
+  }, []);
+
+  // Handle map load
+  const onLoad = useCallback((map) => {
+    setMap(map);
+    directionsServiceRef.current = new window.google.maps.DirectionsService();
+  }, []);
+
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
+
+  // Update location function
+  const updateLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      console.warn("Geolocation is not supported by this browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          lat: position.coords.latitude ?? null,
+          lng: position.coords.longitude ?? null,
+        };
+
+        setCurrentLocation(coords);
+
+        // Update server with new location
+        if (captain?._id) {
+          socket.emit("update-location-captain", {
+            userId: captain._id,
+            location: {
+              type: "Point",
+              coordinates: [coords.lng, coords.lat],
+            },
+          });
+        }
+
+        // Update route if we have a ride with pickup location
+        if (ride?.pickupCoords && directionsServiceRef.current) {
+          calculateRoute(coords, ride.pickupCoords);
+        }
+      },
+      (error) => {
+        console.error("Error getting geolocation:", error.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }, [captain?._id, ride?.pickupCoords, calculateRoute]);
+
+  // Initialize socket and location updates
   useEffect(() => {
     if (captain && captain._id) {
       console.log("Joining socket room as captain:", captain._id);
       socket.emit("join", { userType: "captain", userId: captain._id });
     } else {
       console.log("No captain found, checking localStorage...");
-      let storedCaptain = JSON.parse(localStorage.getItem("captain"));
-      setCaptain(storedCaptain);
+      const storedCaptain = JSON.parse(localStorage.getItem("captain"));
+      if (storedCaptain) {
+        setCaptain(storedCaptain);
+      }
     }
-
-    const updateLocation = () => {
-      // Dev mode → use random Delhi coordinates
-      /*
-      if (import.meta.env.MODE === "development") {
-        console.log("DEV MODE: Generating random Delhi coordinates");
-        const coords = generateRandomDelhiCoords();
-        console.log("Sending fake location update:", coords);
-        socket.emit("update-location-captain", {
-          userId: captain?._id,
-          location: {
-            type: "Point",
-            coordinates: [coords.lng, coords.lat],
-          },
-        });
-        return;
-      }
-        */
-
-      // Production → use real geolocation if available
-      console.log("PRODUCTION: Attempting to get real geolocation");
-      if (!navigator.geolocation) {
-        console.warn("Geolocation is not supported by this browser");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = {
-            lat: position.coords.latitude ?? null,
-            lng: position.coords.longitude ?? null,
-          };
-          console.log("Sending real location update:", coords);
-          socket.emit("update-location-captain", {
-            userId: captain?._id,
-            location: {
-              type: "Point",
-              coordinates: [coords.lng, coords.lat],
-            },
-          });
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error.message);
-        }
-      );
-    };
 
     console.log("Starting location updates every 10 seconds");
     const locationInterval = setInterval(updateLocation, 10000);
@@ -109,24 +181,50 @@ const CaptainHome = () => {
       console.log("Cleaning up location updates");
       clearInterval(locationInterval);
     };
-  }, [captain]);
+  }, [captain, updateLocation, socket, setCaptain]);
 
-  socket.on("new-ride-request", (data) => {
-    console.log("\nRide Received:\n");
-    console.log("\n RIDE:\n ", data);
-    setRide(data);
-    setRidePopUpPanel(true);
-  });
+  useEffect(() => {
+    const handleNewRideRequest = (data) => {
+      console.log("\nRide Request Received:\n", data);
+      toast("New Ride Request", {
+        icon: "🔔",
+      });
+      setRide(data);
+      setPickupCoords(data.pickupCoords); // {lat: xyz, lng: xyz}
+      setDestinationCoords(data.destinationCoords); // {lat: xyz, lng: xyz}
+      setRidePopUpPanel(true);
+
+      // If we have current location, calculate route to pickup
+      if (currentLocation && data.pickupCoords) {
+        calculateRoute(currentLocation, data.pickupCoords);
+      }
+    };
+
+    // socket.on("new-ride-request", handleNewRideRequest);
+
+    socket.on("new-ride-request", handleNewRideRequest);
+    // Cleanup
+    return () => {
+      socket.off("new-ride-request", handleNewRideRequest);
+    };
+  }, [currentLocation, calculateRoute, socket]);
+
+  async function rejectRide() {
+    socket.emit("ride-rejected", ride._id);
+    toast.success("Ride Rejected successfully");
+    setRidePopUpPanel(false);
+  }
 
   async function confirmRide() {
     if (!ride || !ride._id) {
       console.log("Ride or ride id is missing");
-      toast.error("Something went wrong. Please try to accept the ride again");
+      toast.error("Ride acceptance failed.");
       return;
     }
 
     if (!captain || !captain._id) {
       console.log("Captain or captain id is missing");
+      toast.error("Ride acceptance fialed.");
       return;
     }
     try {
@@ -143,6 +241,8 @@ const CaptainHome = () => {
 
       if (response.status === 200) {
         console.log("Ride Accepted by captain\n");
+        socket.emit("ride-confirmed", response.data);
+
         toast.success(response.data.message);
       } else if (response.status === 400) {
         toast.error(response.data.message);
@@ -153,7 +253,7 @@ const CaptainHome = () => {
     }
 
     setRidePopUpPanel(false);
-    setConfirmRidePopUpPanel(true);
+    // WIP: Add the code here to Start the ride on captain's end
   }
 
   useGSAP(() => {
@@ -179,28 +279,104 @@ const CaptainHome = () => {
     }
   }, [ridePopUpPanel]);
 
+  // Map container style
+  const containerStyle = {
+    width: "100%",
+    height: "60vh",
+    position: "relative",
+  };
+
+  // Default center (will be overridden by current location)
+  const defaultCenter = {
+    lat: 28.6139, // Default to Delhi coordinates
+    lng: 77.209,
+  };
+
   return (
-    <div className="h-screen ">
-      <div className="fixed top-0 p-3 flex items-center justify-between w-full">
+    <div className="h-screen">
+      <div className="fixed top-0 p-3 flex items-center justify-between w-full z-10 bg-white bg-opacity-90">
         <img
           className="w-16"
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
           alt="Uber-Logo.png"
         />
-        <Link
-          to="/captains/logout"
-          className=" flex items-center justify-center rounded-full bg-white w-10 h-10 "
-        >
-          <i className="ri-logout-box-line"></i>
-        </Link>
+        <div className="flex items-center space-x-4">
+          <Link
+            to="/captains/logout"
+            className="flex items-center justify-center rounded-full bg-white shadow-md w-10 h-10 hover:bg-gray-100 transition-colors"
+          >
+            <i className="ri-logout-box-line text-gray-700"></i>
+          </Link>
+        </div>
       </div>
 
-      <div className="h-3/5">
-        <img
-          className="h-full w-full object-cover"
-          src="https://s.wsj.net/public/resources/images/BN-XR453_201802_M_20180228165619.gif"
-          alt="temporary image"
-        />
+      <div className="h-3/5 relative">
+        {pickupCoords && destinationCoords ? (
+          <RouteRenderer
+            origin={pickupCoords}
+            destination={destinationCoords}
+            onRouteCalculated={handleRouteCalculated}
+            isDarkMode={isDarkMode}
+          />
+        ) : (
+          <LoadScript
+            googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            libraries={mapLibraries}
+          >
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={currentLocation || defaultCenter}
+              zoom={15}
+              onLoad={onLoad}
+              onUnmount={onUnmount}
+              options={{
+                disableDefaultUI: true,
+                zoomControl: false,
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+                styles: [
+                  {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }],
+                  },
+                ],
+              }}
+            >
+              {/* Current location marker */}
+              {currentLocation && (
+                <Marker
+                  position={currentLocation}
+                  icon={{
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: "#4285F4",
+                    fillOpacity: 1,
+                    strokeWeight: 2,
+                    strokeColor: "white",
+                  }}
+                />
+              )}
+
+              {/* Pickup location marker */}
+              {ride?.pickupCoords && (
+                <Marker
+                  position={ride.pickupCoords}
+                  icon={{
+                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    scaledSize: new window.google.maps.Size(40, 40),
+                    origin: new window.google.maps.Point(0, 0),
+                    anchor: new window.google.maps.Point(20, 40),
+                  }}
+                />
+              )}
+
+              {/* Directions */}
+              {directions && <DirectionsRenderer directions={directions} />}
+            </GoogleMap>
+          </LoadScript>
+        )}
       </div>
 
       <div className="h-2/5 p-6">
@@ -215,6 +391,7 @@ const CaptainHome = () => {
           ride={ride}
           setRidePopUpPanel={setRidePopUpPanel}
           confirmRide={confirmRide}
+          rejectRide={rejectRide}
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
       </div>

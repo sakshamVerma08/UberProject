@@ -22,6 +22,11 @@ router.post(
     .isIn(["auto", "car", "motorcycle"])
     .withMessage("Invalid Vehicle Type"),
 
+  body("pickupCoords").exists().withMessage("Must send pickup coords"),
+
+  body("destinationCoords")
+    .exists()
+    .withMessage("Destination coords must exist"),
   rideController.createRide
 );
 

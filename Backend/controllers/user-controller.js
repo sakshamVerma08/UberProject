@@ -63,18 +63,23 @@ module.exports.loginUser = async (req, res, next) => {
   res.status(200).json({ token, user, message: "User Login Successful" });
 };
 
-module.exports.getUserProfile = async (req, res, next) => {
+module.exports.getUserProfile = async (req, res) => {
   res.status(200).json(req.user);
 };
 
-module.exports.logoutUser = async (req, res, next) => {
-  const token = req.cookies.token;
+module.exports.logoutUser = async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith(`Bearer`)) {
+    return res.status(401).json({ message: "No Header found" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   if (!token) {
     return res
       .status(401)
       .json({ message: "couldn't access token while logging out" });
   }
-  res.clearCookie("token");
 
   await blackListTokenModel.create({ token });
 

@@ -2,7 +2,15 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { FiX, FiMapPin, FiNavigation, FiClock, FiUser } from "react-icons/fi";
+import {
+  FiX,
+  FiMapPin,
+  FiNavigation,
+  FiClock,
+  FiUser,
+  FiSun,
+  FiMoon,
+} from "react-icons/fi";
 import { TfiCar as FiCar } from "react-icons/tfi";
 
 import { toast } from "react-hot-toast";
@@ -16,7 +24,7 @@ import LookingForDriver from "../components/LookingForDriver";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 import RouteRenderer from "../components/RouteRenderer";
 import ConfirmRidePopUpPanel from "../components/ConfirmRidePopUpPanel";
-
+import { useNavigate } from "react-router-dom";
 const mapLibraries = ["places"];
 
 /* Use State variables mapping for easier Reference 
@@ -34,7 +42,7 @@ selectedVehicle---> Represents the vehicle user chose for his/her ride.
 */
 
 const Home = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [routeInfo, setRouteInfo] = useState({
     distance: null,
@@ -63,6 +71,8 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [driversError, setDriversError] = useState(null);
 
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   // Refs for GSAP animations
   const panelRef = useRef(null); // Location panel screen
   const panelClose = useRef(null); // Location panel close button
@@ -75,105 +85,223 @@ const Home = () => {
   const { user } = useContext(UserDataContext);
   const token = localStorage.getItem("user_token");
 
-  // Fetch nearby drivers when pickupCoords or selectedVehicle changes
-  useEffect(() => {
-    const fetchNearbyDrivers = async () => {
-      if (!pickupCoords || !selectedVehicle) return;
-
-      setLoading(true);
-      setDriversError(null);
-
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
-          {
-            params: {
-              lat: pickupCoords.lat,
-              lng: pickupCoords.lng,
-              radius: 10, // 5km radius, adjusted as needed (adjusted in backend to be 5000m for mongoDB $geoWithin)
-              vehicleType: selectedVehicle,
-            },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.length == 0) {
-          toast.error("No drivers were found in your vicinity");
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/users/logout`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        setNearbyDrivers(response.data);
-        console.log(
-          "\nTotal of ",
-          response.data.length,
-          " captains were found within the radius"
-        );
-
-        console.log("Nearby captains are :", response.data);
-      } catch (error) {
-        console.error("Error fetching nearby drivers:", error);
-        setDriversError("Failed to fetch nearby drivers");
-        toast.error("Failed to find available drivers");
-      } finally {
-        setLoading(false);
+      if (response.status == 200) {
+        localStorage.removeItem("user_token");
+        console.log("Logout Successful");
+        navigate("/login");
+        toast.success("Logged out successfully");
       }
-    };
+    } catch (err) {
+      console.error("Error while logging out", err);
+      toast.error("Error while logging out");
+    }
+  };
 
-    // Add a small delay to prevent too many requests
-    const timer = setTimeout(() => {
-      fetchNearbyDrivers();
-    }, 500);
+  // Toggle dark/light mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
-    // Cleanup function
-    return () => clearTimeout(timer);
-  }, [pickupCoords, selectedVehicle, token]);
+  // Map styles
 
-  /*
-  useEffect(() => {
-    const fetchCoordinates = async (address) => {
-      if (address.length < 5) return;
+  const darkMapStyles = [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#263c3f" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#6b9a76" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#746855" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1f2835" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#f3d19c" }],
+    },
+    {
+      featureType: "transit",
+      elementType: "geometry",
+      stylers: [{ color: "#2f3948" }],
+    },
+    {
+      featureType: "transit.station",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#515c6d" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#17267c" }],
+    },
+  ];
 
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-          {
-            params: {
-              address: address,
-            },
+  const lightMapStyles = [
+    {
+      featureType: "all",
+      elementType: "all",
+      stylers: [{ saturation: -100 }, { gamma: 0.5 }],
+    },
+  ];
 
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  const mapOptions = {
+    styles: isDarkMode ? darkMapStyles : lightMapStyles,
+    disableDefaultUI: true,
+    zoomControl: false,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: false,
+    backgroundColor: isDarkMode ? "#1a1a1a" : "#f0f0f0",
+  };
 
-        if (response.data.length == 0) {
-          console.error(
-            "Couldn't get either Pickup geo-coords or Destination geo-coords"
-          );
-          throw new Error("Couldn't get Coordinates from google API");
+  // Function to fetch nearby drivers
+  const fetchNearbyDrivers = async (vehicleType) => {
+    // if (!pickupCoords || !selectedVehicle || !pickup || !destination) {
+    //   toast.error("Please fill in all the required fields");
+    //   return false;
+    // }
+
+    setLoading(true);
+    setDriversError(null);
+    setIsLookingForCaptains(true);
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/maps/drivers/nearby`,
+        {
+          params: {
+            lat: pickupCoords.lat,
+            lng: pickupCoords.lng,
+            radius: 30,
+            vehicleType: selectedVehicle || vehicleType,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        console.log("Pickup Coords: ", response.data);
-        return response.data;
-      } catch (err) {
-        console.error("Error fetching  pickup coordinates");
-        toast.error(`Failed to fetch ${address} coordinates`);
+      if (response.data.length === 0) {
+        toast.error("No drivers were found in your vicinity");
+        return false;
       }
-    };
 
-    if (pickup && !pickupCoords && pickup.length > 5) {
-      const coordinates = fetchCoordinates(pickup);
-      setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
+      setNearbyDrivers(response.data);
+      console.log(
+        "\nTotal of ",
+        response.data.length,
+        " captains were found within the radius"
+      );
+      console.log("Nearby captains are:", response.data);
+      return true;
+    } catch (error) {
+      console.error("Error fetching nearby drivers:", error);
+      setDriversError("Failed to fetch nearby drivers");
+      toast.error("Failed to find available drivers");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle find ride button click
+  const handleFindRide = async (vehicleType) => {
+    if (!pickup || !destination) {
+      toast.error("Please enter both pickup and destination locations");
+      return;
     }
 
-    if (destination && !destinationCoords && destination.length > 5) {
-      const coordinates = fetchCoordinates(destination);
-      setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
+    if (!vehicleType) {
+      toast.error("Please select a vehicle type");
+      return;
     }
-  }, [pickup, pickupCoords, destination, destinationCoords]);
-*/
+
+    if (!pickupCoords) {
+      toast.error(
+        "Could not determine pickup location coordinates. Please try again."
+      );
+      return;
+    }
+
+    const foundDrivers = await fetchNearbyDrivers(vehicleType);
+
+    if (foundDrivers) {
+      setCaptainData(nearbyDrivers);
+
+      socket.emit("new-ride-request", {
+        userId: user?._id,
+        captainsInRadius: nearbyDrivers,
+        vehicleType: vehicleType,
+        pickup,
+        pickupCoords,
+        destination,
+        destinationCoords,
+        distance: routeInfo?.distance,
+        duration: routeInfo?.duration,
+        fare,
+      });
+    }
+  };
 
   useEffect(() => {
     const handler = setTimeout(async () => {
@@ -186,6 +314,47 @@ const Home = () => {
     }, 500);
 
     return () => clearTimeout(handler);
+  }, [pickup, pickupCoords, destination, destinationCoords]);
+
+  useEffect(() => {
+    const fetchCoordinates = async (address) => {
+      if (!address || address.length < 5) return null;
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
+          {
+            params: { address },
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // backend returns { lat, lng } — check for lat
+        if (!response?.data || typeof response.data.lat === "undefined") {
+          console.error("Invalid coords from backend", response?.data);
+          return null;
+        }
+
+        return response.data;
+      } catch (err) {
+        console.error("Error fetching coordinates", err);
+        return null;
+      }
+    };
+
+    if (pickup && !pickupCoords && pickup.length > 5) {
+      const coordinates = fetchCoordinates(pickup);
+      if (coordinates) {
+        setPickupCoords({ lat: coordinates.lat, lng: coordinates.lng });
+      }
+    }
+
+    if (destination && !destinationCoords && destination.length > 5) {
+      const coordinates = fetchCoordinates(destination);
+      if (coordinates) {
+        setDestinationCoords({ lat: coordinates.lat, lng: coordinates.lng });
+      }
+    }
   }, [pickup, pickupCoords, destination, destinationCoords]);
 
   useEffect(() => {
@@ -216,6 +385,7 @@ const Home = () => {
           pickup,
           pickupCoords,
           destination,
+          destinationCoords,
           distance: routeInfo?.distance,
           duration: routeInfo?.duration,
           fare,
@@ -243,8 +413,6 @@ const Home = () => {
     routeInfo,
     fare,
   ]);
-
-  
 
   // Handle pickup input change and fetch suggestions
   const handlePickupChange = async (e) => {
@@ -318,13 +486,8 @@ const Home = () => {
 
     console.log("\nFinding a ride...\n");
 
-    // setIsLookingForCaptains(true);
-    setVehiclePanel(true);
-    setIsPanelOpen(false);
-
+    // First, get the fare estimates
     try {
-      // Get fare estimates for all vehicle types
-
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
         {
@@ -334,6 +497,10 @@ const Home = () => {
       );
 
       setFare(response.data);
+
+      // Show vehicle selection panel
+      setVehiclePanel(true);
+      setIsPanelOpen(false);
     } catch (err) {
       console.error("Error in Finding Trip\n", err);
       toast.error("Failed to get fare estimates. Please try again.");
@@ -372,6 +539,14 @@ const Home = () => {
     setSelectedVehicle(selectedVehicle);
     setIsLookingForCaptains(true);
     setVehiclePanel(false);
+    try {
+      await handleFindRide(selectedVehicle);
+      console.log("'New Ride Request sent successfully to captain");
+    } catch (err) {
+      console.error("Error in handleVehicleSelect() function", err);
+      toast.error("Failed to find a ride. Please try again.");
+      setIsLookingForCaptains(false);
+    }
   };
 
   // Handle ride confirmation
@@ -379,7 +554,13 @@ const Home = () => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/create`,
-        { pickup, destination, selectedVehicle },
+        {
+          pickup,
+          destination,
+          selectedVehicle,
+          pickupCoords,
+          destinationCoords,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -404,7 +585,7 @@ const Home = () => {
     if (user?._id) {
       socket.emit("join", { userType: "user", userId: user._id });
     }
-  }, [user, socket]);
+  }, [user]);
 
   // Listen for ride confirmation
   useEffect(() => {
@@ -520,6 +701,32 @@ const Home = () => {
   // Main render
   return (
     <div className="h-screen w-full flex flex-col bg-gray-50">
+      {/* Top Bar with Logout */}
+
+      <div className="absolute top-4 right-20 z-50">
+        <button
+          onClick={toggleDarkMode}
+          className="bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
+          aria-label={
+            isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+          }
+        >
+          {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+        </button>
+      </div>
+
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => {
+            handleLogout();
+          }}
+          className="bg-black text-white px-4 py-2 rounded-full cursor-pointer text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+        >
+          <FiUser className="text-white" />
+          Logout
+        </button>
+      </div>
+
       {/* Map View */}
       <div className="flex-1 relative">
         <LoadScript
@@ -531,19 +738,17 @@ const Home = () => {
               origin={pickupCoords}
               destination={destinationCoords}
               onRouteCalculated={handleRouteCalculated}
+              isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
             />
           ) : (
             <GoogleMap
               mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={{ lat: 28.6139, lng: 77.209 }} // Add your default center
-              zoom={13}
-              options={{
-                zoomControl: false,
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-              }}
-            />
+              center={{ lat: 28.6139, lng: 77.209 }}
+              zoom={14}
+              options={mapOptions}
+            >
+              {/* Map content */}
+            </GoogleMap>
           )}
         </LoadScript>
 

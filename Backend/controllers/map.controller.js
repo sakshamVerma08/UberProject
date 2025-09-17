@@ -64,11 +64,13 @@ module.exports.getAutoCompleteSuggestions = async (req, res) => {
 
 module.exports.getNearbyDrivers = async (req, res) => {
   try {
-    const { lat, lng, radius, vehicleType, location } = req.query;
+    const { lat, lng, radius, vehicleType } = req.query;
 
+    const location = {
+      type: "Point",
+      coordinates: [lng, lat],
+    };
     const captains = await mapService.getCaptainsInTheRadius(
-      lat,
-      lng,
       radius,
       vehicleType,
       location
@@ -81,6 +83,7 @@ module.exports.getNearbyDrivers = async (req, res) => {
     }
 
     return res.status(200).json(captains);
+    
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });
