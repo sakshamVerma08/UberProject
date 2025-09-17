@@ -553,7 +553,7 @@ const Home = () => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/create`,
-        { pickup, destination, selectedVehicle },
+        { pickup, destination, selectedVehicle, pickupCoords,destinationCoords },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

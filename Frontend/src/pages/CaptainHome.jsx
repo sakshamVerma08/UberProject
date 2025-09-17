@@ -191,18 +191,24 @@ const CaptainHome = () => {
     return () => {
       socket.off("new-ride-request", handleNewRideRequest);
     };
-  }, [currentLocation, calculateRoute]);
+  }, [currentLocation, calculateRoute, socket]);
 
+  async function rejectRide() {
+    socket.emit("ride-rejected", ride._id);
+    toast.success("Ride Rejected successfully");
+    setRidePopUpPanel(false);
+  }
 
   async function confirmRide() {
     if (!ride || !ride._id) {
       console.log("Ride or ride id is missing");
-      toast.error("Something went wrong. Please try to accept the ride again");
+      toast.error("Ride acceptance failed.");
       return;
     }
 
     if (!captain || !captain._id) {
       console.log("Captain or captain id is missing");
+      toast.error("Ride acceptance fialed.");
       return;
     }
     try {
@@ -219,6 +225,8 @@ const CaptainHome = () => {
 
       if (response.status === 200) {
         console.log("Ride Accepted by captain\n");
+        socket.emit("ride-confirmed", response.data);
+
         toast.success(response.data.message);
       } else if (response.status === 400) {
         toast.error(response.data.message);
@@ -229,7 +237,7 @@ const CaptainHome = () => {
     }
 
     setRidePopUpPanel(false);
-    setConfirmRidePopUpPanel(true);
+    // WIP: Add the code here to Start the ride on captain's end
   }
 
   useGSAP(() => {
@@ -367,6 +375,7 @@ const CaptainHome = () => {
           ride={ride}
           setRidePopUpPanel={setRidePopUpPanel}
           confirmRide={confirmRide}
+          rejectRide={rejectRide}
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
       </div>

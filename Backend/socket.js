@@ -24,42 +24,16 @@ function initializeSocket(server) {
 
       console.warn(`SocketId of ${userType} = ${socket.id}`);
 
-      let updatedUser;
-      let updatedCaptain;
+      let currentUser;
 
       if (userType === "user") {
-        userModel.findById(userId)
-          .then((user) => {
-            if (user && !user.socketId) {
-              return userModel.findByIdAndUpdate(userId, {
-                socketId: socket.id,
-              });
-            }
-          })
-          .then(() => {
-            console.log("User's socketId was updated successfully ✅");
-          })
-          .catch((err) => {
-            console.error("Error updating user's socketId: ", err);
-          });
+        await userModel.findByIdAndUpdate(userId, {
+          socketId: socket.id,
+        });
       } else if (userType === "captain") {
-        captainModel
-          .findById(userId)
-          .then((captain) => {
-            if (captain && !captain.socketId) {
-              return captainModel.findByIdAndUpdate(userId, {
-                socketId: socket.id,
-              });
-            }
-          })
-          .then((updatedCaptain) => {
-            if (updatedCaptain) {
-              console.warn("Captain socketId was updated successfully ✅");
-            }
-          })
-          .catch((err) => {
-            console.error("Error updating captain's socketId: ", err);
-          });
+        await captainModel.findByIdAndUpdate(userId, {
+          socketId: socket.id,
+        });
       }
     });
 
@@ -99,14 +73,29 @@ function initializeSocket(server) {
       console.log("\nNew Ride request received :\n");
       console.log(data);
 
+      await userModel
+        .findById(data.userId)
+        .then((user) => {
+          currentUser = user;
+        })
+        .catch((err) => {
+          console.error(
+            "Error finding the User who booked the Ride in DB\n",
+            err
+          );
+        });
+
       data.captainsInRadius.forEach((cpn) => {
         sendMessageToSocketId(cpn.socketId, {
           event: "new-ride-request",
           data: {
-            userId: data.userId,
+            user: currentUser,
+            userSocketId: socket.id,
             vehicleType: data.vehicleType,
             pickup: data.pickup,
             destination: data.destination,
+            pickupCoords: data.pickupCoords,
+            destinationCoords: data.destinationCoords,
             distance: data.distance,
             duration: data.duration,
             location: {
@@ -115,6 +104,27 @@ function initializeSocket(server) {
             },
           },
         });
+        console.log("Sent message to cpn");
+      });
+    });
+
+    socket.on("ride-confirmed", (data) => {
+      console.log("\nRide Accepted By captain");
+      sendMessageToSocketId(data.userId.socketId, {
+        event: "ride-confirmed",
+        data: {
+          rideId: data.ride._id,
+          captainId: data.captainDetails._id,
+          userSocketId: data.userId.socketId,
+        },
+      });
+    });
+
+    socket.on("ride-rejected", (data) => {
+      console.log("Ride rejected by captain");
+      sendMessageToSocketId(data.userId.socketId, {
+        event: "ride-rejected",
+        data,
       });
     });
 

@@ -65,6 +65,7 @@ const RidePopUp = (props) => {
         <button
           onClick={() => {
             props.setRidePopUpPanel(false);
+            props.rejectRide();
           }}
           className="cursor-pointer bg-gray-300 p-2 px-8 font-semibold text-gray-700 rounded-lg  "
         >
@@ -72,7 +73,8 @@ const RidePopUp = (props) => {
         </button>
         <button
           onClick={() => {
-            props.setConfirmRidePopUpPanel(true);
+            // Set start ride pop up panel = true here
+            // props.setConfirmRidePopUpPanel(true);
             props.confirmRide();
           }}
           className="cursor-pointer bg-green-600 p-2 px-8 font-semibold text-white rounded-lg"
