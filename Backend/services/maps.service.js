@@ -113,7 +113,7 @@ module.exports.getCaptainsInTheRadius = async (
       },
     ]);
 
-    console.log(`Found ${captains.length} captains within ${radius} meters`);
+    console.log(`Found ${captains.length} captains within ${radius} km`);
 
     return captains;
   } catch (error) {

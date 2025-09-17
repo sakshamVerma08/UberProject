@@ -28,8 +28,7 @@ function initializeSocket(server) {
       let updatedCaptain;
 
       if (userType === "user") {
-        userModel
-          .findById(userId)
+        userModel.findById(userId)
           .then((user) => {
             if (user && !user.socketId) {
               return userModel.findByIdAndUpdate(userId, {

@@ -295,6 +295,7 @@ const Home = () => {
         pickup,
         pickupCoords,
         destination,
+        destinationCoords,
         distance: routeInfo?.distance,
         duration: routeInfo?.duration,
         fare,

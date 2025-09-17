@@ -167,10 +167,12 @@ const CaptainHome = () => {
     };
   }, [captain, updateLocation, socket, setCaptain]);
 
-  
   useEffect(() => {
     const handleNewRideRequest = (data) => {
       console.log("\nRide Request Received:\n", data);
+      toast("New Ride Request", {
+        icon: "🔔",
+      });
       setRide(data);
       setPickupCoords(data.pickupCoords); // {lat: xyz, lng: xyz}
       setDestinationCoords(data.destinationCoords); // {lat: xyz, lng: xyz}
@@ -184,14 +186,14 @@ const CaptainHome = () => {
 
     // socket.on("new-ride-request", handleNewRideRequest);
 
+    socket.on("new-ride-request", handleNewRideRequest);
     // Cleanup
     return () => {
       socket.off("new-ride-request", handleNewRideRequest);
     };
   }, [currentLocation, calculateRoute]);
 
-  
- 
+
   async function confirmRide() {
     if (!ride || !ride._id) {
       console.log("Ride or ride id is missing");
