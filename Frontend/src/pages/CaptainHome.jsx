@@ -290,12 +290,17 @@ const CaptainHome = () => {
 
       <div className="h-3/5 relative">
         {pickupCoords && destinationCoords ? (
-          <RouteRenderer
-            origin={pickupCoords}
-            destination={destinationCoords}
-            onRouteCalculated={handleRouteCalculated}
-            isDarkMode={isDarkMode}
-          />
+          <LoadScript
+            googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            libraries={mapLibraries}
+          >
+            <RouteRenderer
+              origin={pickupCoords}
+              destination={destinationCoords}
+              onRouteCalculated={handleRouteCalculated}
+              isDarkMode={isDarkMode}
+            />
+          </LoadScript>
         ) : (
           <LoadScript
             googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}

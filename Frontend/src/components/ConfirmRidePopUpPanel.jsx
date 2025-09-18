@@ -33,7 +33,7 @@ const ConfirmRidePopUpPanel = (props) => {
   }, []);
 
   return (
-    <div className="relative bg-white rounded-t-3xl shadow-2xl p-6 pb-8 w-full max-w-md mx-auto overflow-hidden ">
+    <div className="relative bg-white rounded-t-3xl shadow-2xl p-6 pb-8 w-full max-w-md mx-auto overflow-hidden">
       {/* Close Button */}
       <button
         onClick={() => props.setConfirmRidePopUpPanel(false)}

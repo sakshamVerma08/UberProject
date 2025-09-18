@@ -56,7 +56,7 @@ const Home = () => {
   const [destination, setDestination] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [vehiclePanel, setVehiclePanel] = useState(false);
-  const [confirmRidePanel, setConfirmRidePanel] = useState(false);
+  const [confirmRidePanel, setConfirmRidePanel] = useState(true);
   const [waitForDriverOpen, setWaitForDriverOpen] = useState(false);
   const [pickupSuggestion, setPickupSuggestion] = useState([]);
   const [destinationSuggestion, setDestinationSuggestion] = useState([]);
@@ -762,13 +762,13 @@ const Home = () => {
           <div className="max-w-3xl mx-auto flex flex-col gap-y-6 items-start ">
             <button
               onClick={() => setIsPanelOpen(!isPanelOpen)}
-              className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%]"
+              className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%] md:w-[75%]"
             >
               <div className="flex items-center w-full">
                 <div className="flex-shrink-0">
                   <div className="w-4 h-4 rounded-full bg-black mr-3"></div>
                 </div>
-                <div className="truncate w-full">
+                <div className="truncate w-full ">
                   <div className="text-sm text-gray-500 text-ellipsis">
                     From
                   </div>
@@ -780,7 +780,7 @@ const Home = () => {
             </button>
 
             <button
-              className="hidden md:visible mx-2 p-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
+              className="hidden lg:visible mx-2 p-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
               onClick={() => {
                 // Swap pickup and destination
                 const temp = pickup;
@@ -809,7 +809,7 @@ const Home = () => {
                 setActiveField("destination");
                 setIsPanelOpen(true);
               }}
-              className="flex-1  border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%]"
+              className="flex-1  border border-gray-200 bg-white rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%] md:w-[75%]"
             >
               <div className="flex items-center w-full">
                 <div className="flex-shrink-0">
@@ -959,7 +959,7 @@ const Home = () => {
         {/* Vehicle Selection Panel */}
         <div
           ref={vehiclePanelRef}
-          className="fixed inset-x-0 bottom-0 z-30 p-4 sm:p-6 transform translate-y-full"
+          className="fixed w-full inset-x-0 bottom-0 z-30 p-4 sm:p-6 transform translate-y-full"
         >
           <div className="bg-white rounded-t-3xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
             <VehiclePanel
@@ -986,7 +986,7 @@ const Home = () => {
         {/* Confirm Ride Panel */}
         <div
           ref={confirmRideRef}
-          className="fixed inset-x-0 bottom-0 z-40 p-4 sm:p-6 transform translate-y-full"
+          className="fixed inset-x-0 -bottom-6 z-40 p-4 sm:p-6 transform translate-y-full"
         >
           <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto bg-white rounded-t-3xl shadow-xl">
             <ConfirmRidePopUpPanel
