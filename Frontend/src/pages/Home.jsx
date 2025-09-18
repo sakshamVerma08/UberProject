@@ -56,7 +56,7 @@ const Home = () => {
   const [destination, setDestination] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [vehiclePanel, setVehiclePanel] = useState(false);
-  const [confirmRidePanel, setConfirmRidePanel] = useState(true);
+  const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [waitForDriverOpen, setWaitForDriverOpen] = useState(false);
   const [pickupSuggestion, setPickupSuggestion] = useState([]);
   const [destinationSuggestion, setDestinationSuggestion] = useState([]);
@@ -706,7 +706,7 @@ const Home = () => {
     <div className="h-screen w-full flex flex-col">
       {/* Top Bar with Logout */}
 
-      <div className="w-[20%] z-30 h-[25%] absolute top-4 right-5 flex flex-col justify-around items-end">
+      <div className="w-[20%] z-30 h-[25%] absolute top-4 right-5 flex flex-col justify-evenly items-end lg:flex-row lg:items-start">
         <div className="top-4 right-4 z-50 w-auto">
           <button
             onClick={() => {
@@ -722,7 +722,7 @@ const Home = () => {
         <div className="top-4 right-4 md:right-20 z-50">
           <button
             onClick={toggleDarkMode}
-            className="bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
+            className="cursor-pointer bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
             aria-label={
               isDarkMode ? "Switch to light mode" : "Switch to dark mode"
             }
@@ -733,33 +733,84 @@ const Home = () => {
       </div>
 
       {/* Map View */}
-      <div className="flex-1 relative w-full">
-        <LoadScript
-          googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          libraries={mapLibraries}
-        >
-          {pickupCoords && destinationCoords ? (
-            <RouteRenderer
-              origin={pickupCoords}
-              destination={destinationCoords}
-              onRouteCalculated={handleRouteCalculated}
-              isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
-            />
-          ) : (
-            <GoogleMap
-              mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={{ lat: 28.6139, lng: 77.209 }}
-              zoom={14}
-              options={mapOptions}
+      <div className="flex-1 relative w-full lg:grid lg:grid-cols-12 lg:gap-6">
+        {/* Left column (lg+): input triggers */}
+        <div className="lg:block lg:col-span-4 lg:pl-6 lg:pt-6">
+          <div className="sticky top-6">
+            <div className="bg-white shadow-lg rounded-2xl p-6">
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={() => setIsPanelOpen(!isPanelOpen)}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+                >
+                  <div className="flex items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-black mr-3"></div>
+                    </div>
+                    <div className="truncate w-full">
+                      <div className="text-sm text-gray-500">From</div>
+                      <div className="font-medium truncate">
+                        {pickup || "Enter pickup location"}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveField("destination");
+                    setIsPanelOpen(true);
+                  }}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+                >
+                  <div className="flex items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-red-500 mr-3"></div>
+                    </div>
+                    <div className="truncate w-full">
+                      <div className="text-sm text-gray-500">To</div>
+                      <div className="font-medium truncate">
+                        {destination || "Enter destination"}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column (lg+): map occupies >= 8/12 = 66.6% */}
+        <div className="lg:col-span-8 min-h-[65vh] sm:min-h-[70vh]">
+          <div className="h-[65vh] sm:h-[70vh] lg:h-full">
+            <LoadScript
+              googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+              libraries={mapLibraries}
             >
-              {/* Map content */}
-            </GoogleMap>
-          )}
-        </LoadScript>
+              {pickupCoords && destinationCoords ? (
+                <RouteRenderer
+                  origin={pickupCoords}
+                  destination={destinationCoords}
+                  onRouteCalculated={handleRouteCalculated}
+                  isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
+                />
+              ) : (
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
+                  center={{ lat: 28.6139, lng: 77.209 }}
+                  zoom={14}
+                  options={mapOptions}
+                >
+                  {/* Map content */}
+                </GoogleMap>
+              )}
+            </LoadScript>
+          </div>
+        </div>
 
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 bg-slate-50 h-[30%] shadow-sm z-10 p-3 sm:p-4">
-          <div className="max-w-3xl mx-auto flex flex-col gap-y-6 items-start ">
+        <div className="absolute top-0 left-0 right-0 bg-slate-50 h-[30%] shadow-sm z-10 p-3 sm:p-4 lg:hidden">
+          <div className="max-w-3xl mx-auto flex flex-col lg:flex-row lg:gap-x-6 gap-y-6 items-start">
             <button
               onClick={() => setIsPanelOpen(!isPanelOpen)}
               className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%] md:w-[75%]"
@@ -772,7 +823,7 @@ const Home = () => {
                   <div className="text-sm text-gray-500 text-ellipsis">
                     From
                   </div>
-                  <div className="font-medium truncate text-ellipsis">
+                  <div className="font-medium truncate">
                     {pickup || "Enter pickup location"}
                   </div>
                 </div>
@@ -817,7 +868,7 @@ const Home = () => {
                 </div>
                 <div className="truncate text-ellipsis w-full">
                   <div className="text-sm text-gray-500">To</div>
-                  <div className="font-medium truncate text-ellipsis">
+                  <div className="font-medium truncate">
                     {destination || "Enter destination"}
                   </div>
                 </div>
