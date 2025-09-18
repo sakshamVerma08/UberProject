@@ -102,7 +102,7 @@ const ConfirmRidePopUpPanel = (props) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.3 }}
       >
-        <div className="flex items-start">
+        <div className="flex items-start truncate">
           <div className="flex flex-col items-center mr-4">
             <div className="w-2 h-2 bg-green-500 rounded-full mt-1"></div>
             <div className="w-0.5 h-6 bg-gray-300 my-1"></div>
@@ -111,13 +111,13 @@ const ConfirmRidePopUpPanel = (props) => {
           <div className="flex-1">
             <div className="mb-4">
               <p className="text-xs text-gray-500">PICKUP</p>
-              <p className="font-medium text-gray-900 truncate">
+              <p className="font-medium text-gray-900 truncate text-ellipsis">
                 {props.pickup || "Current location"}
               </p>
             </div>
-            <div>
+            <div className="mb-4">
               <p className="text-xs text-gray-500">DROPOFF</p>
-              <p className="font-medium text-gray-900 truncate">
+              <p className="font-medium text-gray-900 truncate text-ellipsis">
                 {props.destination || "Destination"}
               </p>
             </div>

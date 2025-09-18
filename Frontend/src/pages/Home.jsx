@@ -706,7 +706,7 @@ const Home = () => {
     <div className="h-screen w-full flex flex-col">
       {/* Top Bar with Logout */}
 
-      <div className="w-[20%] z-50 h-[25%] absolute top-4 right-5 flex flex-col justify-around items-end">
+      <div className="w-[20%] z-30 h-[25%] absolute top-4 right-5 flex flex-col justify-around items-end">
         <div className="top-4 right-4 z-50 w-auto">
           <button
             onClick={() => {
