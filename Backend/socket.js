@@ -24,8 +24,6 @@ function initializeSocket(server) {
 
       console.warn(`SocketId of ${userType} = ${socket.id}`);
 
-      let currentUser;
-
       if (userType === "user") {
         await userModel.findByIdAndUpdate(userId, {
           socketId: socket.id,
@@ -72,6 +70,7 @@ function initializeSocket(server) {
     socket.on("new-ride-request", async (data) => {
       console.log("\nNew Ride request received :\n");
       console.log(data);
+      let currentUser;
 
       await userModel
         .findById(data.userId)
@@ -108,16 +107,26 @@ function initializeSocket(server) {
       });
     });
 
-    socket.on("ride-confirmed", (data) => {
+    socket.on("ride-confirmed", async (data) => {
       console.log("\nRide Accepted By captain");
-      sendMessageToSocketId(data.userId.socketId, {
+      let currentCaptain;
+
+      try {
+        currentCaptain = await captainModel.findById(data.captainId);
+      } catch (err) {
+        console.error(
+          "Error finding the Captain who accepted the Ride in DB\n",
+          err
+        );
+      }
+      sendMessageToSocketId(data.userSocketId, {
         event: "ride-confirmed",
         data: {
-          rideId: data.ride._id,
-          captainId: data.captainDetails._id,
-          userSocketId: data.userId.socketId,
+          captain: currentCaptain,
         },
       });
+
+      console.log("Ride was accepted by :", currentCaptain);
     });
 
     socket.on("ride-rejected", (data) => {

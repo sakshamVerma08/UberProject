@@ -24,6 +24,7 @@ app.use(
   cors({
     // origin: [
     //   "http://localhost:5173",
+
     //   "https://uber-project-jade.vercel.app/",
     //   "https://svvbqzgq-5173.inc1.devtunnels.ms/",
     // ],

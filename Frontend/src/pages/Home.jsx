@@ -62,10 +62,12 @@ const Home = () => {
   const [destinationSuggestion, setDestinationSuggestion] = useState([]);
   const [activeField, setActiveField] = useState(null);
   const [fare, setFare] = useState({});
+
   const [rideData, setRideData] = useState({});
   const [captainData, setCaptainData] = useState(null);
   const [isLookingForCaptains, setIsLookingForCaptains] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [ridingDriver, setRidingDriver] = useState({});
 
   const [nearbyDrivers, setNearbyDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -549,7 +551,7 @@ const Home = () => {
     }
   };
 
-  // Handle ride confirmation
+  // Handle ride confirmation by the user. Finally create ride in DB.
   const confirmRide = async () => {
     try {
       const response = await axios.post(
@@ -569,7 +571,7 @@ const Home = () => {
       setConfirmRidePanel(false);
       setWaitForDriverOpen(true);
 
-      // Notify the captain that ride is confirmed
+      //  Notify the captain that ride is confirmed
       socket.emit("ride-confirmed-by-user", {
         rideId: response.data.ride._id,
         captainId: response.data.captain._id,
@@ -590,9 +592,10 @@ const Home = () => {
   // Listen for ride confirmation
   useEffect(() => {
     const handleRideConfirmed = (data) => {
-      setRideData(data.ride);
-      setCaptainData(data.captain);
-      setWaitForDriverOpen(true);
+      console.log("Ride was confirmed by :", data.captain);
+      setIsLookingForCaptains(false); // Close the <LookingForDriver/> component.
+      setRidingDriver(data.captain);
+      setConfirmRidePanel(true);
     };
 
     socket.on("ride-confirmed", handleRideConfirmed);
@@ -700,71 +703,126 @@ const Home = () => {
 
   // Main render
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-50">
+    <div className="h-screen w-full flex flex-col">
       {/* Top Bar with Logout */}
 
-      <div className="absolute top-4 right-20 z-50">
-        <button
-          onClick={toggleDarkMode}
-          className="bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
-          aria-label={
-            isDarkMode ? "Switch to light mode" : "Switch to dark mode"
-          }
-        >
-          {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
-        </button>
-      </div>
+      <div className="w-[20%] z-30 h-[25%] absolute top-4 right-5 flex flex-col justify-evenly items-end lg:flex-row lg:items-start">
+        <div className="top-4 right-4 z-50 w-auto">
+          <button
+            onClick={() => {
+              handleLogout();
+            }}
+            className="bg-black text-white px-4 py-2 rounded-full cursor-pointer text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+          >
+            <FiUser className="text-white" />
+            Logout
+          </button>
+        </div>
 
-      <div className="absolute top-4 right-4 z-50">
-        <button
-          onClick={() => {
-            handleLogout();
-          }}
-          className="bg-black text-white px-4 py-2 rounded-full cursor-pointer text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
-        >
-          <FiUser className="text-white" />
-          Logout
-        </button>
+        <div className="top-4 right-4 md:right-20 z-50">
+          <button
+            onClick={toggleDarkMode}
+            className="cursor-pointer bg-black bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+          >
+            {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Map View */}
-      <div className="flex-1 relative">
-        <LoadScript
-          googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          libraries={mapLibraries}
-        >
-          {pickupCoords && destinationCoords ? (
-            <RouteRenderer
-              origin={pickupCoords}
-              destination={destinationCoords}
-              onRouteCalculated={handleRouteCalculated}
-              isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
-            />
-          ) : (
-            <GoogleMap
-              mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={{ lat: 28.6139, lng: 77.209 }}
-              zoom={14}
-              options={mapOptions}
+      <div className="flex-1 relative w-full lg:grid lg:grid-cols-12 lg:gap-6">
+        {/* Left column (lg+): input triggers */}
+        <div className="lg:block lg:col-span-4 lg:pl-6 lg:pt-6">
+          <div className="sticky top-6">
+            <div className="bg-white shadow-lg rounded-2xl p-6">
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={() => setIsPanelOpen(!isPanelOpen)}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+                >
+                  <div className="flex items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-black mr-3"></div>
+                    </div>
+                    <div className="truncate w-full">
+                      <div className="text-sm text-gray-500">From</div>
+                      <div className="font-medium truncate">
+                        {pickup || "Enter pickup location"}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveField("destination");
+                    setIsPanelOpen(true);
+                  }}
+                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+                >
+                  <div className="flex items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-red-500 mr-3"></div>
+                    </div>
+                    <div className="truncate w-full">
+                      <div className="text-sm text-gray-500">To</div>
+                      <div className="font-medium truncate">
+                        {destination || "Enter destination"}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column (lg+): map occupies >= 8/12 = 66.6% */}
+        <div className="lg:col-span-8 min-h-[65vh] sm:min-h-[70vh]">
+          <div className="h-[65vh] sm:h-[70vh] lg:h-full">
+            <LoadScript
+              googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+              libraries={mapLibraries}
             >
-              {/* Map content */}
-            </GoogleMap>
-          )}
-        </LoadScript>
+              {pickupCoords && destinationCoords ? (
+                <RouteRenderer
+                  origin={pickupCoords}
+                  destination={destinationCoords}
+                  onRouteCalculated={handleRouteCalculated}
+                  isDarkMode={isDarkMode} // Pass the theme to RouteRenderer
+                />
+              ) : (
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
+                  center={{ lat: 28.6139, lng: 77.209 }}
+                  zoom={14}
+                  options={mapOptions}
+                >
+                  {/* Map content */}
+                </GoogleMap>
+              )}
+            </LoadScript>
+          </div>
+        </div>
 
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 bg-white shadow-sm z-10 p-4">
-          <div className="max-w-3xl mx-auto flex items-center">
+        <div className="absolute top-0 left-0 right-0 bg-slate-50 h-[30%] shadow-sm z-10 p-3 sm:p-4 lg:hidden">
+          <div className="max-w-3xl mx-auto flex flex-col lg:flex-row lg:gap-x-6 gap-y-6 items-start">
             <button
               onClick={() => setIsPanelOpen(!isPanelOpen)}
-              className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+              className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%] md:w-[75%]"
             >
               <div className="flex items-center w-full">
                 <div className="flex-shrink-0">
                   <div className="w-4 h-4 rounded-full bg-black mr-3"></div>
                 </div>
-                <div className="truncate">
-                  <div className="text-sm text-gray-500">From</div>
+                <div className="truncate w-full ">
+                  <div className="text-sm text-gray-500 text-ellipsis">
+                    From
+                  </div>
                   <div className="font-medium truncate">
                     {pickup || "Enter pickup location"}
                   </div>
@@ -773,7 +831,7 @@ const Home = () => {
             </button>
 
             <button
-              className="mx-2 p-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
+              className="hidden lg:visible mx-2 p-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
               onClick={() => {
                 // Swap pickup and destination
                 const temp = pickup;
@@ -802,13 +860,13 @@ const Home = () => {
                 setActiveField("destination");
                 setIsPanelOpen(true);
               }}
-              className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow"
+              className="flex-1  border border-gray-200 bg-white rounded-lg px-4 py-3 text-left flex items-center shadow-sm hover:shadow transition-shadow w-[62%] md:w-[75%]"
             >
               <div className="flex items-center w-full">
                 <div className="flex-shrink-0">
                   <div className="w-4 h-4 rounded-full bg-red-500 mr-3"></div>
                 </div>
-                <div className="truncate">
+                <div className="truncate text-ellipsis w-full">
                   <div className="text-sm text-gray-500">To</div>
                   <div className="font-medium truncate">
                     {destination || "Enter destination"}
@@ -825,7 +883,7 @@ const Home = () => {
           className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl overflow-hidden z-20"
           style={{ height: 0 }}
         >
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Where to?</h2>
               <button
@@ -846,7 +904,7 @@ const Home = () => {
                     value={pickup}
                     onChange={handlePickupChange}
                     onFocus={() => setActiveField("pickup")}
-                    className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                    className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400 truncate text-ellipsis"
                     placeholder="Enter pickup location"
                   />
                   {pickup && (
@@ -870,7 +928,7 @@ const Home = () => {
                     value={destination}
                     onChange={handleDestinationChange}
                     onFocus={() => setActiveField("destination")}
-                    className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                    className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400 truncate text-ellipsis"
                     placeholder="Where to?"
                   />
                   {destination && (
@@ -952,42 +1010,48 @@ const Home = () => {
         {/* Vehicle Selection Panel */}
         <div
           ref={vehiclePanelRef}
-          className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
+          className="fixed w-full inset-x-0 bottom-0 z-30 p-4 sm:p-6 transform translate-y-full"
         >
-          <VehiclePanel
-            fare={fare}
-            handleVehicleSelect={handleVehicleSelect}
-            setVehiclePanel={setVehiclePanel}
-            setIsLookingForCaptains={setIsLookingForCaptains}
-            // setIsPanelOpen={setIsPanelOpen}
-          />
+          <div className="bg-white rounded-t-3xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
+            <VehiclePanel
+              fare={fare}
+              handleVehicleSelect={handleVehicleSelect}
+              setVehiclePanel={setVehiclePanel}
+              setIsLookingForCaptains={setIsLookingForCaptains}
+              // setIsPanelOpen={setIsPanelOpen}
+            />
+          </div>
         </div>
 
         {isLookingForCaptains ? (
           <div
             ref={isLookingForCaptainsRef}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-30 p-6 transform translate-y-full"
+            className="fixed inset-x-0 bottom-0 z-30 p-4 sm:p-6 transform translate-y-full"
           >
-            <LookingForDriver
-              rideData={rideData}
-              isLookingForCaptains={isLookingForCaptains}
-            />
+            <div className="bg-white rounded-t-3xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
+              <LookingForDriver isLookingForCaptains={isLookingForCaptains} />
+            </div>
           </div>
         ) : null}
 
         {/* Confirm Ride Panel */}
         <div
           ref={confirmRideRef}
-          className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl z-40 p-6 transform translate-y-full"
+          className="fixed inset-x-0 -bottom-6 z-40 p-4 sm:p-6 transform translate-y-full"
         >
-          <ConfirmRidePopUpPanel
-            pickup={pickup}
-            destination={destination}
-            selectedVehicle={selectedVehicle}
-            fare={fare}
-            onConfirm={confirmRide}
-            onBack={() => setConfirmRidePanel(false)}
-          />
+          <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto bg-white rounded-t-3xl shadow-xl">
+            <ConfirmRidePopUpPanel
+              captainData={ridingDriver}
+              pickup={pickup}
+              destination={destination}
+              selectedVehicle={selectedVehicle}
+              fare={fare}
+              distance={routeInfo.distance}
+              duration={routeInfo.duration}
+              onConfirm={confirmRide}
+              onBack={() => setConfirmRidePanel(false)}
+            />
+          </div>
         </div>
 
         {/* Wait for Driver Panel */}

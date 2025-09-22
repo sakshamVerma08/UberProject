@@ -49,6 +49,8 @@ const CaptainHome = () => {
     duration: null,
   });
 
+  const [userSocketId, setUserSocketId] = useState(null);
+
   const handleRouteCalculated = (data) => {
     setRouteInfo((prev) => ({
       ...prev,
@@ -190,6 +192,7 @@ const CaptainHome = () => {
         icon: "🔔",
       });
       setRide(data);
+      setUserSocketId(data.userSocketId);
       setPickupCoords(data.pickupCoords); // {lat: xyz, lng: xyz}
       setDestinationCoords(data.destinationCoords); // {lat: xyz, lng: xyz}
       setRidePopUpPanel(true);
@@ -210,47 +213,22 @@ const CaptainHome = () => {
   }, [currentLocation, calculateRoute, socket]);
 
   async function rejectRide() {
-    socket.emit("ride-rejected", ride._id);
+    socket.emit("ride-rejected", {});
     toast.success("Ride Rejected successfully");
     setRidePopUpPanel(false);
   }
 
   async function confirmRide() {
-    if (!ride || !ride._id) {
+    if (!ride) {
       console.log("Ride or ride id is missing");
       toast.error("Ride acceptance failed.");
       return;
     }
 
-    if (!captain || !captain._id) {
-      console.log("Captain or captain id is missing");
-      toast.error("Ride acceptance fialed.");
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
-        {
-          rideId: ride._id,
-          captainId: captain._id,
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Ride Accepted by captain\n");
-        socket.emit("ride-confirmed", response.data);
-
-        toast.success(response.data.message);
-      } else if (response.status === 400) {
-        toast.error(response.data.message);
-      }
-    } catch (err) {
-      console.log("Error in Confirming the ride", err);
-      toast.error("Something went wrong. Please try again");
-    }
+    socket.emit("ride-confirmed", {
+      captainId: captain._id,
+      userSocketId,
+    });
 
     setRidePopUpPanel(false);
     // WIP: Add the code here to Start the ride on captain's end
@@ -282,7 +260,7 @@ const CaptainHome = () => {
   // Map container style
   const containerStyle = {
     width: "100%",
-    height: "60vh",
+    height: "100%", // allow wrapper to control height per breakpoint
     position: "relative",
   };
 
@@ -310,79 +288,103 @@ const CaptainHome = () => {
         </div>
       </div>
 
-      <div className="h-3/5 relative">
-        {pickupCoords && destinationCoords ? (
-          <RouteRenderer
-            origin={pickupCoords}
-            destination={destinationCoords}
-            onRouteCalculated={handleRouteCalculated}
-            isDarkMode={isDarkMode}
-          />
-        ) : (
-          <LoadScript
-            googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-            libraries={mapLibraries}
-          >
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={currentLocation || defaultCenter}
-              zoom={15}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: false,
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-                styles: [
-                  {
-                    featureType: "poi",
-                    elementType: "labels",
-                    stylers: [{ visibility: "off" }],
-                  },
-                ],
-              }}
-            >
-              {/* Current location marker */}
-              {currentLocation && (
-                <Marker
-                  position={currentLocation}
-                  icon={{
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    scale: 8,
-                    fillColor: "#4285F4",
-                    fillOpacity: 1,
-                    strokeWeight: 2,
-                    strokeColor: "white",
-                  }}
-                />
-              )}
+      {/* Main content: stack on <lg, grid on lg+ */}
+      <div className="pt-16 lg:pt-20 lg:grid lg:grid-cols-12 lg:gap-6 h-[calc(100vh-4rem)]">
+        {/* Left column (lg+): details card */}
+        <div className="hidden lg:block lg:col-span-4 lg:pl-6 lg:pt-2">
+          <div className="sticky top-6">
+            <div className="bg-white shadow-lg rounded-2xl p-6">
+              <CaptainDetails />
+            </div>
+          </div>
+        </div>
 
-              {/* Pickup location marker */}
-              {ride?.pickupCoords && (
-                <Marker
-                  position={ride.pickupCoords}
-                  icon={{
-                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    scaledSize: new window.google.maps.Size(40, 40),
-                    origin: new window.google.maps.Point(0, 0),
-                    anchor: new window.google.maps.Point(20, 40),
-                  }}
-                />
-              )}
+        {/* Captain details for small screens (<lg) */}
+        <div className="px-4 py-6 lg:hidden">
+          <div className="bg-white shadow-lg rounded-2xl p-6">
+            <CaptainDetails />
+          </div>
+        </div>
 
-              {/* Directions */}
-              {directions && <DirectionsRenderer directions={directions} />}
-            </GoogleMap>
-          </LoadScript>
-        )}
+        {/* Right column (map): full height on lg, fixed vh on small */}
+        <div className="lg:col-span-8 min-h-[65vh] sm:min-h-[70vh]">
+          <div className="h-[65vh] sm:h-[70vh] lg:h-[calc(100vh-6rem)]">
+            {pickupCoords && destinationCoords ? (
+              <LoadScript
+                googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                libraries={mapLibraries}
+              >
+                <RouteRenderer
+                  origin={pickupCoords}
+                  destination={destinationCoords}
+                  onRouteCalculated={handleRouteCalculated}
+                  isDarkMode={isDarkMode}
+                />
+              </LoadScript>
+            ) : (
+              <LoadScript
+                googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                libraries={mapLibraries}
+              >
+                <GoogleMap
+                  mapContainerStyle={containerStyle}
+                  center={currentLocation || defaultCenter}
+                  zoom={15}
+                  onLoad={onLoad}
+                  onUnmount={onUnmount}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: false,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    styles: [
+                      {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }],
+                      },
+                    ],
+                  }}
+                >
+                  {/* Current location marker */}
+                  {currentLocation && (
+                    <Marker
+                      position={currentLocation}
+                      icon={{
+                        path: window.google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: "#4285F4",
+                        fillOpacity: 1,
+                        strokeWeight: 2,
+                        strokeColor: "white",
+                      }}
+                    />
+                  )}
+
+                  {/* Pickup location marker */}
+                  {ride?.pickupCoords && (
+                    <Marker
+                      position={ride.pickupCoords}
+                      icon={{
+                        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                        scaledSize: new window.google.maps.Size(40, 40),
+                        origin: new window.google.maps.Point(0, 0),
+                        anchor: new window.google.maps.Point(20, 40),
+                      }}
+                    />
+                  )}
+
+                  {/* Directions */}
+                  {directions && <DirectionsRenderer directions={directions} />}
+                </GoogleMap>
+              </LoadScript>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="h-2/5 p-6">
-        <CaptainDetails />
-      </div>
-
+      {/* Sub-panels (unchanged) */}
       <div
         ref={ridePopUpPanelRef}
         className="fixed w-full z-10 bottom-0 bg-white px-3 py-10 pt-12 translate-y-full"

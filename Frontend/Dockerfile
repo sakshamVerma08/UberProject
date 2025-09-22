@@ -1,22 +1,22 @@
-#using official node js image version 18
-FROM node:18-alpine
+FROM node:trixie-slim AS build
+
+WORKDIR /UberProject/Frontend/
 
 
-# specifying / app as the working directory
-WORKDIR /app
+COPY package*.json /UberProject/Frontend/
 
-
-# copying the dependency files
-COPY package.json package-lock.json ./
-
-#Installing dependencies
-
+# Install the dependencies and build the application (static assets) (dist folder)
 RUN npm install 
+COPY . /UberProject/Frontend/
+RUN npm run build
 
-COPY . . 
+#Stage2: Server the application with Nginx
 
-# exposing port 4173
-EXPOSE 4173
+FROM nginx:stable-perl
 
+COPY --from=build /UberProject/Frontend/dist /usr/share/nginx/html
 
-CMD ["npm","run","preview"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+

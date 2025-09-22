@@ -1,8 +1,8 @@
 node_modules
 dist
 
-.env.development
-.env.production
+.env*
+socketEventFlow.txt
 
 
 npm-debug.log
