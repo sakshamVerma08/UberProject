@@ -1,21 +1,15 @@
-# Use the official Node.js image as the base image
-FROM node:18
+FROM node:trixie-slim
 
-# Set the working directory inside the container
-WORKDIR /app
+WORKDIR /UberProject/Backend/
 
-# Copy package.json and package-lock.json to the working directory
-COPY package.json package-lock.json ./
+COPY package*.json /UberProject/Backend/
 
-# Install the dependencies
 RUN npm install
 
-# Copy the rest of the application code to the working directory
 COPY . .
 
-# Expose the port that the app runs on
-EXPOSE 4000
+EXPOSE 3000
+
+CMD ["npm","start"]
 
 
-# Start the application
-CMD ["npm", "start"]
